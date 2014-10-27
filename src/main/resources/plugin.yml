@@ -1,0 +1,10 @@
+name: QuakeSolo_Serv
+main: com.Geekpower14.Quake.Quake
+version: 1.0.0
+author: Geekpower14
+website: http://geekpower14.com/
+depend: [PermissionsEx]
+commands:
+   q:
+      description: Quake Command
+      aliases: [quake]
