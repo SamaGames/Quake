@@ -2,6 +2,7 @@ package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
+import com.Geekpower14.quake.stuff.grenade.FragGrenade;
 import com.Geekpower14.quake.utils.SimpleScoreboard;
 import com.Geekpower14.quake.utils.Utils;
 import net.zyuiop.MasterBundle.FastJedis;
@@ -84,23 +85,31 @@ public class APlayer {
 			@Override
 			public void run() {
 				//TODO recherche database
-				String key = "shops:quake:hoes:"+p.getUniqueId().toString()+":current";//REQUEST
-				String data = FastJedis.get(key);
+				final String key_hoe = "shops:quake:hoes:"+p.getUniqueId().toString()+":current";//REQUEST
+				final String key_grenade = "shops:quake:fragrenade:"+p.getUniqueId().toString()+":current";//REQUEST
+
+				//Shooter
+				String data = FastJedis.get(key_hoe);
+				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
+
+				//Grenade
+				data = FastJedis.get(key_grenade);
 				if (data != null) {
-					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
+					String[] dj = data.split("-");
+					if (dj[0].equals("fragrenade")) {
+						final int add = Integer.parseInt(dj[1]);
+						FragGrenade grenade = (FragGrenade) plugin.itemManager.getItemByName("fragrenade");
+						grenade.setNB(1 + add);
+						stuff.put(ItemSLot.Slot2, grenade);
+					}
 				} else {
-					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName("woodenhoe"));
+					FragGrenade grenade = (FragGrenade) plugin.itemManager
+							.getItemByName("fragrenade");
+
+					grenade.setNB(1);
+					stuff.put(ItemSLot.Slot2, grenade);
 				}
-				
-				String name = p.getName();
-				if(name.equalsIgnoreCase("geekpower14")
-						|| name.equalsIgnoreCase("Gaz_")
-                        || name.equalsIgnoreCase("Aurelien_Sama"))
-				{
-                    stuff.put(ItemSLot.Slot2, plugin.itemManager.getItemByName("fragrenade"));
-					String hoe = "potatohoe";
-					stuff.put(ItemSLot.Slot3, plugin.itemManager.getItemByName(hoe));
-				}
+
 			}
 		});		
 	}
