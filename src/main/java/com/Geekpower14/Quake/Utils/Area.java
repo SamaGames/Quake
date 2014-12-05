@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Utils;
+package com.Geekpower14.quake.utils;
 
 import java.util.ArrayList;
 import java.util.List;

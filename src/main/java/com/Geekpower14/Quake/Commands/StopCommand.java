@@ -1,10 +1,10 @@
-package com.Geekpower14.Quake.Commands;
+package com.Geekpower14.quake.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Arena.Arena;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.arena.Arena;
 
 public class StopCommand implements BasicCommand{
 
@@ -20,7 +20,7 @@ public class StopCommand implements BasicCommand{
 
 		if(Quake.hasPermission(player, this.getPermission()))
 		{
-			Arena arena = plugin.am.getArenabyPlayer(player);
+			Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 			if(arena == null)
 			{
 				player.sendMessage(ChatColor.RED + "Vous n'êtes pas dans une arène!");
@@ -44,14 +44,14 @@ public class StopCommand implements BasicCommand{
 	public String help(Player p) {
 		if(Quake.hasPermission(p, this.getPermission()))
 		{
-			return "/q stop [Arena] - Force stop une arene.";
+			return "/q stop [arena] - Force stop une arene.";
 		}
 		return "";
 	}
 
 	@Override
 	public String getPermission() {
-		return "Quake.modo";
+		return "quake.modo";
 	}
 
 }

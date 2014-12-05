@@ -1,15 +1,15 @@
-package com.Geekpower14.Quake;
+package com.Geekpower14.quake;
 
-import com.Geekpower14.Quake.Arena.ArenaManager;
-import com.Geekpower14.Quake.Arena.ConnectionManager;
-import com.Geekpower14.Quake.Arena.TabHolder;
-import com.Geekpower14.Quake.Commands.CommandsManager;
-import com.Geekpower14.Quake.Listener.PlayerListener;
-import com.Geekpower14.Quake.Stuff.ItemManager;
-import com.Geekpower14.Quake.Utils.ParticleEffects;
-import com.Geekpower14.Quake.Utils.ParticleEffects.ReflectionUtilities;
-import com.Geekpower14.Quake.Utils.Reflection;
+import com.Geekpower14.quake.arena.ArenaManager;
+import com.Geekpower14.quake.arena.TabHolder;
+import com.Geekpower14.quake.commands.CommandsManager;
+import com.Geekpower14.quake.listener.PlayerListener;
+import com.Geekpower14.quake.stuff.ItemManager;
+import com.Geekpower14.quake.utils.ParticleEffects;
+import com.Geekpower14.quake.utils.ParticleEffects.ReflectionUtilities;
+import com.Geekpower14.quake.utils.Reflection;
 import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.samagames.gameapi.GameAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
@@ -31,13 +31,11 @@ public class Quake extends JavaPlugin{
 
 	public static Quake plugin;
 
-	public ArenaManager am;
+	public ArenaManager arenaManager;
 
-	public ConnectionManager cm;
+	public CommandsManager commandsManager;
 
-	public CommandsManager cmd;
-
-	public ItemManager im;	
+	public ItemManager itemManager;
 	public int DefaultPort;
 
 	public String BungeeName;
@@ -62,7 +60,7 @@ public class Quake extends JavaPlugin{
 			this.getLogger().log(Level.SEVERE, "StatsApi stopped loading : data.yml not found");
 			this.getPluginLoader().disablePlugin(this);
 			return;
-		}		
+		}
 		Bukkit.getWorld("world").setAutoSave(false);
 
 		this.saveDefaultConfig();
@@ -70,16 +68,17 @@ public class Quake extends JavaPlugin{
 		DefaultPort = getConfig().getInt("port");
 		BungeeName = getConfig().getString("BungeeName");
 
+		GameAPI.registerGame("uppervoid", DefaultPort, BungeeName);
+
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-		am = new ArenaManager(this);
-		cm = new ConnectionManager(this);
+		arenaManager = new ArenaManager(this);
 
-		im = new ItemManager(this);
+		itemManager = new ItemManager(this);
 
-		cmd = new CommandsManager(this);
+		commandsManager = new CommandsManager(this);
 
-		getCommand("q").setExecutor(cmd);
+		getCommand("q").setExecutor(commandsManager);
 
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 		
@@ -90,16 +89,16 @@ public class Quake extends JavaPlugin{
 			}
 		}, 10L, 5L);*/
 
-		log.info("Quake enabled!");
+		GameAPI.getManager().sendArenas();
+		log.info("quake enabled!");
 	}
 	
 	public void onDisable()
 	{
 		//TabTask.cancel();
-		am.disable();
-		cm.disable();
+		arenaManager.disable();
 
-		log.info("Quake disabled!");
+		log.info("quake disabled!");
 	}
 
 	static public void sendTabName(Player p, String s, Boolean visible, int ping)

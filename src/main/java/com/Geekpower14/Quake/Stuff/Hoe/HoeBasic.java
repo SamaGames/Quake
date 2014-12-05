@@ -1,11 +1,11 @@
-package com.Geekpower14.Quake.Stuff.Hoe;
+package com.Geekpower14.quake.stuff.hoe;
 
-import com.Geekpower14.Quake.Arena.APlayer;
-import com.Geekpower14.Quake.Arena.Arena;
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Stuff.TItem;
-import com.Geekpower14.Quake.Utils.ParticleEffects;
-import com.Geekpower14.Quake.Utils.StatsNames;
+import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.arena.Arena;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.stuff.TItem;
+import com.Geekpower14.quake.utils.ParticleEffects;
+import com.Geekpower14.quake.utils.StatsNames;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
@@ -16,7 +16,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public abstract class HoeBasic extends TItem{
 
 	protected void basicShot(final Player player)
 	{
-		final Arena arena = plugin.am.getArenabyPlayer(player);
+		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 
         Location el = player.getEyeLocation();
         Vector to = el.getDirection().normalize().multiply(2);

@@ -1,7 +1,7 @@
-package com.Geekpower14.Quake.Stuff;
+package com.Geekpower14.quake.stuff;
 
-import com.Geekpower14.Quake.Arena.APlayer;
-import com.Geekpower14.Quake.Quake;
+import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.Quake;
 import net.minecraft.server.v1_7_R4.NBTTagCompound;
 import net.minecraft.server.v1_7_R4.NBTTagList;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
@@ -18,7 +18,7 @@ public abstract class TItem implements Cloneable{
 	
 	public String alias = "";
 	
-	public String givePerm = "Quake.admin";
+	public String givePerm = "quake.admin";
 	
 	public long reloadTime;
 	
@@ -145,6 +145,6 @@ public abstract class TItem implements Cloneable{
 	
 	public abstract void leftAction(APlayer p);
 	
-	//public abstract void onItemTouchGround(Arena arena, Item item);
+	//public abstract void onItemTouchGround(arena arena, Item item);
 
 }

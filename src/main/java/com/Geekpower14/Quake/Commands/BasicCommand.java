@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Commands;
+package com.Geekpower14.quake.commands;
 
 import org.bukkit.entity.Player;
 

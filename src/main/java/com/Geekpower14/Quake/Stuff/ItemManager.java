@@ -1,8 +1,8 @@
-package com.Geekpower14.Quake.Stuff;
+package com.Geekpower14.quake.stuff;
 
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Stuff.Grenade.FragGrenade;
-import com.Geekpower14.Quake.Stuff.Hoe.*;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.stuff.grenade.FragGrenade;
+import com.Geekpower14.quake.stuff.hoe.*;
 
 import java.util.ArrayList;
 import java.util.List;

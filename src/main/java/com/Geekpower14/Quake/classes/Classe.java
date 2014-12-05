@@ -1,6 +1,6 @@
-package com.Geekpower14.Quake.classes;
+package com.Geekpower14.quake.classes;
 
-import com.Geekpower14.Quake.Quake;
+import com.Geekpower14.quake.Quake;
 
 
 /**
@@ -14,7 +14,7 @@ public abstract class Classe implements Cloneable{
 
     public String alias = "";
 
-    public String givePerm = "Quake.admin";
+    public String givePerm = "quake.admin";
 
     public Classe(String name, String display)
     {

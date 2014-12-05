@@ -1,11 +1,11 @@
-package com.Geekpower14.Quake.Stuff.Grenade;
+package com.Geekpower14.quake.stuff.grenade;
 
-import com.Geekpower14.Quake.Arena.APlayer;
-import com.Geekpower14.Quake.Arena.Arena;
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Stuff.TItem;
-import com.Geekpower14.Quake.Utils.ParticleEffects;
-import com.Geekpower14.Quake.Utils.StatsNames;
+import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.arena.Arena;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.stuff.TItem;
+import com.Geekpower14.quake.utils.ParticleEffects;
+import com.Geekpower14.quake.utils.StatsNames;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
@@ -37,7 +37,7 @@ public abstract class GrenadeBasic extends TItem {
 
     protected void basicShot(final Player player)
     {
-        final Arena arena = plugin.am.getArenabyPlayer(player);
+        final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 
         if(arena == null)
         {

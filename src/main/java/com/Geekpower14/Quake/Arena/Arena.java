@@ -1,12 +1,14 @@
-package com.Geekpower14.Quake.Arena;
+package com.Geekpower14.quake.arena;
 
-import com.Geekpower14.Quake.Arena.APlayer.Role;
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Task.ScoreHandler;
-import com.Geekpower14.Quake.Utils.FireworkEffectPlayer;
-import com.Geekpower14.Quake.Utils.Spawn;
-import com.Geekpower14.Quake.Utils.StatsNames;
-import com.Geekpower14.Quake.Utils.Utils;
+import com.Geekpower14.quake.arena.APlayer.Role;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.task.ScoreHandler;
+import com.Geekpower14.quake.utils.FireworkEffectPlayer;
+import com.Geekpower14.quake.utils.Spawn;
+import com.Geekpower14.quake.utils.StatsNames;
+import com.Geekpower14.quake.utils.Utils;
+import net.samagames.gameapi.json.Status;
+import net.samagames.gameapi.types.GameArena;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
@@ -31,7 +33,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class Arena {
+public class Arena implements GameArena {
 
 	public Quake plugin;
 
@@ -80,6 +82,7 @@ public class Arena {
 
 	public Arena(Quake pl, String name)
 	{
+		super();
 		plugin = pl;
 
 		this.name = name;
@@ -122,7 +125,7 @@ public class Arena {
 		vipSlots = config.getInt("Slots-VIP");
 		spectateSlots = config.getInt("Slots-Spectator");
 
-		List<PotionEffect> l = new ArrayList<PotionEffect>();		
+		List<PotionEffect> l = new ArrayList<>();
 		for(String popo : config.getStringList("Potions"))
 		{
 			l.add(Utils.StrToPo(popo));
@@ -219,7 +222,7 @@ public class Arena {
 	public String requestJoin(final VPlayer p)
 	{
 
-		if(plugin.am.getArenabyPlayer(p.getName()) != null)
+		if(plugin.arenaManager.getArenabyPlayer(p.getName()) != null)
 		{
 			return ChatColor.RED + "Vous êtes en jeux.";
 		}
@@ -238,8 +241,8 @@ public class Arena {
             return ChatColor.RED + "Jeu en cours.";
         }
 
-		boolean isVIP = p.hasPermission("Quake.vip");
-		boolean isAdmin = p.hasPermission("Quake.yt");
+		boolean isVIP = p.hasPermission("quake.vip");
+		boolean isAdmin = p.hasPermission("quake.yt");
 
 		if(players.size() >= maxPlayer && !isVIP)
 		{
@@ -313,7 +316,7 @@ public class Arena {
 			e.printStackTrace();
 		}*/
 		
-		//ap.setTab(5, 10, "Quake", 0);
+		//ap.setTab(5, 10, "quake", 0);
 		
 		//ap.updatePlayer();
 
@@ -417,7 +420,7 @@ public class Arena {
 		//score.setDisplaySlot(DisplaySlot.SIDEBAR);
 		 
 		//Setting the display name of the scoreboard/objective
-		//score.setDisplayName(""+ChatColor.RED + ChatColor.BOLD + "Quake");
+		//score.setDisplayName(""+ChatColor.RED + ChatColor.BOLD + "quake");
 
 		for(APlayer ap : players)
 		{
@@ -923,7 +926,7 @@ public class Arena {
 
 	public void broadcast(Player p, String message)
 	{
-		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "Quake" + ChatColor.DARK_AQUA + "] "+ ChatColor.ITALIC + message);	
+		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "quake" + ChatColor.DARK_AQUA + "] "+ ChatColor.ITALIC + message);
 	}
 
 	public void chat(String message)
@@ -1093,6 +1096,11 @@ public class Arena {
 		return uuid;
 	}
 
+	public boolean hasPlayer(UUID uuid)
+	{
+		return hasPlayer(Bukkit.getPlayer(uuid));
+	}
+
 	public boolean hasPlayer(Player p)
 	{
 		return hasPlayer(p.getName());
@@ -1126,9 +1134,34 @@ public class Arena {
 		return minPlayer;
 	}
 
+	@Override
+	public int countGamePlayers() {
+		return this.getActualPlayers();
+	}
+
 	public int getMaxPlayers()
 	{
 		return maxPlayer;
+	}
+
+	@Override
+	public int getTotalMaxPlayers() {
+		return this.getMaxPlayers();
+	}
+
+	@Override
+	public int getVIPSlots() {
+		return this.vipSlots;
+	}
+
+	@Override
+	public Status getStatus() {
+		return eta;
+	}
+
+	@Override
+	public void setStatus(Status status) {
+		this.eta = status;
 	}
 
 	public int getActualPlayers()
@@ -1165,6 +1198,14 @@ public class Arena {
 	public String getMapName()
 	{
 		return Map_name;
+	}
+
+	public boolean isFamous() {
+		return false;
+	}
+
+	public int countPlayersIngame() {
+		return this.getActualPlayers();
 	}
 
 	public int getTimeBefore()
@@ -1287,55 +1328,6 @@ public class Arena {
 				abord();
 			}
 			time--;
-		}
-
-	}
-
-	public enum Status {
-
-		Available("available", 80),
-		Idle("idle", 70),
-		Starting("starting", 30),
-		Stopping("stopping", 20),
-		InGame("ingame", 10);
-
-		private String info;
-		private int value;
-
-		private Status(String info, int value)
-		{
-			this.info = info;
-			this.value = value;
-		}
-
-		public String getString()
-		{
-			return info;
-		}
-
-		public int getValue()
-		{
-			return value;
-		}
-
-		public boolean isLobby()
-		{
-			if(value == Status.Available.getValue() 
-					|| value == Status.Starting.getValue())
-			{
-				return true;
-			}
-
-			return false;
-		}
-		public boolean isIG()
-		{
-			if(value == Status.InGame.getValue() 
-					|| value == Status.Stopping.getValue())
-			{
-				return true;
-			}
-			return false;
 		}
 
 	}

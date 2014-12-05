@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Utils;
+package com.Geekpower14.quake.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

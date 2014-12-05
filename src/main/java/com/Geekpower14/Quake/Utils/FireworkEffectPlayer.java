@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Utils;
+package com.Geekpower14.quake.utils;
 
 import java.lang.reflect.Method;
 
@@ -25,7 +25,7 @@ public class FireworkEffectPlayer {
     /*
      * Example use:
      * 
-     * public class FireWorkPlugin implements Listener {
+     * public class FireWorkPlugin implements listener {
      * 
      * FireworkEffectPlayer fplayer = new FireworkEffectPlayer();
      * 

@@ -1,9 +1,9 @@
-package com.Geekpower14.Quake.Commands;
+package com.Geekpower14.quake.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.Quake.Quake;
+import com.Geekpower14.quake.Quake;
 
 public class CreateCommand implements BasicCommand{
 	
@@ -24,14 +24,14 @@ public class CreateCommand implements BasicCommand{
 					player.sendMessage(ChatColor.RED + "Veuillez écrire un nom pour l'arène !");
 					return true;
 				}
-					if(plugin.am.exist(args[0]))
+					if(plugin.arenaManager.exist(args[0]))
 					{
-						player.sendMessage(ChatColor.RED + "Arena " + args[0] + " existe déjà !");
+						player.sendMessage(ChatColor.RED + "arena " + args[0] + " existe déjà !");
 						return true;
 					}
 					
-					plugin.am.addArena(args[0]);
-					player.sendMessage(ChatColor.YELLOW + "Arena " + args[0] + " créée avec succés");
+					plugin.arenaManager.addArena(args[0]);
+					player.sendMessage(ChatColor.YELLOW + "arena " + args[0] + " créée avec succés");
 			}else
 			{
 				player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission.");
@@ -44,14 +44,14 @@ public class CreateCommand implements BasicCommand{
 	public String help(Player p) {
 		if(Quake.hasPermission(p, this.getPermission()))
 		{
-			return "/q create [Arena name] - Create an arena.";
+			return "/q create [arena name] - Create an arena.";
 		}
 		return "";
 	}
 
 	@Override
 	public String getPermission() {
-		return "Quake.edit";
+		return "quake.edit";
 	}
 
 }

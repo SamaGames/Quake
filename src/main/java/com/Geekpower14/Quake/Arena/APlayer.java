@@ -1,9 +1,9 @@
-package com.Geekpower14.Quake.Arena;
+package com.Geekpower14.quake.arena;
 
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Stuff.TItem;
-import com.Geekpower14.Quake.Utils.SimpleScoreboard;
-import com.Geekpower14.Quake.Utils.Utils;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.stuff.TItem;
+import com.Geekpower14.quake.utils.SimpleScoreboard;
+import com.Geekpower14.quake.utils.Utils;
 import net.zyuiop.MasterBundle.FastJedis;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -55,7 +55,7 @@ public class APlayer {
 		this.arena = arena;
 		this.p = p;
 
-		if(Utils.hasPermission(p, "Quake.vip"))
+		if(Utils.hasPermission(p, "quake.vip"))
 		{
 			vip = true;
 		}
@@ -69,7 +69,7 @@ public class APlayer {
 		//}
 		board = Bukkit.getScoreboardManager().getNewScoreboard();
 		
-		sboard = new SimpleScoreboard(board, "" + ChatColor.RED + ChatColor.BOLD + "Quake", p.getName());
+		sboard = new SimpleScoreboard(board, "" + ChatColor.RED + ChatColor.BOLD + "quake", p.getName());
 		//updateScoreboard();
 		//setScoreboard();
 
@@ -87,9 +87,9 @@ public class APlayer {
 				String key = "shops:quake:hoes:"+p.getUniqueId().toString()+":current";//REQUEST
 				String data = FastJedis.get(key);
 				if (data != null) {
-					stuff.put(ItemSLot.Slot1, plugin.im.getItemByName(data));
+					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
 				} else {
-					stuff.put(ItemSLot.Slot1, plugin.im.getItemByName("woodenhoe"));
+					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName("woodenhoe"));
 				}
 				
 				String name = p.getName();
@@ -97,9 +97,9 @@ public class APlayer {
 						|| name.equalsIgnoreCase("Gaz_")
                         || name.equalsIgnoreCase("Aurelien_Sama"))
 				{
-                    stuff.put(ItemSLot.Slot2, plugin.im.getItemByName("fragrenade"));
+                    stuff.put(ItemSLot.Slot2, plugin.itemManager.getItemByName("fragrenade"));
 					String hoe = "potatohoe";
-					stuff.put(ItemSLot.Slot3, plugin.im.getItemByName(hoe));
+					stuff.put(ItemSLot.Slot3, plugin.itemManager.getItemByName(hoe));
 				}
 			}
 		});		

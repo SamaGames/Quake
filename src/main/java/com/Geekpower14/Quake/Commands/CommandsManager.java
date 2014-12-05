@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Commands;
+package com.Geekpower14.quake.commands;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.Quake.Quake;
+import com.Geekpower14.quake.Quake;
 
 public class CommandsManager implements CommandExecutor{
 	

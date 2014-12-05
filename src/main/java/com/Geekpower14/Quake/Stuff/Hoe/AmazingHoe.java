@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Stuff.Hoe;
+package com.Geekpower14.quake.stuff.hoe;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -6,7 +6,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import com.Geekpower14.Quake.Arena.APlayer;
+import com.Geekpower14.quake.arena.APlayer;
 
 public class AmazingHoe extends HoeBasic{
 

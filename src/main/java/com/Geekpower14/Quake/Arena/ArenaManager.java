@@ -1,14 +1,16 @@
-package com.Geekpower14.Quake.Arena;
+package com.Geekpower14.quake.arena;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import net.samagames.gameapi.GameAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.Quake.Quake;
+import com.Geekpower14.quake.Quake;
 
 public class ArenaManager {
 	
@@ -47,30 +49,29 @@ public class ArenaManager {
         }
         if(zl == 0 || Maps.get(0) == null)
         {
-        	plugin.log.info(ChatColor.RED + "No Arena found in folder ");
+        	plugin.log.info(ChatColor.RED + "No arena found in folder ");
             return;
         }
         
         plugin.log.info(Maps.size() + " SIZE");
         for(String mapname : Maps)
         {
-        	plugin.log.info(ChatColor.GREEN + "Arena " + mapname);
+        	plugin.log.info(ChatColor.GREEN + "arena " + mapname);
         	
         	addArena(mapname);
         }
         
 	}
-	
-	public void addArena(String name)
-	{
-		if(name == null)
-		{
+
+	public void addArena(String name) {
+		if (name == null) {
 			return;
 		}
-		
+
 		Arena arena = new Arena(plugin, name);
-		
-		ARENAS.add(arena);	
+
+		GameAPI.registerArena(arena);
+		ARENAS.add(arena);
 	}
 	
 	public void removeArena(String name)
@@ -162,6 +163,18 @@ public class ArenaManager {
 			}
 		}
 		
+		return null;
+	}
+
+	public Arena getArenaByUUID(UUID uuid)
+	{
+		for(Arena arena : ARENAS)
+		{
+			if(arena.getUUID().equals(uuid))
+			{
+				return arena;
+			}
+		}
 		return null;
 	}
 	

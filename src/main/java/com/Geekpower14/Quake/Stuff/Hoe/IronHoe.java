@@ -1,6 +1,6 @@
-package com.Geekpower14.Quake.Stuff.Hoe;
+package com.Geekpower14.quake.stuff.hoe;
 
-import com.Geekpower14.Quake.Arena.APlayer;
+import com.Geekpower14.quake.arena.APlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;

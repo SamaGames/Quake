@@ -1,4 +1,4 @@
-package com.Geekpower14.Quake.Arena;
+package com.Geekpower14.quake.arena;
 
 import java.util.UUID;
 

@@ -1,10 +1,10 @@
-package com.Geekpower14.Quake.Commands;
+package com.Geekpower14.quake.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Arena.Arena;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.arena.Arena;
 
 public class SetMapCommand implements BasicCommand{
 	
@@ -21,9 +21,9 @@ public class SetMapCommand implements BasicCommand{
 		if(Quake.hasPermission(player, this.getPermission()))
 		{
 			Arena arena = null;
-			if(plugin.am.exist(args[0]))
+			if(plugin.arenaManager.exist(args[0]))
 			{
-				arena = plugin.am.getArena(args[0]);
+				arena = plugin.arenaManager.getArena(args[0]);
 			}
 			if(arena == null)
 			{
@@ -54,14 +54,14 @@ public class SetMapCommand implements BasicCommand{
 	public String help(Player p) {
 		if(Quake.hasPermission(p, this.getPermission()))
 		{
-			return "/q setmap [Arena] [Name] - Set display name in the lobby.";
+			return "/q setmap [arena] [Name] - Set display name in the lobby.";
 		}
 		return "";
 	}
 
 	@Override
 	public String getPermission() {
-		return "Quake.edit";
+		return "quake.edit";
 	}
 
 }

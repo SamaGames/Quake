@@ -1,5 +1,7 @@
-package com.Geekpower14.Quake.Listener;
+package com.Geekpower14.quake.listener;
 
+import net.samagames.gameapi.events.FinishJoinPlayerEvent;
+import net.samagames.gameapi.json.Status;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -28,12 +30,11 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.Geekpower14.Quake.Quake;
-import com.Geekpower14.Quake.Arena.APlayer;
-import com.Geekpower14.Quake.Arena.APlayer.Role;
-import com.Geekpower14.Quake.Arena.Arena;
-import com.Geekpower14.Quake.Arena.Arena.Status;
-import com.Geekpower14.Quake.Stuff.TItem;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.arena.APlayer.Role;
+import com.Geekpower14.quake.arena.Arena;
+import com.Geekpower14.quake.stuff.TItem;
 
 public class PlayerListener implements Listener{
 
@@ -47,13 +48,23 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerLogin(PlayerJoinEvent event)
 	{
-		Player p = event.getPlayer();
-		if(!plugin.cm.onPlayerConnect(p))
-		{
-			p.kickPlayer("TODO: écrire erreur.");
-		}
-
 		event.setJoinMessage("");
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onFinishJoinPlayer(FinishJoinPlayerEvent event) {
+		if(!event.isCancelled())
+		{
+			Player p = Bukkit.getPlayer(event.getPlayer());
+			Arena arena = plugin.arenaManager.getArenaByUUID(event.getTargetArena().getUUID());
+
+			if (arena == null)
+			{
+				event.refuse("arène invalide !");
+			}
+
+			arena.joinArena(p);
+		}
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -63,7 +74,7 @@ public class PlayerListener implements Listener{
 
 		event.setQuitMessage("");
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 		if(arena == null)
 			return;
 
@@ -77,7 +88,7 @@ public class PlayerListener implements Listener{
 
 		event.setLeaveMessage("");
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 		if(arena == null)
 			return;
 		
@@ -88,7 +99,7 @@ public class PlayerListener implements Listener{
 	public void onPlayerChat(AsyncPlayerChatEvent event)
 	{
 		Player player = event.getPlayer();
-		final Arena arena = plugin.am.getArenabyPlayer(player);
+		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 
 		if(arena == null)
 		{
@@ -110,7 +121,7 @@ public class PlayerListener implements Listener{
 
 		ItemStack hand = player.getItemInHand();
 
-		final Arena arena = plugin.am.getArenabyPlayer(player);
+		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 
 		if(arena == null)
 		{
@@ -153,7 +164,7 @@ public class PlayerListener implements Listener{
 	{
 		Player p = event.getPlayer();
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
 		if(arena == null)
 			return;
@@ -184,7 +195,7 @@ public class PlayerListener implements Listener{
 	{
 		Player p = event.getPlayer();
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
 		if(arena == null)
 			return;
@@ -220,7 +231,7 @@ public class PlayerListener implements Listener{
 	{
 		Player p = event.getPlayer();
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
 		if(arena == null)
 			return;
@@ -235,7 +246,7 @@ public class PlayerListener implements Listener{
 	{
 		Player p = event.getPlayer();
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
 		if(arena == null)
 			return;
@@ -265,7 +276,7 @@ public class PlayerListener implements Listener{
 
 		Player p = (Player)event.getEntity();
 
-		Arena arena = plugin.am.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
 		if(arena == null)
 			return;
@@ -280,7 +291,7 @@ public class PlayerListener implements Listener{
 	{
 		final Player player = event.getEntity();
 
-		final Arena arena = plugin.am.getArenabyPlayer(event.getEntity());
+		final Arena arena = plugin.arenaManager.getArenabyPlayer(event.getEntity());
 		if(arena == null)
 		{
 			return;
@@ -325,7 +336,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		final Arena arena = plugin.am.getArenabyPlayer(event.getPlayer());
+		final Arena arena = plugin.arenaManager.getArenabyPlayer(event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -355,7 +366,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerClickInventory(InventoryClickEvent event)
 	{
-		Arena arena = plugin.am.getArenabyPlayer((Player) event.getWhoClicked());
+		Arena arena = plugin.arenaManager.getArenabyPlayer((Player) event.getWhoClicked());
 		if(arena == null)
 		{
 			return;
@@ -367,7 +378,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerOpenInventory(InventoryOpenEvent event)
 	{
-		Arena arena = plugin.am.getArenabyPlayer((Player)event.getPlayer());
+		Arena arena = plugin.arenaManager.getArenabyPlayer((Player)event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -379,7 +390,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerDrop(PlayerDropItemEvent event)
 	{
-		Arena arena = plugin.am.getArenabyPlayer(event.getPlayer());
+		Arena arena = plugin.arenaManager.getArenabyPlayer(event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -390,7 +401,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerPickup(PlayerPickupItemEvent event)
 	{
-		Arena arena = plugin.am.getArenabyPlayer(event.getPlayer());
+		Arena arena = plugin.arenaManager.getArenabyPlayer(event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -405,7 +416,7 @@ public class PlayerListener implements Listener{
 		{
 			event.setCancelled(true);
 			event.setFoodLevel(20);
-			/*Arena arena = plugin.am.getArenabyPlayer((Player)event.getEntity());
+			/*arena arena = plugin.arenaManager.getArenabyPlayer((Player)event.getEntity());
 			if(arena == null)
 			{
 				return;
@@ -420,7 +431,7 @@ public class PlayerListener implements Listener{
 	{
 		World w = event.getWorld();
 
-		if(plugin.am.isArenaWorld(w))
+		if(plugin.arenaManager.isArenaWorld(w))
 		{
 			if(event.toWeatherState())
 			{
