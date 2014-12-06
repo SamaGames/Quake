@@ -7,8 +7,11 @@ import com.Geekpower14.quake.utils.FireworkEffectPlayer;
 import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
+import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
+import net.samagames.permissionsbukkit.PermissionsBukkit;
+import net.zyuiop.MasterBundle.MasterBundle;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
@@ -66,8 +69,6 @@ public class Arena implements GameArena {
 	public Status eta = Status.Idle;
 
 	public List<APlayer> players = new ArrayList<APlayer>();
-
-	public List<UUID> waitPlayers = new ArrayList<UUID>();
 
 	private Starter CountDown = null;
 
@@ -219,65 +220,9 @@ public class Arena implements GameArena {
 
 	/*** Mouvement des joueurs ***/
 
-	public String requestJoin(final VPlayer p)
-	{
-
-		if(plugin.arenaManager.getArenabyPlayer(p.getName()) != null)
-		{
-			return ChatColor.RED + "Vous êtes en jeux.";
-		}
-
-		if(spawn == null)
-		{
-			return ChatColor.RED + "Il n'y a pas de spawn.";
-		}
-
-		if(eta.isIG())
-		{
-			return ChatColor.RED + "Jeu en cours.";
-		}
-
-        if (CountDown != null && CountDown.time <= 2) {
-            return ChatColor.RED + "Jeu en cours.";
-        }
-
-		boolean isVIP = p.hasPermission("quake.vip");
-		boolean isAdmin = p.hasPermission("quake.yt");
-
-		if(players.size() >= maxPlayer && !isVIP)
-		{
-			return ChatColor.RED + "Cette arène est au complet.";
-		}
-
-		if(players.size() >= maxPlayer + vipSlots && !isAdmin)
-		{
-			return ChatColor.RED + "Cette arène est au complet.";
-		}
-
-		waitPlayers.add(p.getUUID());
-
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-
-			@Override
-			public void run() {
-				waitPlayers.remove(p.getUUID());				
-			}
-
-		}, 80L);
-
-		return "good";		
-	}
-
 	@SuppressWarnings("deprecation")
 	public void joinArena(Player p)
 	{
-		if(!waitPlayers.contains(p.getUniqueId()))
-		{
-			p.kickPlayer(ChatColor.RED + "Erreur vous n'avez pas le droit de rejoindre.");
-			return;
-		}
-
-		waitPlayers.remove(p.getUniqueId());
 
 		joinHider(p);
 		p.setFlying(false);
@@ -287,48 +232,22 @@ public class Arena implements GameArena {
 
 		p.teleport(getSpawn(p));
 
-		/*for(APlayer app : players)
-		{
-			try {
-				plugin.addPacket(app.getP(), p.getPlayerListName(), false, 100);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
-
 		APlayer ap = new APlayer(plugin, this, p);
 		players.add(ap);
-		
-		/*for(APlayer app : players)
-		{
-			try {
-				plugin.addPacket(p, app.getP().getPlayerListName(), false, 100);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
-		/*try {
-			plugin.addPacket(p, p.getPlayerListName(), false, 100);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		//ap.setTab(5, 10, "quake", 0);
-		
-		//ap.updatePlayer();
 
-		this.broadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène " 
-				+ ChatColor.DARK_GRAY 
-				+ "[" + ChatColor.RED 
-				+ players.size() 
-				+ ChatColor.DARK_GRAY 
-				+ "/" + ChatColor.RED 
-				+ maxPlayer 
-				+ ChatColor.DARK_GRAY 
-				+ "]");
+		refresh();
+
+		this.broadcast(ChatColor.YELLOW
+						+ ap.getName()
+						+ " a rejoint l'arène "
+						+ ChatColor.DARK_GRAY
+						+ "[" + ChatColor.RED
+						+ players.size()
+						+ ChatColor.DARK_GRAY
+						+ "/" + ChatColor.RED
+						+ maxPlayer
+						+ ChatColor.DARK_GRAY
+						+ "]");
 
 		if(players.size() >= minPlayer && eta == Status.Available)
 		{
@@ -358,13 +277,11 @@ public class Arena implements GameArena {
 
 		p.setAllowFlight(false);
 
-		//p.setScoreboard(lol);
-
 		players.remove(ap);
 
-		//kickPlayer(p);
+		refresh();
 
-		//orderList();
+		//kickPlayer(p);
 
 		if(getActualPlayers() <= 1 && eta == Status.InGame)
 		{
@@ -394,11 +311,6 @@ public class Arena implements GameArena {
 
 		return;
 	}
-	
-	public void clearTab(Player p)
-	{
-		
-	}
 
 	/*
 	 * Gestion de l'arène.
@@ -407,6 +319,8 @@ public class Arena implements GameArena {
 	public void start()
 	{
 		eta = Status.InGame;
+
+		refresh();
 
         sh = new ScoreHandler(plugin, this);
 		
@@ -445,7 +359,6 @@ public class Arena implements GameArena {
 	public void stop()
 	{
 		eta = Status.Stopping;
-
 		/*
 		 * TO/DO: Stopper l'arène.
 		 */
@@ -465,12 +378,20 @@ public class Arena implements GameArena {
 		{
 			kickPlayer(p);
 		}
+		refresh();
 
-		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-			public void run() {
-				reset();				
-			}
-		}, 20 * 4L);
+		if (plugin.isEnabled()) {
+			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+				@Override
+				public void run() {
+					Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
+					Bukkit.getLogger().info("server will reboot now");
+					Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
+					Bukkit.getServer().shutdown();
+
+				}
+			}, 5 * 20L);
+		}
 
 	}
 
@@ -493,8 +414,6 @@ public class Arena implements GameArena {
 		{
 			s.setUses(0);
 		}
-
-		waitPlayers.clear();
 		
 		List<Player> tokick = new ArrayList<Player>();
 		for(int i = players.size()-1; i >= 0; i--)
@@ -512,6 +431,11 @@ public class Arena implements GameArena {
 		players.clear();
 
 		eta = Status.Available;
+	}
+
+	public void refresh()
+	{
+		GameAPI.getManager().sendArena();
 	}
 
 	public void disable()
@@ -555,6 +479,8 @@ public class Arena implements GameArena {
 	{
 		eta = Status.Stopping;
 
+		refresh();
+
 		if(p != null)
 		{
 			APlayer ap = getAplayer(p);
@@ -567,7 +493,7 @@ public class Arena implements GameArena {
 			this.nbroadcast(ChatColor.AQUA + "#"+ ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
 
 			try{
-				int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 20, true, true);
+				int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 20, true, true, "Victoire !");
 				ap.setCoins(ap.getCoins() + up);
 			}catch(Exception e)
 			{
@@ -696,7 +622,14 @@ public class Arena implements GameArena {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    broadcast(ChatColor.RED + shooter.getDisplayName() + ChatColor.YELLOW + " a touché " + victim.getDisplayName());
+
+                    broadcast(ChatColor.RED
+							+ PermissionsBukkit.getPrefix(MasterBundle.api.getUser(shooter.getUniqueId()))
+							+ shooter.getName()
+							+ ChatColor.YELLOW
+							+ " a touché "
+							+ PermissionsBukkit.getPrefix(MasterBundle.api.getUser(victim.getUniqueId()))
+							+ victim.getName());
                 }
             });
 			
@@ -723,37 +656,6 @@ public class Arena implements GameArena {
 			
 			return true;
 		}
-		return false;
-	}
-
-	@SuppressWarnings("unused")
-	private Player getWin(Player p)
-	{
-		for(APlayer ap : players)
-		{
-			if(ap.getRole() == Role.Spectator)
-				continue;
-
-			if(!ap.getName().equals(p.getName()))
-			{
-				return ap.getP();
-			}
-		}
-		return null;
-	}
-
-	public boolean isWaiting(Player p)
-	{
-		return isWaiting(p.getUniqueId());
-	}
-
-	public boolean isWaiting(UUID uuid)
-	{
-		if(waitPlayers.contains(uuid))
-		{
-			return true;
-		}
-
 		return false;
 	}
 
@@ -926,7 +828,7 @@ public class Arena implements GameArena {
 
 	public void broadcast(Player p, String message)
 	{
-		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "quake" + ChatColor.DARK_AQUA + "] "+ ChatColor.ITALIC + message);
+		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "Quake" + ChatColor.DARK_AQUA + "] "+ ChatColor.ITALIC + message);
 	}
 
 	public void chat(String message)

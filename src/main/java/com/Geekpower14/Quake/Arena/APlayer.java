@@ -70,7 +70,7 @@ public class APlayer {
 		//}
 		board = Bukkit.getScoreboardManager().getNewScoreboard();
 		
-		sboard = new SimpleScoreboard(board, "" + ChatColor.RED + ChatColor.BOLD + "quake", p.getName());
+		sboard = new SimpleScoreboard(board, "" + ChatColor.RED + ChatColor.BOLD + "Quake", p.getName());
 		//updateScoreboard();
 		//setScoreboard();
 
@@ -134,6 +134,18 @@ public class APlayer {
 				return stuff.get(is);
 		}
 		
+		return null;
+	}
+
+	public ItemSLot getSlot()
+	{
+		int i = p.getInventory().getHeldItemSlot();
+		for(ItemSLot is : ItemSLot.values())
+		{
+			if(i == is.getSlot())
+				return is;
+		}
+
 		return null;
 	}
 

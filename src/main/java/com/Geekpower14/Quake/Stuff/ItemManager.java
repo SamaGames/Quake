@@ -23,6 +23,7 @@ public class ItemManager {
 		stuff.add(new GoldHoe());
 		stuff.add(new DiamondHoe());
 		stuff.add(new AmazingHoe());
+		stuff.add(new BlasterHoe());
 		stuff.add(new PotatoHoe());
 
 		stuff.add(new FragGrenade());
