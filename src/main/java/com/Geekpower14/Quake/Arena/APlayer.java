@@ -9,7 +9,6 @@ import net.zyuiop.MasterBundle.FastJedis;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
-import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPipeline;
@@ -47,8 +46,6 @@ public class APlayer {
 	private int coins = 0;
 
 	private int score = 0;
-	
-	public TabHolder tabh = new TabHolder();
 
 	private long lastChangeBlock = System.currentTimeMillis();
 
@@ -245,11 +242,6 @@ public class APlayer {
 		return;
 	}
 
-	public void setReloading(Boolean t)
-	{
-		this.Reloading = t;
-	}
-
 	public void setinvincible(Boolean t)
 	{
 		this.Invincible = t;
@@ -258,6 +250,11 @@ public class APlayer {
 	public boolean isReloading()
 	{
 		return this.Reloading;
+	}
+
+	public void setReloading(Boolean t)
+	{
+		this.Reloading = t;
 	}
 
 	public boolean isInvincible()
@@ -468,28 +465,6 @@ public class APlayer {
 			return b22;
 		}
 		return locationUnderPlayer;
-	}
-	
-	/**
-	 * Clear a players tab menu
-	 *
-	 */
-	public void clearTab(){
-		plugin.clearTab(p, tabh);
-	}
-	
-	public void updatePlayer(){
-		plugin.updatePlayer(p, tabh);
-	}
-	
-	public void setTab(int x, int y, String msg, int ping) {
-
-		TabHolder t = tabh;
-
-		t.tabs[y][x] = msg;
-		t.tabPings[y][x] = ping;
-		t.maxh = 3;
-		t.maxv = Math.max(x+1, t.maxv);
 	}
 
 	/*public boolean isOnSameBlock()

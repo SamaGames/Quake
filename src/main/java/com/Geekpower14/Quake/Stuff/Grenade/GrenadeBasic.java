@@ -1,8 +1,8 @@
 package com.Geekpower14.quake.stuff.grenade;
 
+import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.Arena;
-import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffects;
 import com.Geekpower14.quake.utils.StatsNames;
@@ -30,12 +30,14 @@ public abstract class GrenadeBasic extends TItem {
 
     public double timeBeforeExplode = 1;
 
+    public int currentNumber = 0;
+
     public GrenadeBasic(String name, String display, Long reload, FireworkEffect e) {
         super(name, display, 1, reload);
         effect = e;
     }
 
-    protected void basicShot(final Player player)
+    protected void basicShot(final Player player, APlayer.ItemSLot slot)
     {
         final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 
@@ -46,11 +48,16 @@ public abstract class GrenadeBasic extends TItem {
 
         final APlayer ap = arena.getAplayer(player);
 
-        /*if (ap.isReloading())
+        ItemStack gStack = player.getInventory().getItem(slot.getSlot());
+
+        if(gStack == null || gStack.getAmount() <= 0)
         {
             return;
-        }*/
-        //ap.setReloading(true);
+        }
+
+        gStack.setAmount(gStack.getAmount()-1);
+        player.getInventory().setItem(slot.getSlot(), gStack);
+        player.updateInventory();
 
         player.getWorld().playSound(player.getLocation(), Sound.STEP_SNOW, 3F, 2.0F);
 
@@ -82,7 +89,11 @@ public abstract class GrenadeBasic extends TItem {
                     if(item != null && item.isOnGround())
                     {
                         try {
-                            ParticleEffects.FIREWORKS_SPARK.sendToPlayer(player, item.getLocation(), 1F, 2F, 1F, 0.00005F, 5);
+                            if(player.getLocation().getWorld() == item.getLocation().getWorld()
+                                    && player.getLocation().distance(item.getLocation()) < 50)
+                            {
+                                ParticleEffects.FIREWORKS_SPARK.sendToPlayer(player, item.getLocation(), 1F, 2F, 1F, 0.00005F, 2);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -160,6 +171,31 @@ public abstract class GrenadeBasic extends TItem {
             });
             arena.updateScore();
         }
+    }
+
+    @Override
+    public void setNB(int nb)
+    {
+        this.currentNumber = nb;
+        this.nb = nb;
+    }
+
+    public int getCurrentNumber()
+    {
+        return currentNumber;
+    }
+
+    public void setCurrentNumber(int nb)
+    {
+        currentNumber = nb;
+    }
+
+    public void leftAction(APlayer p, APlayer.ItemSLot slot) {
+        return;
+    }
+
+    public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
+        basicShot(ap.getP(), slot);
     }
 
     @Override

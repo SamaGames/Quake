@@ -1,8 +1,8 @@
 package com.Geekpower14.quake.stuff.hoe;
 
+import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.Arena;
-import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffects;
 import com.Geekpower14.quake.utils.StatsNames;
@@ -104,7 +104,7 @@ public abstract class HoeBasic extends TItem{
                     {
                         public void run() {
                             try{
-                                int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), tt*1, true, true);
+                                int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), tt*1, true, true, "Kills");
                                 ap.setCoins(ap.getCoins() + up);
                                 StatsApi.increaseStat(ap.getP().getUniqueId(), StatsNames.GAME_NAME, StatsNames.KILL, tt);
                             }catch(Exception e)
@@ -129,6 +129,38 @@ public abstract class HoeBasic extends TItem{
 		return;
 	}
 
+	public void displayLine(Location loc_, Vector direction)
+	{
+		Location loc = loc_.clone();
+		Arena arena = plugin.arenaManager.getArena();
+		Vector progress = direction.clone().multiply(0.90);
+
+		for(int i = 0;i < 200;i++)
+		{
+			loc.add(progress);
+			if (!loc.getBlock().getType().isTransparent()) break;
+
+			for(Player apa : arena.getPlayers())
+			{
+				try {
+					if(apa.getLocation().getWorld() == loc.getWorld()
+							&& apa.getLocation().distance(loc) < 50)
+					{
+						//ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, 0.05F, 2);
+						//ParticleEffects.MOB_SPELL_AMBIENT.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, RandomUtils.nextFloat(), 2);
+						ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.01F, 0.01F, 0.01F, 0.00005F, 1);
+						if (i % 10 == 0) {
+							apa.getWorld().playSound(apa.getLocation(), Sound.FIREWORK_LAUNCH, 0.042F, 0.01F);
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
 	/**
 	 * Retourne le premier joueur en ligne de mire
 	 * @param player le shooter
@@ -141,7 +173,7 @@ public abstract class HoeBasic extends TItem{
 		List<Player> target = new ArrayList<Player>();
 		Location playerEyes = player.getEyeLocation();
 
-		Vector direction = playerEyes.getDirection().normalize();
+		final Vector direction = playerEyes.getDirection().normalize();
 
 		// Filtre de target
 		List<Player> targets = new ArrayList<Player>();
@@ -170,22 +202,6 @@ public abstract class HoeBasic extends TItem{
 			ly = loc.getY();
 			lz = loc.getZ();
 
-			for(Player apa : arena.getPlayers())
-			{
-				try {
-					//ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, 0.05F, 2);
-					//ParticleEffects.MOB_SPELL_AMBIENT.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, RandomUtils.nextFloat(), 2);
-					ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.01F, 0.01F, 0.01F, 0.00005F, 1);
-                    if(loop%10 == 0)
-                    {
-                        apa.getWorld().playSound(apa.getLocation(), Sound.FIREWORK_LAUNCH, 0.042F, 0.01F);
-                    }
-					//ParticleEffects.INSTANT_SPELL.sendToPlayer(apa, loc, 0.006F, 0.006F, 0.006F, 6.0F, 3);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
 			for (Player possibleTarget : targets) {
 				if (possibleTarget.getUniqueId() == player.getUniqueId()) continue;
 				testLoc = possibleTarget.getLocation().add(0, 0.85, 0);
@@ -204,7 +220,24 @@ public abstract class HoeBasic extends TItem{
 				}
 			}
 		}
+		final Location last = loc;
+
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			@Override
+			public void run() {
+				displayLine(last, direction);
+			}
+		});
+
 		return target;
+	}
+
+	public void leftAction(APlayer p, APlayer.ItemSLot slot) {
+		return;
+	}
+
+	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
+		basicShot(ap.getP());
 	}
 
 	@Override

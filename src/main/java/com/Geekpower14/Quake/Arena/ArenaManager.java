@@ -1,23 +1,21 @@
 package com.Geekpower14.quake.arena;
 
+import com.Geekpower14.quake.Quake;
+import net.samagames.gameapi.GameAPI;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import net.samagames.gameapi.GameAPI;
-import org.bukkit.ChatColor;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
-import com.Geekpower14.quake.Quake;
-
 public class ArenaManager {
 	
 	private Quake plugin;
-	
-	private List<Arena> ARENAS = new ArrayList<Arena>();
-	
+
+	private Arena ARENA;
+
 	public ArenaManager(Quake pl)
 	{
 		plugin = pl;
@@ -27,7 +25,7 @@ public class ArenaManager {
 	
 	public void loadArenas()
 	{
-		File folder = new File(plugin.getDataFolder(), "/arenas/");
+		File folder = new File(plugin.getDataFolder(), "../../world/arenas/");
         if(!folder.exists())
             folder.mkdir();
         
@@ -71,96 +69,71 @@ public class ArenaManager {
 		Arena arena = new Arena(plugin, name);
 
 		GameAPI.registerArena(arena);
-		ARENAS.add(arena);
+		ARENA = arena;
 	}
-	
+
+	@Deprecated
 	public void removeArena(String name)
 	{
 		Arena aren = getArena(name);
 		
 		aren.stop();
-		
-		ARENAS.remove(name);
+
+		ARENA = null;
+	}
+
+	public Arena getArena()
+	{
+		return ARENA;
 	}
 	
 	public Arena getArena(String name)
 	{
-		for(Arena aren : ARENAS)
-		{
-			if(aren.getName().equals(name))
-			{
-				return aren;
-			}
-		}
-		
-		return null;
+		return ARENA;
 	}
-	
+
+	@Deprecated
 	public void deleteArena(String name)
 	{
 		Arena aren = getArena(name);
 		
 		aren.stop();
 		
-		File file = new File(plugin.getDataFolder(), "/arenas/"+ aren.getName() +".yml");
+		File file = new File(plugin.getDataFolder(), "../../world/arenas/"+ aren.getName() +".yml");
 		
 		file.delete();
-		
-		ARENAS.remove(name);
-		
+
+		ARENA = null;
 	}
 	
 	public boolean exist(String name)
 	{
-		if(getArena(name) != null)
-		{
+		if(ARENA != null)
 			return true;
-		}
-		
+
 		return false;
 	}
 	
 	public void disable()
 	{
-		for(Arena aren : ARENAS)
-		{
-			aren.disable();
-		}
-	}
-	
-	public List<String> getArenaNames()
-	{
-		List<String> result = new ArrayList<String>();
-		
-		for(Arena arena : ARENAS)
-		{
-			result.add(arena.getName());
-		}
-		
-		return result;
+		ARENA.disable();
 	}
 
-	public Arena getArenabyPlayer(Player p) {
-		
-		for(Arena arena : ARENAS)
-		{
-			if(arena.hasPlayer(p))
-			{
-				return arena;
-			}
-		}
-		
-		return null;
+	public String getArenaName()
+	{
+		return ARENA.getName();
+	}
+
+	public Arena getArenabyPlayer(Player p)
+	{
+		return getArenabyPlayer(p.getName());
 	}
 	
-	public Arena getArenabyPlayer(String p) {
-		
-		for(Arena arena : ARENAS)
+	public Arena getArenabyPlayer(String p)
+	{
+		if(ARENA.hasPlayer(p))
 		{
-			if(arena.hasPlayer(p))
-			{
-				return arena;
-			}
+			return ARENA;
 		}
 		
 		return null;
@@ -168,112 +141,10 @@ public class ArenaManager {
 
 	public Arena getArenaByUUID(UUID uuid)
 	{
-		for(Arena arena : ARENAS)
+		if(ARENA.getUUID().equals(uuid))
 		{
-			if(arena.getUUID().equals(uuid))
-			{
-				return arena;
-			}
+			return ARENA;
 		}
 		return null;
 	}
-	
-	public List<Arena> getAvailableArenas()
-	{
-		List<Arena> result = new ArrayList<Arena>();
-		for(Arena arena : ARENAS)
-		{
-			if(arena.eta.isLobby())
-			{
-				result.add(arena);
-			}
-		}
-		
-		return result;
-	}
-	
-	public Arena getRandomArena()
-	{
-		List<Arena> a = this.getAvailableArenas();
-		int lower = 0;
-		int higher = a.size()-1;
-
-		int random = (int)(Math.random() * (higher-lower)) + lower;
-		return a.get(random);
-	}
-	
-	public int random()
-	{
-		List<Arena> a = this.getAvailableArenas();
-		int lower = 0;
-		int higher = a.size()-1;
-
-		int random = (int)(Math.random() * (higher-lower)) + lower;
-		
-		return random;
-	}
-	
-	public boolean rejoinNewArena(Player p, int n)
-	{
-		if(n >= getAvailableArenas().size())
-		{
-			n = getAvailableArenas().size()-1;
-		}
-		
-		Arena arena = getAvailableArenas().get(n);
-		
-		if(arena == null)
-		{
-			return false;
-		}
-		
-		arena.joinArena(p);
-		
-		return true;
-	}
-
-	public boolean isArenaWorld(World w) {
-		for(Arena arena : ARENAS)
-		{
-			if(arena.getSpawn(null).getWorld().getName().equals(w.getName()))
-			{
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	public boolean contains(Player p)
-	{
-		for(Arena arena : ARENAS)
-		{
-			if(arena.isWaiting(p))
-			{
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	public Arena getWantedPlayerArena(Player p)
-	{
-		for(Arena arena : ARENAS)
-		{
-			if(arena.isWaiting(p))
-			{
-				return arena;
-			}
-		}
-		
-		return ARENAS.get(0);
-		//return null;
-	}
-	
-	public List<Arena> getArenas()
-	{
-		return ARENAS;
-	}
-
 }
