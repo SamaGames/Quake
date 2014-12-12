@@ -1,9 +1,13 @@
 package com.Geekpower14.quake.listener;
 
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.arena.APlayer.Role;
+import com.Geekpower14.quake.arena.Arena;
+import com.Geekpower14.quake.stuff.TItem;
 import net.samagames.gameapi.events.FinishJoinPlayerEvent;
 import net.samagames.gameapi.json.Status;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -16,25 +20,9 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
-
-import com.Geekpower14.quake.Quake;
-import com.Geekpower14.quake.arena.APlayer;
-import com.Geekpower14.quake.arena.APlayer.Role;
-import com.Geekpower14.quake.arena.Arena;
-import com.Geekpower14.quake.stuff.TItem;
 
 public class PlayerListener implements Listener{
 
@@ -52,11 +40,13 @@ public class PlayerListener implements Listener{
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onFinishJoinPlayer(FinishJoinPlayerEvent event) {
+	public void onFinishJoinPlayer(FinishJoinPlayerEvent event)
+	{
 		if(!event.isCancelled())
 		{
 			Player p = Bukkit.getPlayer(event.getPlayer());
-			Arena arena = plugin.arenaManager.getArenaByUUID(event.getTargetArena().getUUID());
+			//Arena arena = plugin.arenaManager.getArenaByUUID(event.getTargetArena().getUUID());
+			Arena arena = plugin.arenaManager.getArena();
 
 			if (arena == null)
 			{
@@ -71,10 +61,10 @@ public class PlayerListener implements Listener{
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
 		Player p = event.getPlayer();
-
 		event.setQuitMessage("");
+		//Arena arena = plugin.arenaManager.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArena();
 
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 		if(arena == null)
 			return;
 
@@ -88,7 +78,7 @@ public class PlayerListener implements Listener{
 
 		event.setLeaveMessage("");
 
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
+		Arena arena = plugin.arenaManager.getArena();
 		if(arena == null)
 			return;
 		
@@ -99,12 +89,13 @@ public class PlayerListener implements Listener{
 	public void onPlayerChat(AsyncPlayerChatEvent event)
 	{
 		Player player = event.getPlayer();
-		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
+		final Arena arena = plugin.arenaManager.getArena();
 
 		if(arena == null)
 		{
 			return;
 		}
+
 		event.getRecipients().clear();
 		event.getRecipients().addAll(arena.getPlayers());
 		//arena.chat(player.getDisplayName()+ ChatColor.GRAY + ": " + event.getMessage());		   
@@ -129,16 +120,16 @@ public class PlayerListener implements Listener{
                 player.kickPlayer("");
 			return;
 		}
+
 		APlayer ap = arena.getAplayer(player);
 
 		event.setCancelled(true);
 
 		if(hand != null
 				&& hand.getType() == Material.WOOD_DOOR)
-		{
-			//arena.leaveArena(player);
 			arena.kickPlayer(player);
-		}
+
+
 		if(ap.getRole() == Role.Spectator)
 			return;
 
@@ -151,46 +142,51 @@ public class PlayerListener implements Listener{
 
 		if(action == Action.LEFT_CLICK_AIR
 				|| action == Action.LEFT_CLICK_BLOCK)
-			item.leftAction(ap);
+			item.leftAction(ap, ap.getSlot());
 
 		if(action == Action.RIGHT_CLICK_AIR
 				|| action == Action.RIGHT_CLICK_BLOCK)
-			item.rightAction(ap);
+			item.rightAction(ap, ap.getSlot());
 
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onPlayerFellOutOfWorld(PlayerMoveEvent event)
+	public void onPlayerFellOutOfWorld(EntityDamageEvent event)
 	{
-		Player p = event.getPlayer();
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-
-		if(arena == null)
-			return;
-
-		if(p.getLocation().getY() < 0)
+		if(event.getEntity() instanceof Player)
 		{
-			if(arena.eta.isLobby())
-			{
-				p.teleport(arena.getSpawn(p));
-				return;
-			}
+			Player p = (Player) event.getEntity();
 
-			APlayer ap = arena.getAplayer(p);
+			event.setCancelled(true);
 
-			if(ap.getRole() == Role.Spectator)
-			{
-				p.teleport(arena.getSpawn(p));
+			Arena arena = plugin.arenaManager.getArena();
+
+			if(arena == null)
 				return;
+
+			if(event.getCause() == EntityDamageEvent.DamageCause.VOID)
+			{
+				if(arena.eta.isLobby())
+				{
+					p.teleport(arena.getSpawn(p));
+					return;
+				}
+
+				APlayer ap = arena.getAplayer(p);
+
+				if(ap.getRole() == Role.Spectator)
+				{
+					p.teleport(arena.getSpawn(p));
+					return;
+				}
+				p.teleport(arena.getSpawn(p));
 			}
-			p.teleport(arena.getSpawn(p));
 		}
 
 		return;
 	}
 
-	@EventHandler(priority=EventPriority.HIGHEST)
+	/*@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		Player p = event.getPlayer();
@@ -215,33 +211,25 @@ public class PlayerListener implements Listener{
 		/*if(!ap.isOnSameBlock())
 		{
 			onPlayerChangePos(arena, p);
-		}*/
+		}*//*
 
 		return;
-	}
+	}*/
 
-	public void onPlayerChangePos(final Arena arena, final Player p)
+	/*public void onPlayerChangePos(final Arena arena, final Player p)
 	{
 		//final Block b = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 
-	}
+	}*/
 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerSneak(PlayerToggleSneakEvent event)
 	{
-		Player p = event.getPlayer();
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-
-		if(arena == null)
-			return;
-
 		event.setCancelled(true);
-
 		return;
 	}
 
-	@EventHandler
+	/*@EventHandler
 	public void onPlayerToggleFlight(PlayerToggleFlightEvent event)
 	{
 		Player p = event.getPlayer();
@@ -266,9 +254,9 @@ public class PlayerListener implements Listener{
 
 		event.setCancelled(true);
 
-	}
+	}*/
 
-	@EventHandler(priority=EventPriority.HIGHEST)
+	/*@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEntityDamaged(EntityDamageEvent event)
 	{
 		if (!(event.getEntity() instanceof Player))
@@ -284,7 +272,7 @@ public class PlayerListener implements Listener{
 		event.setCancelled(true);
 
 		return;
-	}
+	}*/
 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerDeath(PlayerDeathEvent event)
@@ -329,8 +317,6 @@ public class PlayerListener implements Listener{
 				}
 			}
 		}, 15L);
-
-
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -416,13 +402,6 @@ public class PlayerListener implements Listener{
 		{
 			event.setCancelled(true);
 			event.setFoodLevel(20);
-			/*arena arena = plugin.arenaManager.getArenabyPlayer((Player)event.getEntity());
-			if(arena == null)
-			{
-				return;
-			}*/
-
-
 		}
 	}
 
@@ -431,13 +410,10 @@ public class PlayerListener implements Listener{
 	{
 		World w = event.getWorld();
 
-		if(plugin.arenaManager.isArenaWorld(w))
+		if(event.toWeatherState())
 		{
-			if(event.toWeatherState())
-			{
-				event.setCancelled(true);
-			}
+			event.setCancelled(true);
 		}
-	}
 
+	}
 }

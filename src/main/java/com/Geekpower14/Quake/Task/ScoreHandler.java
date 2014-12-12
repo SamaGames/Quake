@@ -1,7 +1,7 @@
 package com.Geekpower14.quake.task;
 
-import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.arena.Arena;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -50,7 +50,7 @@ public class ScoreHandler implements Runnable{
 
         if(needToUpdate)
         {
-            plugin.log.info("LOOLL");
+            //plugin.log.info("LOOLL");
             needToUpdate = false;
 
             arena.sortPlayers();

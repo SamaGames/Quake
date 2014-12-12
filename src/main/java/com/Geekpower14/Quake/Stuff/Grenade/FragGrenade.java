@@ -1,6 +1,5 @@
 package com.Geekpower14.quake.stuff.grenade;
 
-import com.Geekpower14.quake.arena.APlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
