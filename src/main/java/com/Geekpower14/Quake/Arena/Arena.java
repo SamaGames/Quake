@@ -575,14 +575,13 @@ public class Arena implements GameArena {
 			}
 		}, 5L, 5L);
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-		{
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
 			public void run() {
 				plugin.getServer().getScheduler().cancelTask(infoxp);
 				stop();
 			}
 		}
-		, (Time_After*20));
+				, (Time_After * 20));
 	}
 
 	public void kill(final Player p)
@@ -773,11 +772,11 @@ public class Arena implements GameArena {
     {
         Collections.sort(players, new Comparator<APlayer>() {
 
-            @Override
-            public int compare(APlayer o1, APlayer o2) {
-                return -Integer.compare(o1.getScore(), o2.getScore());
-            }
-        });
+			@Override
+			public int compare(APlayer o1, APlayer o2) {
+				return -Integer.compare(o1.getScore(), o2.getScore());
+			}
+		});
     }
 	
     public void refreshScoreBoards()
