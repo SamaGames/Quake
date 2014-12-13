@@ -202,6 +202,24 @@ public abstract class HoeBasic extends TItem{
 			ly = loc.getY();
 			lz = loc.getZ();
 
+			for(Player apa : arena.getPlayers())
+			{
+				try {
+					if(apa.getLocation().getWorld() == loc.getWorld()
+							&& apa.getLocation().distance(loc) < 35)
+					{
+						//ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, 0.05F, 2);
+						//ParticleEffects.MOB_SPELL_AMBIENT.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, RandomUtils.nextFloat(), 2);
+						ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.07F, 0.04F, 0.07F, 0.00005F, 3);
+						if (loop % 10 == 0) {
+							apa.getWorld().playSound(apa.getLocation(), Sound.FIREWORK_LAUNCH, 0.042F, 0.01F);
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
 			for (Player possibleTarget : targets) {
 				if (possibleTarget.getUniqueId() == player.getUniqueId()) continue;
 				testLoc = possibleTarget.getLocation().add(0, 0.85, 0);
@@ -220,14 +238,14 @@ public abstract class HoeBasic extends TItem{
 				}
 			}
 		}
-		final Location last = loc;
+		/*final Location last = loc;
 
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
 				displayLine(last, direction);
 			}
-		});
+		});*/
 
 		return target;
 	}

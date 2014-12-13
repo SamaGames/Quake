@@ -3,10 +3,7 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer.Role;
 import com.Geekpower14.quake.task.ScoreHandler;
-import com.Geekpower14.quake.utils.FireworkEffectPlayer;
-import com.Geekpower14.quake.utils.Spawn;
-import com.Geekpower14.quake.utils.StatsNames;
-import com.Geekpower14.quake.utils.Utils;
+import com.Geekpower14.quake.utils.*;
 import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
@@ -624,7 +621,7 @@ public class Arena implements GameArena {
                 @Override
                 public void run() {
                     try {
-                        fplayer.playFirework(victim.getWorld(), victim.getLocation(), effect);
+						CustomEntityFirework.spawn(victim.getLocation(), effect);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

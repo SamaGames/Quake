@@ -4,6 +4,7 @@ import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
+import com.Geekpower14.quake.utils.CustomEntityFirework;
 import com.Geekpower14.quake.utils.ParticleEffects;
 import com.Geekpower14.quake.utils.StatsNames;
 import net.zyuiop.coinsManager.CoinsManager;
@@ -90,9 +91,9 @@ public abstract class GrenadeBasic extends TItem {
                     {
                         try {
                             if(player.getLocation().getWorld() == item.getLocation().getWorld()
-                                    && player.getLocation().distance(item.getLocation()) < 50)
+                                    && player.getLocation().distance(item.getLocation()) < 20)
                             {
-                                ParticleEffects.FIREWORKS_SPARK.sendToPlayer(player, item.getLocation(), 1F, 2F, 1F, 0.00005F, 2);
+                                ParticleEffects.FIREWORKS_SPARK.sendToPlayer(player, item.getLocation(), 1.2F, 2.1F, 1.2F, 0.00005F, 4);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -146,7 +147,7 @@ public abstract class GrenadeBasic extends TItem {
             @Override
             public void run() {
                 try {
-                    arena.fplayer.playFirework(item.getWorld(), item.getLocation(), effect);
+                    CustomEntityFirework.spawn(item.getLocation(), effect);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
