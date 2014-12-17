@@ -3,7 +3,10 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer.Role;
 import com.Geekpower14.quake.task.ScoreHandler;
-import com.Geekpower14.quake.utils.*;
+import com.Geekpower14.quake.utils.CustomEntityFirework;
+import com.Geekpower14.quake.utils.Spawn;
+import com.Geekpower14.quake.utils.StatsNames;
+import com.Geekpower14.quake.utils.Utils;
 import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
@@ -22,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -59,8 +63,6 @@ public class Arena implements GameArena {
 	public boolean vip;
 
 	/*** Variable dynamiques ***/
-
-	public FireworkEffectPlayer fplayer = new FireworkEffectPlayer();
 
 	public Status eta = Status.Idle;
 
@@ -583,7 +585,7 @@ public class Arena implements GameArena {
 
 	public void kill(final Player p)
 	{
-        try{
+       /*try{
             Bukkit.getScheduler().runTask(plugin, new Runnable() {
                 @Override
                 public void run() {
@@ -593,14 +595,48 @@ public class Arena implements GameArena {
         }catch(Exception e)
         {
             e.printStackTrace();
-        }
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
+        }*/
+		final APlayer ap = getAplayer(p);
+		ap.setinvincible(true);
+		ap.setReloading(true);
 
+		p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0));
+		p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 3));
+
+		//BETA
+		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 			@Override
 			public void run() {
-				StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.DEATH, 1);
+
+				p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 35, 0));
+				p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 35, 3));
+
+				p.teleport(getSpawn(p));
+				ap.giveStuff();
+
+				Long timetoRespawn = 35L + Quake.msToTick(Quake.getPing(p));
+
+				ap.setInvincible(timetoRespawn+10L);
+				ap.setReloading(timetoRespawn);
+
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+
+					@Override
+					public void run() {
+						giveEffect(p);
+					}
+				}, 5L);
+
+				Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
+
+					@Override
+					public void run() {
+						StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.DEATH, 1);
+					}
+				});
 			}
-		});
+		}, 5L);
+
 	}
 
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
@@ -621,7 +657,7 @@ public class Arena implements GameArena {
                 @Override
                 public void run() {
                     try {
-						CustomEntityFirework.spawn(victim.getLocation(), effect);
+						CustomEntityFirework.spawn(victim.getLocation(), effect, 30);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

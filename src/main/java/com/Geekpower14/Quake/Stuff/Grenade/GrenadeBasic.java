@@ -49,6 +49,11 @@ public abstract class GrenadeBasic extends TItem {
 
         final APlayer ap = arena.getAplayer(player);
 
+        if(ap.isInvincible())
+        {
+            return;
+        }
+
         ItemStack gStack = player.getInventory().getItem(slot.getSlot());
 
         if(gStack == null || gStack.getAmount() <= 0)
@@ -131,7 +136,7 @@ public abstract class GrenadeBasic extends TItem {
             return;
 
         int compte = 0;
-        for(Entity entity : item.getNearbyEntities(5, 4, 5))
+        for(Entity entity : item.getNearbyEntities(3, 4, 3))
         {
             if(entity instanceof Player)
             {
@@ -147,7 +152,7 @@ public abstract class GrenadeBasic extends TItem {
             @Override
             public void run() {
                 try {
-                    CustomEntityFirework.spawn(item.getLocation(), effect);
+                    CustomEntityFirework.spawn(item.getLocation(), effect, 30);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -206,11 +206,11 @@ public abstract class HoeBasic extends TItem{
 			{
 				try {
 					if(apa.getLocation().getWorld() == loc.getWorld()
-							&& apa.getLocation().distance(loc) < 35)
+							&& apa.getLocation().distance(loc) < 30)
 					{
 						//ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, 0.05F, 2);
 						//ParticleEffects.MOB_SPELL_AMBIENT.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, RandomUtils.nextFloat(), 2);
-						ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.07F, 0.04F, 0.07F, 0.00005F, 3);
+						ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.07F, 0.04F, 0.07F, 0.00005F, 1);
 						if (loop % 10 == 0) {
 							apa.getWorld().playSound(apa.getLocation(), Sound.FIREWORK_LAUNCH, 0.042F, 0.01F);
 						}
