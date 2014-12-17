@@ -2,31 +2,20 @@ package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer.Role;
-import com.Geekpower14.quake.task.ScoreHandler;
-import com.Geekpower14.quake.utils.CustomEntityFirework;
-import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
-import net.samagames.permissionsbukkit.PermissionsBukkit;
-import net.zyuiop.MasterBundle.MasterBundle;
-import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
-import org.bukkit.FireworkEffect.Type;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -34,10 +23,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 
-public class Arena implements GameArena {
+public abstract class Arena implements GameArena {
 
 	public Quake plugin;
 
@@ -48,15 +40,14 @@ public class Arena implements GameArena {
 	public UUID uuid;
 
 	public int minPlayer = 4;
-	public int maxPlayer = 24;	public int vipSlots = 5;
+	public int maxPlayer = 24;
+	public int vipSlots = 5;
 	public int spectateSlots = 5;
 
 	public int Time_Before = 20;
 	public int Time_After = 15;
 
 	public int Goal = 25;
-
-	public List<Spawn> spawn = new ArrayList<>();
 
 	public List<PotionEffect> potions = new ArrayList<>();
 
@@ -66,18 +57,14 @@ public class Arena implements GameArena {
 
 	public Status eta = Status.Idle;
 
-	public List<APlayer> players = new ArrayList<APlayer>();
+	public List<APlayer> players = new ArrayList<>();
 
 	private Starter CountDown = null;
 
 	//ScoreBoard teams
 	private Scoreboard tboard;
-	
-	private Objective score;
 
 	private Team spectates;
-
-    private ScoreHandler sh;
 
 	public Arena(Quake pl, String name)
 	{
@@ -86,14 +73,10 @@ public class Arena implements GameArena {
 
 		this.name = name;
 
-		loadConfig();
-
 		tboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
 		spectates = tboard.registerNewTeam("spectator");
 		spectates.setCanSeeFriendlyInvisibles(true);
-
-		eta = Status.Available;
 
 	}
 
@@ -109,7 +92,7 @@ public class Arena implements GameArena {
 		return;
 	}
 
-	private void loadConfig()
+	protected void loadConfig()
 	{
 		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "../../world/arenas/"+ name + ".yml"));
 
@@ -139,16 +122,14 @@ public class Arena implements GameArena {
 		}
 		potions = l;
 
-		List<String> s = config.getStringList("Spawns");
-		for(int i = 0; i < s.size(); i++)
-		{
-			spawn.add(new Spawn(s.get(i)));
-		}
+		toConfigLoad(config);
 
 		saveConfig();
 	}
 
-	private FileConfiguration basicConfig(FileConfiguration config)
+	protected abstract void toConfigLoad(FileConfiguration config);
+
+	protected FileConfiguration basicConfig(FileConfiguration config)
 	{
 		setDefaultConfig(config, "Name", name);
 		setDefaultConfig(config, "Map", "Unknown");
@@ -167,15 +148,15 @@ public class Arena implements GameArena {
 		setDefaultConfig(config, "Slots-VIP", 5);
 		setDefaultConfig(config, "Slots-Spectator", 5);
 
-		setDefaultConfig(config, "Spawns", new ArrayList<String>());
-
-		List<String> l = new ArrayList<String>();
+		List<String> l = new ArrayList<>();
 		l.add("SPEED:2");
 		l.add("JUMP:1");
 		setDefaultConfig(config, "Potions", l);
 
-		return config;
+		return toBasicConfig(config);
 	}
+
+	protected abstract FileConfiguration toBasicConfig(FileConfiguration config);
 
 	public void saveConfig()
 	{
@@ -205,12 +186,7 @@ public class Arena implements GameArena {
 		}
 		config.set("Potions", l);
 
-		List<String> s = new ArrayList<String>();
-		for(int i = 0; i < spawn.size(); i++)
-		{
-			s.add(spawn.get(i).getSaveLoc());
-		}
-		config.set("Spawns", s);
+		toSaveConfig(config);
 
 		try {
 			config.save(new File(plugin.getDataFolder(), "../../world/arenas/"+ name + ".yml"));
@@ -218,6 +194,8 @@ public class Arena implements GameArena {
 			e.printStackTrace();
 		}
 	}
+
+	protected abstract void toSaveConfig(FileConfiguration config);
 
 	protected void setDefaultConfig(FileConfiguration config, String key, Object value) {
 		if (!config.contains(key))
@@ -236,29 +214,12 @@ public class Arena implements GameArena {
 
 		cleaner(p);
 
-		p.teleport(getSpawn(p));
-
 		APlayer ap = new APlayer(plugin, this, p);
 		players.add(ap);
 
+		execJoinPlayer(ap);
+
 		refresh();
-
-		this.broadcast(ChatColor.YELLOW
-						+ ap.getName()
-						+ " a rejoint l'arène "
-						+ ChatColor.DARK_GRAY
-						+ "[" + ChatColor.RED
-						+ players.size()
-						+ ChatColor.DARK_GRAY
-						+ "/" + ChatColor.RED
-						+ maxPlayer
-						+ ChatColor.DARK_GRAY
-						+ "]");
-
-		if(players.size() >= minPlayer && eta == Status.Available)
-		{
-			startCountdown();
-		}
 
 		p.getInventory().setItem(8, this.getLeaveDoor());
 		p.getInventory().setHeldItemSlot(0);
@@ -268,30 +229,29 @@ public class Arena implements GameArena {
 		{/*LOL*/}
 	}
 
+	protected abstract void execJoinPlayer(APlayer ap);
+
 	/*
 	 * Gestion de l'arène.
 	 */
 
 	public void leaveArena(Player p)
 	{
-		APlayer ap = getAplayer(p);
-
+		p.setAllowFlight(false);
 		leaveCleaner(p);
-
 		for(Player pp : Quake.getOnline())
 		{
 			p.showPlayer(pp);
 		}
 
+		APlayer ap = getAplayer(p);
 		ap.removeScoreboard();
 
-		p.setAllowFlight(false);
+		execLeavePlayer(ap);
 
 		players.remove(ap);
 
 		refresh();
-
-		//kickPlayer(p);
 
 		if(getActualPlayers() <= 1 && eta == Status.InGame)
 		{
@@ -322,45 +282,20 @@ public class Arena implements GameArena {
 		return;
 	}
 
+	protected abstract void execLeavePlayer(APlayer ap);
+
 	public void start()
 	{
 		eta = Status.InGame;
 
 		refresh();
 
-        sh = new ScoreHandler(plugin, this);
+		execStart();
 
-		/*if(score != null)
-		{
-			score.unregister();
-		}*/
-		//score = tboard.registerNewObjective(name , "dummy");
-
-		//Setting where to display the scoreboard/objective (either SIDEBAR, PLAYER_LIST or BELOW_NAME)
-		//score.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-		//Setting the display name of the scoreboard/objective
-		//score.setDisplayName(""+ChatColor.RED + ChatColor.BOLD + "quake");
-
-		for(APlayer ap : players)
-		{
-			Player p = ap.getP();
-
-			ap.setScoreboard();
-
-			cleaner(p);
-			tp(p);
-
-			ap.giveStuff();
-
-			giveEffect(p);
-
-			ap.setReloading(1 * 20L);
-
-			StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.PARTIES, 1);
-		}
 		updateScore();
 	}
+
+	protected abstract void execStart();
 
 	public void stop()
 	{
@@ -369,15 +304,12 @@ public class Arena implements GameArena {
 		 * TO/DO: Stopper l'arène.
 		 */
 
-        sh.stop();
-        sh = null;
+        execStop();
 
-		List<Player> tokick = new ArrayList<Player>();
-		for(int i = players.size()-1; i >= 0; i--)
+		List<Player> tokick = new ArrayList<>();
+		for(APlayer ap : players)
 		{
-			APlayer ap = players.get(i);
-			Player p = ap.getP();
-			tokick.add(p);
+			tokick.add(ap.getP());
 		}
 
 		for(Player p : tokick)
@@ -401,43 +333,7 @@ public class Arena implements GameArena {
 
 	}
 
-	public void reset()
-	{
-		/*
-		 * TODO: Reset variables.
-		 */
-		List<OfflinePlayer> pls = new ArrayList<OfflinePlayer>();
-		for(OfflinePlayer p : spectates.getPlayers())
-		{
-			pls.add(p);
-		}
-		for(OfflinePlayer p : pls)
-		{
-			spectates.removePlayer(p);
-		}
-
-		for(Spawn s : spawn)
-		{
-			s.setUses(0);
-		}
-
-		List<Player> tokick = new ArrayList<Player>();
-		for(int i = players.size()-1; i >= 0; i--)
-		{
-			APlayer ap = players.get(i);
-			Player p = ap.getP();
-			tokick.add(p);
-		}
-
-		for(Player p : tokick)
-		{
-			p.kickPlayer("Redirection..");
-		}
-
-		players.clear();
-
-		eta = Status.Available;
-	}
+	protected abstract void execStop();
 
 	public void refresh()
 	{
@@ -487,115 +383,13 @@ public class Arena implements GameArena {
 
 		refresh();
 
-		if(p != null)
-		{
-			APlayer ap = getAplayer(p);
-			//this.broadcast(ChatColor.AQUA + p.getDisplayName() + ChatColor.YELLOW + " a gagné !");
-
-			this.nbroadcast(ChatColor.AQUA + "#"+ ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
-			this.nbroadcast(ChatColor.GRAY + "");
-			this.nbroadcast(ChatColor.AQUA + p.getDisplayName() + ChatColor.YELLOW + " a gagné !");
-			this.nbroadcast(ChatColor.GRAY + "");
-			this.nbroadcast(ChatColor.AQUA + "#"+ ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
-
-			try{
-				int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 20, true, true, "Victoire !");
-				ap.setCoins(ap.getCoins() + up);
-			}catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			for(APlayer a : players)
-			{
-				broadcast(a.getP(), ChatColor.GOLD + "Tu as gagné " + a.getCoins() + " coins au total !");
-			}
-			try{
-				StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.VICTOIRES, 1);
-			}catch(Exception e)
-			{}
-
-		}
-
-		if(p == null)
-		{
-			stop();
-			return;
-		}
-
-		final int nb = (int) (Time_After * 1.5);
-
-		final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable()
-		{
-			int compteur = 0;
-			public void run() {
-
-				if(compteur >= nb)
-				{
-					return;
-				}
-
-				//Spawn the Firework, get the FireworkMeta.
-				Firework fw = (Firework) p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
-				FireworkMeta fwm = fw.getFireworkMeta();
-
-				//Our random generator
-				Random r = new Random();
-
-				//Get the type
-				int rt = r.nextInt(4) + 1;
-				Type type = Type.BALL;
-				if (rt == 1) type = Type.BALL;
-				if (rt == 2) type = Type.BALL_LARGE;
-				if (rt == 3) type = Type.BURST;
-				if (rt == 4) type = Type.CREEPER;
-				if (rt == 5) type = Type.STAR;
-
-				//Get our random colours
-				int r1i = r.nextInt(17) + 1;
-				int r2i = r.nextInt(17) + 1;
-				Color c1 = getColor(r1i);
-				Color c2 = getColor(r2i);
-
-				//Create our effect with this
-				FireworkEffect effect = FireworkEffect.builder().flicker(r.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(r.nextBoolean()).build();
-
-				//Then apply the effect to the meta
-				fwm.addEffect(effect);
-
-				//Generate some random power and set it
-				int rp = r.nextInt(2) + 1;
-				fwm.setPower(rp);
-
-				//Then apply this to our rocket
-				fw.setFireworkMeta(fwm);
-
-				compteur++;
-			}
-		}, 5L, 5L);
-
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-			public void run() {
-				plugin.getServer().getScheduler().cancelTask(infoxp);
-				stop();
-			}
-		}
-				, (Time_After * 20));
+		execWin(p);
 	}
+
+	protected abstract void execWin(Player p);
 
 	public void kill(final Player p)
 	{
-       /*try{
-            Bukkit.getScheduler().runTask(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    p.setHealth(0.0);
-                }
-            });
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-        }*/
 		final APlayer ap = getAplayer(p);
 		ap.setinvincible(true);
 		ap.setReloading(true);
@@ -644,62 +438,13 @@ public class Arena implements GameArena {
         if(eta == Status.Stopping)
             return false;
 
-		final APlayer ashooter = this.getAplayer(shooter);
-		APlayer avictim = this.getAplayer(victim);
-		if(avictim == null)
-			return false;
-		if(!victim.equals(shooter) && !avictim.isInvincible())
-		{
-			avictim.setinvincible(true);
-			kill(victim);
-
-            Bukkit.getScheduler().runTask(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    try {
-						CustomEntityFirework.spawn(victim.getLocation(), effect, 30);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    broadcast(ChatColor.RED
-							+ PermissionsBukkit.getPrefix(MasterBundle.api.getUser(shooter.getUniqueId()))
-							+ shooter.getName()
-							+ ChatColor.YELLOW
-							+ " a touché "
-							+ PermissionsBukkit.getPrefix(MasterBundle.api.getUser(victim.getUniqueId()))
-							+ victim.getName());
-                }
-            });
-
-			ashooter.addScore(1);
-            //shooter.playSound(shooter.getLocation(), "", 1, 1);
-            shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
-
-			if(ashooter.getScore() == Goal)
-			{
-                eta = Status.Stopping;
-				Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-				{
-					public void run() {
-						win(shooter);
-					}
-				}, 2);
-			}
-			/*Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-			{
-				public void run() {
-					orderList();
-				}
-			});*/
-
-			return true;
-		}
-		return false;
+		return execShotPlayer(shooter, victim, effect);
 	}
 
+	protected abstract boolean execShotPlayer(Player shooter, Player victim, FireworkEffect effect);
+
 	@SuppressWarnings("unused")
-	private ItemStack creator(Material m, String name, String[] lore)
+	protected ItemStack creator(Material m, String name, String[] lore)
 	{
 		ItemStack lol = new ItemStack(m);
 
@@ -718,66 +463,9 @@ public class Arena implements GameArena {
 		return lol;
 	}
 
-	public void tp(Player p) {
-		if(spawn != null)
-		{
-			p.teleport(getSpawn(p));
-		}
-	}
+	public abstract void tp(Player p);
 
-	public Location getSpawn(Player p)
-	{
-		Spawn r = null;
-		List<Spawn> spawns = new ArrayList<Spawn>();
-		for(Spawn s : spawn)
-		{
-			if(r == null)
-			{
-				r = s;
-				continue;
-			}
-
-			if(s.getUses() < r.getUses())
-				r = s;
-		}
-
-		for(Spawn s : spawn)
-		{
-			if(s.getUses() <= r.getUses())
-				spawns.add(s);
-		}
-		Random rr = new Random();
-
-		int i = rr.nextInt(spawns.size());
-
-		Spawn l = spawns.get(i);
-		l.addUse();
-
-		return l.getLoc();
-	}
-	
-	/*public void orderList()
-	{
-		if(!plugin.isEnabled())
-			return;
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
-
-			@Override
-			public void run() {
-				Collections.sort(players, new Comparator<APlayer>(){
-
-					public int compare(APlayer o1, APlayer o2) {
-						return -Integer.compare(o1.getScore(), o2.getScore());
-					}
-				});				
-				/*Bukkit.getScheduler().runTask(plugin, new Runnable() {
-					public void run() {
-						updateScorebords();						
-					}
-				});*/ /*
-			}
-		});
-	}*/
+	public abstract Location getSpawn(Player p);
 	
 	public APlayer getAplayer(Player p)
 	{
@@ -792,69 +480,11 @@ public class Arena implements GameArena {
 		return null;
 	}
 
-	public void updateScore()
-	{
-		if(players.size() <= 0)
-		{
-			return;
-		}
-        sh.requestUpdate();
-	}
-
-    public void sortPlayers()
-    {
-        Collections.sort(players, new Comparator<APlayer>() {
-
-			@Override
-			public int compare(APlayer o1, APlayer o2) {
-				return -Integer.compare(o1.getScore(), o2.getScore());
-			}
-		});
-    }
-	
-    public void refreshScoreBoards()
-    {
-        Bukkit.getScheduler().runTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                for(APlayer player : players)
-                {
-                    player.updateScoreboard();
-                    //score.getScore(player.getP()).setScore(player.getScore());
-                }
-            }
-        });
-    }
+	public abstract void updateScore();
 	
 	public Scoreboard getScoreboard()
 	{
 		return tboard;
-	}
-	
-	public List<APlayer> getTopFive()
-	{
-		List<APlayer> r = new ArrayList<APlayer>();
-
-		for(int i = 0; i < players.size() && i < 10; i++)
-		{
-			r.add(players.get(i));
-		}
-
-		return r;
-	}
-	
-	public int getPositionScore(APlayer p)
-	{
-		for(int i = 0; i < players.size(); i++)
-		{
-			APlayer pp = players.get(i);
-			if(p.getUUID().equals(pp.getUUID()))
-			{
-				return i+1;
-			}
-		}
-
-		return players.size();
 	}
 
 	public void broadcast(String message)
@@ -1102,14 +732,6 @@ public class Arena implements GameArena {
 		return this.vipSlots;
 	}
 
-	/*public void updateScorebords()
-	{
-		for(APlayer ap : players)
-		{
-			ap.updateScoreboard();
-		}
-	}*/
-
 	@Override
 	public Status getStatus() {
 		return eta;
@@ -1133,6 +755,14 @@ public class Arena implements GameArena {
 		}
 
 		return nb;
+	}
+
+	public boolean isTeam()
+	{
+		if(this instanceof ArenaTeam)
+			return true;
+
+		return false;
 	}
 
 	public void initScorebords()
@@ -1181,10 +811,8 @@ public class Arena implements GameArena {
 		Time_After = time;
 	}
 
-	public void addSpawn(Location loc)
-	{
-		spawn.add(new Spawn(loc));
-	}
+	public abstract void addSpawn(Location loc);
+
 
 	public int getCountDownRemain()
 	{

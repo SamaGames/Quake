@@ -6,7 +6,10 @@ import com.Geekpower14.quake.stuff.grenade.FragGrenade;
 import com.Geekpower14.quake.utils.SimpleScoreboard;
 import com.Geekpower14.quake.utils.Utils;
 import net.zyuiop.MasterBundle.FastJedis;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import redis.clients.jedis.Response;
@@ -29,10 +32,6 @@ public class APlayer {
 
 	private boolean vip = false;
 
-	//private Location lastLoc = null;
-
-	private int killstreak = 0;
-
 	private boolean Reloading = false;
 
 	private Boolean Invincible = false;
@@ -41,13 +40,9 @@ public class APlayer {
 	
 	private SimpleScoreboard sboard;
 
-	//private Objective bar;
-
 	private int coins = 0;
 
 	private int score = 0;
-
-	private long lastChangeBlock = System.currentTimeMillis();
 
 	private HashMap<ItemSLot, TItem> stuff = new HashMap<ItemSLot, TItem>();
 
@@ -169,34 +164,38 @@ public class APlayer {
 	@SuppressWarnings("deprecation")
 	public void updateScoreboard()
 	{
-
-		sboard.reset();
-		
-		List<APlayer> ps = arena.getTopFive();
-		
-		for(int i = 0; i < ps.size(); i++)
+		if(this.getArena() instanceof ArenaSolo)
 		{
-			APlayer aps = ps.get(i);
-			/*if(aps.getUUID().equals(p.getUniqueId()))
+			ArenaSolo arenaSolo = (ArenaSolo)arena;
+			sboard.reset();
+
+			List<APlayer> ps = arenaSolo.getTopFive();
+
+			for(int i = 0; i < ps.size(); i++)
 			{
-				continue;
-			}*/
-			
-			sboard.add(aps.getName(), aps.getScore());
-		}
-        setLevel(this.getScore());
-		//int p = arena.getPositionScore(this);
-		//sboard.add(this.getName(), this.getScore());
-		//sboard.setPos(p);
-		/*sboard.blankLine();
-		List<APlayer> aaap = arena.getAPlayersList();
-		for(int i = 0; i < aaap.size(); i++)
-		{
-			sboard.add(aaap.get(i).getName() + ": " + aaap.get(i).getScore());
-		}*/
-        sboard.build();
+				APlayer aps = ps.get(i);
+				sboard.add(aps.getName(), aps.getScore());
+			}
+			setLevel(this.getScore());
 
-		//sboard.send(p);
+			sboard.build();
+		}
+
+		if(this.getArena() instanceof ArenaTeam)
+		{
+			ArenaSolo arenaSolo = (ArenaSolo)arena;
+			sboard.reset();
+
+
+
+			setLevel(this.getScore());
+
+			sboard.build();
+		}
+
+
+
+
 	}
 
 	public void setReloading(Long Ticks)
@@ -366,7 +365,6 @@ public class APlayer {
 	
 	public void setScore(int i)
 	{
-		killstreak = i;
 		score = i;
         try{
             setLevel(i);
@@ -378,7 +376,6 @@ public class APlayer {
 	
 	public void addScore(int i)
 	{
-		killstreak += i;
 		score += i;
         try{
             setLevel(i);
@@ -423,84 +420,6 @@ public class APlayer {
 	public void setLevel(int xp) {
 		p.setLevel(xp);		
 	}
-
-	public void checkAntiAFK()
-	{
-		long time = System.currentTimeMillis();
-
-		if(time - lastChangeBlock > 900)
-		{
-			/*Location loc = p.getLocation();
-
-			double X = loc.getX();
-			double Y = loc.getBlockY() - 1;
-			double Z = loc.getZ();
-
-			Location b = getPlayerStandOnBlockLocation(new Location(loc.getWorld(), X, Y, Z));
-
-			arena.getBM().addDamage(b.getBlock());*/
-		}
-	}
-
-	public Location getPlayerStandOnBlockLocation(Location locationUnderPlayer)
-	{
-		Location b11 = locationUnderPlayer.clone().add(0.3,0,-0.3);
-		if (b11.getBlock().getType() != Material.AIR)
-		{
-			return b11;
-		} 
-		Location b12 = locationUnderPlayer.clone().add(-0.3,0,-0.3);
-		if (b12.getBlock().getType() != Material.AIR)
-		{
-			return b12;
-		}
-		Location b21 = locationUnderPlayer.clone().add(0.3,0,0.3);
-		if (b21.getBlock().getType() != Material.AIR)
-		{
-			return b21;
-		}
-		Location b22 = locationUnderPlayer.clone().add(-0.3,0,+0.3);
-		if (b22.getBlock().getType() != Material.AIR)
-		{
-			return b22;
-		}
-		return locationUnderPlayer;
-	}
-
-	/*public boolean isOnSameBlock()
-	{
-		boolean result = true;
-		Location loc = p.getLocation();
-
-		if(lastLoc == null)
-		{
-			lastLoc = loc;
-			return result;
-		}
-
-		if(loc.getBlockX() != lastLoc.getBlockX())
-		{
-			result = false;
-		}
-
-		if(loc.getBlockY() != lastLoc.getBlockY())
-		{
-			result = false;
-		}
-
-		if(loc.getBlockZ() != lastLoc.getBlockZ())
-		{
-			result = false;
-		}
-
-		if(result == false)
-		{
-			lastLoc = loc;
-			lastChangeBlock = System.currentTimeMillis();
-		}
-
-		return result;
-	}*/
 
 	public enum ItemSLot{
 		// http://redditpublic.com/images/b/b2/Items_slot_number.png

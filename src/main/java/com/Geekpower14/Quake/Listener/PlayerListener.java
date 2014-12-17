@@ -45,7 +45,6 @@ public class PlayerListener implements Listener{
 		if(!event.isCancelled())
 		{
 			Player p = Bukkit.getPlayer(event.getPlayer());
-			//Arena arena = plugin.arenaManager.getArenaByUUID(event.getTargetArena().getUUID());
 			Arena arena = plugin.arenaManager.getArena();
 
 			if (arena == null)
@@ -62,7 +61,6 @@ public class PlayerListener implements Listener{
 	{
 		Player p = event.getPlayer();
 		event.setQuitMessage("");
-		//Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 		Arena arena = plugin.arenaManager.getArena();
 
 		if(arena == null)
@@ -186,93 +184,12 @@ public class PlayerListener implements Listener{
 		return;
 	}
 
-	/*@EventHandler(priority=EventPriority.HIGHEST)
-	public void onPlayerMove(PlayerMoveEvent event)
-	{
-		Player p = event.getPlayer();
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-
-		if(arena == null)
-			return;
-
-		APlayer ap = arena.getAplayer(p);
-
-		if(arena.eta != Status.InGame)
-			return;
-
-		// For all.
-
-		if(ap.getRole() == Role.Spectator)
-			return;
-
-		//For players.
-
-		/*if(!ap.isOnSameBlock())
-		{
-			onPlayerChangePos(arena, p);
-		}*//*
-
-		return;
-	}*/
-
-	/*public void onPlayerChangePos(final Arena arena, final Player p)
-	{
-		//final Block b = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-
-	}*/
-
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerSneak(PlayerToggleSneakEvent event)
 	{
 		event.setCancelled(true);
 		return;
 	}
-
-	/*@EventHandler
-	public void onPlayerToggleFlight(PlayerToggleFlightEvent event)
-	{
-		Player p = event.getPlayer();
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-
-		if(arena == null)
-			return;
-
-		APlayer ap = arena.getAplayer(p);
-
-		if(arena.eta != Status.InGame)
-			return;
-
-		// For all.
-
-		if(ap.getRole() == Role.Spectator)
-			return;
-
-		//For gamers
-		if(p.getGameMode() == GameMode.CREATIVE) return;
-
-		event.setCancelled(true);
-
-	}*/
-
-	/*@EventHandler(priority=EventPriority.HIGHEST)
-	public void onEntityDamaged(EntityDamageEvent event)
-	{
-		if (!(event.getEntity() instanceof Player))
-			return;
-
-		Player p = (Player)event.getEntity();
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-
-		if(arena == null)
-			return;
-
-		event.setCancelled(true);
-
-		return;
-	}*/
 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerDeath(PlayerDeathEvent event)

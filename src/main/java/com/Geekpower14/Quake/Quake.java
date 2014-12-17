@@ -36,6 +36,9 @@ public class Quake extends JavaPlugin{
 	public ItemManager itemManager;
 	public int DefaultPort;
 	public String BungeeName;
+
+	public String type = "solo";
+
 	public HashMap<Player, ArrayList<Object>> cachedPackets = new HashMap<Player, ArrayList<Object>>();
 	
 	public BukkitTask TabTask;
@@ -130,8 +133,11 @@ public class Quake extends JavaPlugin{
 
 		DefaultPort = getConfig().getInt("port");
 		BungeeName = getConfig().getString("BungeeName");
+		type = getConfig().getString("Type", "solo");
 
-		GameAPI.registerGame("quake", DefaultPort, BungeeName);
+		String type_ = (type.equals("team"))?"quake":"quaketeam";
+
+		GameAPI.registerGame(type_, DefaultPort, BungeeName);
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 

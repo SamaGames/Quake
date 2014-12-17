@@ -62,11 +62,15 @@ public class ArenaManager {
 	}
 
 	public void addArena(String name) {
-		if (name == null) {
+		if (name == null)
 			return;
+		Arena arena = null;
+		if(plugin.type.equals("team"))
+		{
+			//arena = new ArenaTeam(plugin, name);
+		}else{
+			arena = new ArenaSolo(plugin, name);
 		}
-
-		Arena arena = new Arena(plugin, name);
 
 		GameAPI.registerArena(arena);
 		ARENA = arena;
