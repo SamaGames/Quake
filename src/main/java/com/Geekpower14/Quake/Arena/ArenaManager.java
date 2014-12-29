@@ -67,7 +67,7 @@ public class ArenaManager {
 		Arena arena = null;
 		if(plugin.type.equals("team"))
 		{
-			//arena = new ArenaTeam(plugin, name);
+			arena = new ArenaTeam(plugin, name);
 		}else{
 			arena = new ArenaSolo(plugin, name);
 		}

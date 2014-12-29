@@ -6,8 +6,10 @@ import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffects;
 import com.Geekpower14.quake.utils.StatsNames;
-import net.minecraft.server.v1_7_R4.AxisAlignedBB;
-import net.minecraft.server.v1_7_R4.Vec3D;
+import net.minecraft.server.v1_8_R1.AxisAlignedBB;
+import net.minecraft.server.v1_8_R1.BlockPosition;
+import net.minecraft.server.v1_8_R1.IBlockData;
+import net.minecraft.server.v1_8_R1.Vec3D;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
@@ -15,7 +17,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -98,7 +100,7 @@ public abstract class HoeBasic extends TItem{
 
                 long estimatedTime = System.currentTimeMillis() - startTime;
 
-                plugin.log.info("Shot time : "+ estimatedTime);
+                //plugin.log.info("Shot time : "+ estimatedTime);
 
                 final int tt = compte;
                 if(tt >= 1)
@@ -171,13 +173,17 @@ public abstract class HoeBasic extends TItem{
 			//if (!wallHack)
 				if (!block.getType().isTransparent())
 				{
-					net.minecraft.server.v1_7_R4.World w = ((CraftWorld)block.getWorld()).getHandle();
-					net.minecraft.server.v1_7_R4.Block b = w.getType(block.getX(), block.getY(), block.getZ());
-					b.updateShape(w, block.getX(), block.getY(), block.getZ());
-					AxisAlignedBB axisalignedbb = b.a(w, block.getX(), block.getY(), block.getZ());
-					if(axisalignedbb != null)
-						axisalignedbb = axisalignedbb.grow(0.1F, 0.1F, 0.1F);
-					if (axisalignedbb != null && axisalignedbb.a(Vec3D.a(loc.getX(), loc.getY(), loc.getZ()))) {
+					net.minecraft.server.v1_8_R1.World w = ((CraftWorld)block.getWorld()).getHandle();
+
+					BlockPosition var21 = new BlockPosition(block.getX(), block.getY(), block.getZ());
+					IBlockData iblockdata = w.getType(var21);
+					net.minecraft.server.v1_8_R1.Block b = iblockdata.getBlock();
+
+					b.updateShape(w, var21);
+					AxisAlignedBB vec3d = b.a(w, var21, iblockdata);
+					if(vec3d != null)
+						vec3d = vec3d.grow(0.1F, 0.1F, 0.1F);
+					if(vec3d != null && vec3d.a(new Vec3D(loc.getX(), loc.getY(), loc.getZ()))) {
 						break;
 					}
 				}

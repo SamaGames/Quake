@@ -1,12 +1,12 @@
 package com.Geekpower14.quake.utils;
 
-import net.minecraft.server.v1_7_R4.EntityFireworks;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_7_R4.World;
+import net.minecraft.server.v1_8_R1.EntityFireworks;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_8_R1.World;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -18,9 +18,9 @@ public class CustomEntityFirework extends EntityFireworks {
     List<Player> players = null;
     boolean gone = false;
 
-    public CustomEntityFirework(World world, List<Player>... p) {
+    public CustomEntityFirework(World world, List<Player> p) {
         super(world);
-        players = p[0];
+        players = p;
         this.a(0.25F, 0.25F);
     }
 
@@ -37,7 +37,7 @@ public class CustomEntityFirework extends EntityFireworks {
         spawn(location, effect, players);
     }
 
-    public static void spawn(Location location, FireworkEffect effect, List<Player>... players) {
+    public static void spawn(Location location, FireworkEffect effect, List<Player> players) {
         try {
             CustomEntityFirework firework = new CustomEntityFirework(((CraftWorld) location.getWorld()).getHandle(), players);
             FireworkMeta meta = ((Firework) firework.getBukkitEntity()).getFireworkMeta();
@@ -64,8 +64,13 @@ public class CustomEntityFirework extends EntityFireworks {
 
             if (players != null) {
                 if (players.size() > 0) {
-                    for (Player player : players) {
-                        (((CraftPlayer) player).getHandle()).playerConnection.sendPacket(new PacketPlayOutEntityStatus(this, (byte) 17));
+                    try{
+                        for (Player player : players) {
+                            (((CraftPlayer) player).getHandle()).playerConnection.sendPacket(new PacketPlayOutEntityStatus(this, (byte) 17));
+                        }
+                    }catch(Exception e)
+                    {
+                        e.printStackTrace();
                     }
 
                     this.die();

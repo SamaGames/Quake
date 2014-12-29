@@ -135,7 +135,7 @@ public class Quake extends JavaPlugin{
 		BungeeName = getConfig().getString("BungeeName");
 		type = getConfig().getString("Type", "solo");
 
-		String type_ = (type.equals("team"))?"quake":"quaketeam";
+		String type_ = (type.equals("team"))?"quaketeam":"quake";
 
 		GameAPI.registerGame(type_, DefaultPort, BungeeName);
 

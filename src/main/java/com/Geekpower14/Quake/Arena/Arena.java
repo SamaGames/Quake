@@ -59,12 +59,12 @@ public abstract class Arena implements GameArena {
 
 	public List<APlayer> players = new ArrayList<>();
 
-	private Starter CountDown = null;
+	protected Starter CountDown = null;
 
 	//ScoreBoard teams
-	private Scoreboard tboard;
+	protected Scoreboard tboard;
 
-	private Team spectates;
+	protected Team spectates;
 
 	public Arena(Quake pl, String name)
 	{
@@ -253,26 +253,7 @@ public abstract class Arena implements GameArena {
 
 		refresh();
 
-		if(getActualPlayers() <= 1 && eta == Status.InGame)
-		{
-			if(players.size() >= 1)
-			{
-
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-					@Override
-					public void run() {
-						win(players.get(0).getP());
-					}
-				}, 1L);
-			}else{
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-					@Override
-					public void run() {
-						stop();
-					}
-				}, 1L);
-			}
-		}
+		execAfterLeavePlayer();
 
 		if(players.size() < getMinPlayers() && eta == Status.Starting)
 		{
@@ -283,6 +264,8 @@ public abstract class Arena implements GameArena {
 	}
 
 	protected abstract void execLeavePlayer(APlayer ap);
+
+	protected abstract void execAfterLeavePlayer();
 
 	public void start()
 	{
@@ -377,7 +360,7 @@ public abstract class Arena implements GameArena {
 
 	}
 
-	public void win(final Player p)
+	public void win(Object p)
 	{
 		eta = Status.Stopping;
 
@@ -386,7 +369,7 @@ public abstract class Arena implements GameArena {
 		execWin(p);
 	}
 
-	protected abstract void execWin(Player p);
+	protected abstract void execWin(Object p);
 
 	public void kill(final Player p)
 	{
@@ -433,6 +416,8 @@ public abstract class Arena implements GameArena {
 
 	}
 
+	public abstract void extraStuf(APlayer ap);
+
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
 	{
         if(eta == Status.Stopping)
@@ -466,12 +451,17 @@ public abstract class Arena implements GameArena {
 	public abstract void tp(Player p);
 
 	public abstract Location getSpawn(Player p);
-	
+
 	public APlayer getAplayer(Player p)
+	{
+		return getAplayer(p.getName());
+	}
+	
+	public APlayer getAplayer(String p)
 	{
 		for(APlayer ap : players)
 		{
-			if(ap.getName().equals(p.getName()))
+			if(ap.getName().equals(p))
 			{
 				return ap;
 			}
@@ -724,7 +714,7 @@ public abstract class Arena implements GameArena {
 
 	@Override
 	public int getTotalMaxPlayers() {
-		return this.getMaxPlayers();
+		return this.getMaxPlayers() + this.getVIPSlots();
 	}
 
 	@Override

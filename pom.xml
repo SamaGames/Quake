@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.Geekpower14</groupId>
   <artifactId>QuakeSolo_Serv</artifactId>
@@ -11,9 +11,13 @@
 			<url>http://geekpower14.com/repo/maven</url>
 		</repository>
         <repository>
-			<id>zyuiop-repo</id>
-			<url>http://repo.zyuiop.net</url>
-		</repository>
+            <id>bukkit-repo</id>
+            <url>http://repo.md-5.net/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>zyuiop-repo</id>
+            <url>http://repo.zyuiop.net/</url>
+        </repository>
 	</repositories>
 
     <build>
@@ -46,13 +50,13 @@
         </dependency>
         <dependency>
             <groupId>net.samagames</groupId>
-            <artifactId>PermissionsBukkit</artifactId>
+            <artifactId>PermissionsAPI</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.samagames</groupId>
-            <artifactId>PermissionsAPI</artifactId>
+            <artifactId>PermissionsBukkit</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>

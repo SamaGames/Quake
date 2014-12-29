@@ -3,13 +3,14 @@ package com.Geekpower14.quake.listener;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.APlayer.Role;
+import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
+import com.Geekpower14.quake.arena.ArenaTeam;
 import com.Geekpower14.quake.stuff.TItem;
 import net.samagames.gameapi.events.FinishJoinPlayerEvent;
 import net.samagames.gameapi.json.Status;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,6 +24,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Wool;
 
 public class PlayerListener implements Listener{
 
@@ -101,7 +103,7 @@ public class PlayerListener implements Listener{
 		return;   
 	}
 
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority=EventPriority.LOW)
 	public void onPlayerInteract(PlayerInteractEvent event) 
 	{
 		final Player player = event.getPlayer();
@@ -119,7 +121,7 @@ public class PlayerListener implements Listener{
 			return;
 		}
 
-		APlayer ap = arena.getAplayer(player);
+		final APlayer ap = arena.getAplayer(player);
 
 		event.setCancelled(true);
 
@@ -127,6 +129,39 @@ public class PlayerListener implements Listener{
 				&& hand.getType() == Material.WOOD_DOOR)
 			arena.kickPlayer(player);
 
+		//TEAM
+		if(hand != null
+				&& hand.getType() == Material.WOOL
+				&& (action == Action.LEFT_CLICK_AIR
+				|| action == Action.LEFT_CLICK_BLOCK
+				|| action == Action.RIGHT_CLICK_AIR
+				|| action == Action.RIGHT_CLICK_BLOCK))
+		{
+			if(!arena.isTeam())
+				return;
+			final ArenaTeam arenaTeam = (ArenaTeam) arena;
+			/*if(arena.eta == Status.InGame)
+			{
+				arenaTeam.extraStuf(ap);
+			}*/
+
+			if(!arena.eta.isLobby())
+				return;
+
+			ATeam at = arenaTeam.getTeamByColor(DyeColor.getByWoolData(hand.getData().getData()));
+			if(at == null)
+				return;
+
+			arenaTeam.changeTeam(player, at.getName());
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+				public void run() {
+					arenaTeam.setWoolStuff(ap);
+				}
+			}, 1L);
+			return;
+		}
+
+		//ALL
 
 		if(ap.getRole() == Role.Spectator)
 			return;
@@ -178,6 +213,69 @@ public class PlayerListener implements Listener{
 					return;
 				}
 				p.teleport(arena.getSpawn(p));
+			}
+		}
+
+		return;
+	}
+
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void onPlayerMove(PlayerMoveEvent event)
+	{
+		if(event.getFrom().getBlock().equals(event.getTo().getBlock()))
+			return;
+
+		final Player p = event.getPlayer();
+		if(p.isDead())
+			return;
+
+		final Arena arena = plugin.arenaManager.getArena();
+
+		if(arena == null)
+			return;
+		if(!arena.isTeam())
+			return;
+
+		final ArenaTeam arenaTeam = (ArenaTeam) arena;
+		APlayer ap = arena.getAplayer(p);
+
+		if(ap.isInvincible())
+			return;
+		if(arena.eta != Status.InGame)
+			return;
+
+		// For all.
+
+		if(ap.getRole() == Role.Spectator)
+			return;
+
+		final Location loc = p.getLocation();
+
+		for(int i = 1; i <= 5; i++)
+		{
+			Location tmp = loc.subtract(0, i, 0);
+			Block b = tmp.getBlock();
+			if(b.getState().getData() instanceof Wool)
+			{
+				//plugin.log.info("stand on wool !");
+				DyeColor color = ((Wool)b.getState().getData()).getColor();
+				ATeam pt = arenaTeam.getTeam(p);
+				ATeam tt = arenaTeam.getTeamByColor(color);
+				if(tt == null || !tt.isActive())
+				{
+					return;
+				}
+
+				if(!pt.isBlockTeam(b))
+				{
+					//plugin.log.info("stand not good team !");
+					arena.kill(p);
+					ATeam at = arenaTeam.getTeamByColor(color);
+					arena.broadcast(pt.getColor() + p.getName() + ChatColor.YELLOW + " est entré dans le spawn de la team " + at.getColor() + at.getName());
+					at.addScore(1);
+					arena.updateScore();
+					return;
+				}
 			}
 		}
 

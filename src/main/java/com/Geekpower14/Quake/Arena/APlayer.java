@@ -57,13 +57,6 @@ public class APlayer {
 			vip = true;
 		}
 
-		/*if(p.getScoreboard() != null)
-		{
-			board = p.getScoreboard();
-		}
-		else{*/
-			
-		//}
 		board = Bukkit.getScoreboardManager().getNewScoreboard();
 		
 		sboard = new SimpleScoreboard(board, "" + ChatColor.RED + ChatColor.BOLD + "Quake", p.getName());
@@ -124,6 +117,9 @@ public class APlayer {
 
 			p.getInventory().setItem(i.getSlot(), item.getItem());
 		}
+
+		arena.extraStuf(this);
+
 		p.updateInventory();
 	}
 
@@ -158,7 +154,6 @@ public class APlayer {
 	public void setScoreboard()
 	{
 		p.setScoreboard(board);
-		//updateScoreboard();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -183,14 +178,14 @@ public class APlayer {
 
 		if(this.getArena() instanceof ArenaTeam)
 		{
-			ArenaSolo arenaSolo = (ArenaSolo)arena;
-			sboard.reset();
+			/*ArenaSolo arenaSolo = (ArenaSolo)arena;
+			sboard.reset();*/
 
 
 
 			setLevel(this.getScore());
 
-			sboard.build();
+			//sboard.build();
 		}
 
 
@@ -280,14 +275,11 @@ public class APlayer {
 					xp = 1;
 				}
 				p.setExp(xp);
-
-
 			}
 
 		}, 0L, 2L);
 
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-
 		{
 			public void run() {
 
@@ -296,7 +288,7 @@ public class APlayer {
 				plugin.getServer().getScheduler().cancelTask(infoxp);
 			}
 		}
-		, Ticks);
+				, Ticks);
 
 		return;
 	}
@@ -366,23 +358,23 @@ public class APlayer {
 	public void setScore(int i)
 	{
 		score = i;
-        try{
-            setLevel(i);
-        }catch(Exception e)
-        {
+		try{
+			setLevel(i);
+		}catch(Exception e)
+		{
 
-        }
+		}
 	}
 	
 	public void addScore(int i)
 	{
 		score += i;
-        try{
-            setLevel(i);
-        }catch(Exception e)
-        {
+		try{
+			setLevel(i);
+		}catch(Exception e)
+		{
 
-        }
+		}
 	}
 
 	public String getDisplayName()
