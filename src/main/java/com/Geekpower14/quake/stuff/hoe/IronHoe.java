@@ -1,6 +1,5 @@
 package com.Geekpower14.quake.stuff.hoe;
 
-import com.Geekpower14.quake.arena.APlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -24,14 +23,6 @@ public class IronHoe extends HoeBasic{
 		}, false);
 
 		return coucou;
-	}
-
-	public void leftAction(APlayer p) {
-		return;		
-	}
-
-	public void rightAction(APlayer ap) {
-		basicShot(ap.getP());		
 	}
 
 }

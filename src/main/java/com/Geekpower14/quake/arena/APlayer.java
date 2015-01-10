@@ -82,28 +82,27 @@ public class APlayer {
 				data.put("hoe", pipeline.get("shops:quake:hoes:" + p.getUniqueId().toString() + ":current"));
 				data.put("grenade", pipeline.get("shops:quake:fragrenade:"+p.getUniqueId().toString()+":current"));
 				pipeline.sync();
-				FastJedis.back(jedis);
 
 				//Shooter
 				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data.get("hoe").get()));
 
 				//Grenade
+				FragGrenade grenade = (FragGrenade) plugin.itemManager
+						.getItemByName("fragrenade");
+
+				grenade.setNB(1);
+				stuff.put(ItemSLot.Slot2, grenade);
+
 				if (data.get("grenade").get() != null) {
 					String[] dj = data.get("grenade").get().split("-");
 					if (dj[0].equals("fragrenade")) {
 						final int add = Integer.parseInt(dj[1]);
-						FragGrenade grenade = (FragGrenade) plugin.itemManager.getItemByName("fragrenade");
 						grenade.setNB(1 + add);
 						stuff.put(ItemSLot.Slot2, grenade);
 					}
-				} else {
-					FragGrenade grenade = (FragGrenade) plugin.itemManager
-							.getItemByName("fragrenade");
-
-					grenade.setNB(1);
-					stuff.put(ItemSLot.Slot2, grenade);
 				}
 
+				FastJedis.back(jedis);
 			}
 		});		
 	}
@@ -115,6 +114,8 @@ public class APlayer {
 		{
 			TItem item = stuff.get(i);
 
+			if(item == null)
+				continue;
 			p.getInventory().setItem(i.getSlot(), item.getItem());
 		}
 

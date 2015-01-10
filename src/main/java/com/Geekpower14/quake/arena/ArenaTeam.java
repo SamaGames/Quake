@@ -2,9 +2,9 @@ package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
-import com.Geekpower14.quake.utils.CustomEntityFirework;
 import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
+import com.Geekpower14.quake.utils.Utils;
 import net.samagames.gameapi.json.Status;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
@@ -347,7 +347,7 @@ public class ArenaTeam extends Arena{
             @Override
             public void run() {
                 try {
-                    CustomEntityFirework.spawn(victim.getLocation(), effect, null);
+                    Utils.launchfw(victim.getLocation(), effect);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

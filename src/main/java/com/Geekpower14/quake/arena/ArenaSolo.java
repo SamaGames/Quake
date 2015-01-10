@@ -2,9 +2,9 @@ package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.task.ScoreHandler;
-import com.Geekpower14.quake.utils.CustomEntityFirework;
 import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
+import com.Geekpower14.quake.utils.Utils;
 import net.samagames.gameapi.json.Status;
 import net.samagames.permissionsbukkit.PermissionsBukkit;
 import net.zyuiop.MasterBundle.MasterBundle;
@@ -264,7 +264,7 @@ public class ArenaSolo extends Arena{
             @Override
             public void run() {
                 try {
-                    CustomEntityFirework.spawn(victim.getLocation(), effect, null);
+                    Utils.launchfw(victim.getLocation(), effect);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

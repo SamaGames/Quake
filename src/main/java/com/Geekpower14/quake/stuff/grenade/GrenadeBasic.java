@@ -4,9 +4,9 @@ import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
-import com.Geekpower14.quake.utils.CustomEntityFirework;
 import com.Geekpower14.quake.utils.ParticleEffects;
 import com.Geekpower14.quake.utils.StatsNames;
+import com.Geekpower14.quake.utils.Utils;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
@@ -152,7 +152,7 @@ public abstract class GrenadeBasic extends TItem {
             @Override
             public void run() {
                 try {
-                    CustomEntityFirework.spawn(item.getLocation(), effect, 30);
+                    Utils.launchfw(item.getLocation(), effect);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
