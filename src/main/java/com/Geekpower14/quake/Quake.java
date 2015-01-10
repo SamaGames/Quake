@@ -1,5 +1,9 @@
 package com.Geekpower14.quake;
 
+/**
+ * Created by Geekpower14 on 10/01/2015.
+ */
+
 import com.Geekpower14.quake.arena.ArenaManager;
 import com.Geekpower14.quake.commands.CommandsManager;
 import com.Geekpower14.quake.listener.PlayerListener;
@@ -23,56 +27,56 @@ import java.util.logging.Logger;
 
 public class Quake extends JavaPlugin{
 
-	public static Quake plugin;
-	private static String[] colors = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "a","b", "c", "d", "f", "g", "h", "i", "j","k","l","m","n","o","p","r","s","t","u","v","w","x","y","z"};
-	private static int e = 0;
-	private static int r = 0;
-	public Logger log;
-	public ArenaManager arenaManager;
-	public CommandsManager commandsManager;
-	public ItemManager itemManager;
-	public int DefaultPort;
-	public String BungeeName;
+    public static Quake plugin;
+    private static String[] colors = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "a","b", "c", "d", "f", "g", "h", "i", "j","k","l","m","n","o","p","r","s","t","u","v","w","x","y","z"};
+    private static int e = 0;
+    private static int r = 0;
+    public Logger log;
+    public ArenaManager arenaManager;
+    public CommandsManager commandsManager;
+    public ItemManager itemManager;
+    public int DefaultPort;
+    public String BungeeName;
 
-	public String type = "solo";
+    public String type = "solo";
 
-	public HashMap<Player, ArrayList<Object>> cachedPackets = new HashMap<Player, ArrayList<Object>>();
-	
-	public BukkitTask TabTask;
+    public HashMap<Player, ArrayList<Object>> cachedPackets = new HashMap<Player, ArrayList<Object>>();
 
-	
-	/* return the next null filler */
-	public static String nextNull(){
-		String s = "";
-		for(int a = 0; a < r; a++){
-			s = " "+s;
-		}
-		s = s + "\u00A7" + colors[e];
-		e++;
-		if(e > 14){
-			e = 0;
-			r++;
-		}
-		return s;
-	}
+    public BukkitTask TabTask;
 
-	public static Quake getPlugin() {
-		return plugin;
-	}
 
-	public static Boolean hasPermission(Player p, String perm)
-	{
-		if(perm.equalsIgnoreCase(""))
-			return true;
-		if(p.isOp())
-			return true;
-		if(p.hasPermission("Quake.admin"))
-			return true;
-		if(p.hasPermission(perm))
-			return true;
+    /* return the next null filler */
+    public static String nextNull(){
+        String s = "";
+        for(int a = 0; a < r; a++){
+            s = " "+s;
+        }
+        s = s + "\u00A7" + colors[e];
+        e++;
+        if(e > 14){
+            e = 0;
+            r++;
+        }
+        return s;
+    }
 
-		return false;
-	}
+    public static Quake getPlugin() {
+        return plugin;
+    }
+
+    public static Boolean hasPermission(Player p, String perm)
+    {
+        if(perm.equalsIgnoreCase(""))
+            return true;
+        if(p.isOp())
+            return true;
+        if(p.hasPermission("Quake.admin"))
+            return true;
+        if(p.hasPermission(perm))
+            return true;
+
+        return false;
+    }
 
     public static List<Player> getOnline() {
         List<Player> list = new ArrayList<>();
@@ -90,49 +94,49 @@ public class Quake extends JavaPlugin{
 
         return ep.ping;
     }
-	
+
     public static int msToTick(int ms)
     {
         return (ms*20)/1000;
     }
 
-	public void onEnable()
-	{
-		log = getLogger();
-		plugin = this;
+    public void onEnable()
+    {
+        log = getLogger();
+        plugin = this;
 
-		File conf = new File(getDataFolder().getAbsoluteFile().getParentFile().getParentFile(), "data.yml");
-		this.getLogger().info("Searching data.yml in "+conf.getAbsolutePath());
-		if (!conf.exists()) {
-			this.getLogger().log(Level.SEVERE, "StatsApi stopped loading : data.yml not found");
-			this.getPluginLoader().disablePlugin(this);
-			return;
-		}
-		Bukkit.getWorld("world").setAutoSave(false);
+        File conf = new File(getDataFolder().getAbsoluteFile().getParentFile().getParentFile(), "data.yml");
+        this.getLogger().info("Searching data.yml in "+conf.getAbsolutePath());
+        if (!conf.exists()) {
+            this.getLogger().log(Level.SEVERE, "StatsApi stopped loading : data.yml not found");
+            this.getPluginLoader().disablePlugin(this);
+            return;
+        }
+        Bukkit.getWorld("world").setAutoSave(false);
 
-		this.saveDefaultConfig();
+        this.saveDefaultConfig();
 
-		DefaultPort = getConfig().getInt("port");
-		BungeeName = getConfig().getString("BungeeName");
-		type = getConfig().getString("Type", "solo");
+        DefaultPort = getConfig().getInt("port");
+        BungeeName = getConfig().getString("BungeeName");
+        type = getConfig().getString("Type", "solo");
 
-		String type_ = (type.equals("team"))?"quaketeam":"quake";
+        String type_ = (type.equals("team"))?"quaketeam":"quake";
 
-		GameAPI.registerGame(type_, DefaultPort, BungeeName);
+        GameAPI.registerGame(type_, DefaultPort, BungeeName);
 
-		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-		arenaManager = new ArenaManager(this);
+        arenaManager = new ArenaManager(this);
 
-		itemManager = new ItemManager(this);
+        itemManager = new ItemManager(this);
 
-		commandsManager = new CommandsManager(this);
+        commandsManager = new CommandsManager(this);
 
-		getCommand("q").setExecutor(commandsManager);
+        getCommand("q").setExecutor(commandsManager);
 
-		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
-		/*try{
+        /*try{
 			Method a = EntityTypes.class.getDeclaredMethod("a", new Class<?>[]{Class.class, String.class, int.class});
 			a.setAccessible(true);
 			a.invoke(null, CustomEntityFirework.class, "EntityFirework", 99999);
@@ -140,15 +144,15 @@ public class Quake extends JavaPlugin{
 			e.printStackTrace();
 		}*/
 
-		GameAPI.getManager().sendArenas();
-		log.info("quake enabled!");
-	}
+        GameAPI.getManager().sendArenas();
+        log.info("quake enabled!");
+    }
 
-	public void onDisable()
-	{
-		//TabTask.cancel();
-		arenaManager.disable();
+    public void onDisable()
+    {
+        //TabTask.cancel();
+        arenaManager.disable();
 
-		log.info("quake disabled!");
-	}
+        log.info("quake disabled!");
+    }
 }
