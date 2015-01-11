@@ -4,7 +4,7 @@ import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
-import com.Geekpower14.quake.utils.ParticleEffects;
+import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import net.zyuiop.coinsManager.CoinsManager;
@@ -83,6 +83,15 @@ public abstract class GrenadeBasic extends TItem {
             @Override
             public void run() {
 
+
+                if(item != null && item.isOnGround())
+                {
+                    try {
+                        ParticleEffect.FIREWORKS_SPARK.display(0.07F, 0.04F, 0.07F, 0.00005F, 1, item.getLocation(), 50);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 for(Player p : Quake.getOnline())
                 {
                     if(time%2 == 0)
@@ -91,18 +100,6 @@ public abstract class GrenadeBasic extends TItem {
                     }else
                     {
                         p.getWorld().playSound(item.getLocation(), Sound.NOTE_STICKS, 0.5F, 0.5F);
-                    }
-                    if(item != null && item.isOnGround())
-                    {
-                        try {
-                            if(player.getLocation().getWorld() == item.getLocation().getWorld()
-                                    && player.getLocation().distance(item.getLocation()) < 20)
-                            {
-                                ParticleEffects.FIREWORKS_SPARK.sendToPlayer(player, item.getLocation(), 1.2F, 2.1F, 1.2F, 0.00005F, 4);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
 

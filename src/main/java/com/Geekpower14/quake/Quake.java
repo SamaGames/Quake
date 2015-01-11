@@ -4,9 +4,6 @@ import com.Geekpower14.quake.arena.ArenaManager;
 import com.Geekpower14.quake.commands.CommandsManager;
 import com.Geekpower14.quake.listener.PlayerListener;
 import com.Geekpower14.quake.stuff.ItemManager;
-import com.Geekpower14.quake.utils.ParticleEffects;
-import com.Geekpower14.quake.utils.ParticleEffects.ReflectionUtilities;
-import com.Geekpower14.quake.utils.Reflection;
 import net.minecraft.server.v1_8_R1.EntityPlayer;
 import net.samagames.gameapi.GameAPI;
 import org.bukkit.Bukkit;
@@ -43,22 +40,6 @@ public class Quake extends JavaPlugin{
 	
 	public BukkitTask TabTask;
 
-	static public void sendTabName(Player p, String s, Boolean visible, int ping)
-	{
-		try {
-			//PacketPlayOutPlayerInfo yInfo = new PacketPlayOutPlayerInfo(s, visible, ping);
-			Object packet = Reflection.getNMSClass("PacketPlayOutPlayerInfo").newInstance();
-			ReflectionUtilities.setValue(packet, "a", s);
-			ReflectionUtilities.setValue(packet, "b", visible);
-			ReflectionUtilities.setValue(packet, "c", ping);
-			ParticleEffects.sendPacket(packet, p);
-			//ParticleEffects.sendPacket(yInfo, p);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
 	
 	/* return the next null filler */
 	public static String nextNull(){
@@ -169,40 +150,5 @@ public class Quake extends JavaPlugin{
 
 		log.info("quake disabled!");
 	}
-
-	public void addPacket(Player p, String msg, boolean b, int ping) throws Exception{
-		Object packet = Reflection.getNMSClass("PacketPlayOutPlayerInfo").newInstance();
-		ReflectionUtilities.setValue(packet, "a", msg);
-		ReflectionUtilities.setValue(packet, "b", b);
-		ReflectionUtilities.setValue(packet, "c", ping);
-		ArrayList<Object> packetList = cachedPackets.get(p);
-		if (packetList == null) {
-			packetList = new ArrayList<Object>();
-			cachedPackets.put(p, packetList);
-		}
-		packetList.add(packet);
-	}
-
-	public void flushPackets() {
-		final Player[] packetPlayers = cachedPackets.keySet().toArray(new Player[0]);
-		for (Player p : packetPlayers) {
-			flushPackets(p);
-		}
-	}
-
-	private void flushPackets(final Player p) {
-		final Object[] packets = (Object[]) cachedPackets.get(p).toArray(new Object[0]);
-
-		if (p.isOnline()) {
-			for (Object packet : packets) {
-				ParticleEffects.sendPacket(packet, p);
-			}
-		}
-
-		cachedPackets.remove(p);
-	}
-
-
-
 
 }

@@ -4,7 +4,7 @@ import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
-import com.Geekpower14.quake.utils.ParticleEffects;
+import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.StatsNames;
 import net.minecraft.server.v1_8_R1.AxisAlignedBB;
 import net.minecraft.server.v1_8_R1.BlockPosition;
@@ -191,15 +191,14 @@ public abstract class HoeBasic extends TItem{
 			ly = loc.getY();
 			lz = loc.getZ();
 
+			ParticleEffect.FIREWORKS_SPARK.display(0.07F, 0.04F, 0.07F, 0.00005F, 1, loc, 50);
 			for(Player apa : arena.getPlayers())
 			{
 				try {
+
 					if(apa.getLocation().getWorld() == loc.getWorld()
 							&& apa.getLocation().distance(loc) < 30)
 					{
-						//ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, 0.05F, 2);
-						//ParticleEffects.MOB_SPELL_AMBIENT.sendToPlayer(apa, loc, 0.1F, 0.1F, 0.1F, RandomUtils.nextFloat(), 2);
-						ParticleEffects.FIREWORKS_SPARK.sendToPlayer(apa, loc, 0.07F, 0.04F, 0.07F, 0.00005F, 1);
 						if (loop % 10 == 0) {
 							apa.getWorld().playSound(apa.getLocation(), Sound.FIREWORK_LAUNCH, 0.042F, 0.01F);
 						}

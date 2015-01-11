@@ -36,6 +36,7 @@ public abstract class TItem implements Cloneable{
 	}
 	
 	public static ItemStack addGlow(ItemStack item){
+
 		  net.minecraft.server.v1_8_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
 		  NBTTagCompound tag = null;
 		  if (!nmsStack.hasTag()) {
@@ -43,6 +44,7 @@ public abstract class TItem implements Cloneable{
 		      nmsStack.setTag(tag);
 		  }
 		  if (tag == null) tag = nmsStack.getTag();
+
 		  NBTTagList ench = new NBTTagList();
 		  tag.set("ench", ench);
 		  nmsStack.setTag(tag);
@@ -59,8 +61,13 @@ public abstract class TItem implements Cloneable{
 		if (lore != null)
 			im.setLore(Arrays.asList(lore));
 		item.setItemMeta(im);
-		if(glow)
-			item = addGlow(item);
+		try{
+			if(glow)
+				item = addGlow(item);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		return item;
 	}
 	

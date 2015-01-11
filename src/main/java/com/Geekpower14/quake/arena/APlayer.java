@@ -42,6 +42,8 @@ public class APlayer {
 
 	private int coins = 0;
 
+	private int killstreak = 0;
+
 	private int score = 0;
 
 	private HashMap<ItemSLot, TItem> stuff = new HashMap<ItemSLot, TItem>();
@@ -227,12 +229,20 @@ public class APlayer {
 		{
 			public void run() {
 				Reloading = false;
+				arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
 				p.setExp(1);
 				plugin.getServer().getScheduler().cancelTask(infoxp);
                 //p.playSound(p.getLocation(), Sound.CLICK, 1, 1);
 			}
 		}
 		, Ticks);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+		{
+			public void run() {
+				arena.sendBarTo(p, "");
+			}
+		}
+				, Ticks+5);
 
 		return;
 	}
@@ -345,6 +355,70 @@ public class APlayer {
 		coins = c;
 		//updateScoreboard();
 	}
+
+	public int getKillstreak()
+	{
+		return killstreak;
+	}
+
+	public void setKillstreak(int killstreak)
+	{
+		this.killstreak = killstreak;
+	}
+
+	public void addKill()
+	{
+		killstreak++;
+
+		String message = "";
+		switch(killstreak)
+		{
+			case 3:
+				message = p.getDisplayName() + ChatColor.GOLD + " est recherché par la police du quartier !";
+				break;
+			case 5:
+				message = ChatColor.GOLD + "Une enquête est lancée sur " + p.getDisplayName() + ChatColor.GOLD + " !";
+				break;
+			case 8:
+				message = ChatColor.GOLD + "Le GIGN est à la poursuite de " + p.getDisplayName() + ChatColor.GOLD + " !";
+				break;
+			case 13:
+				message = ChatColor.GOLD + "Le raid essaye d'encercler " + p.getDisplayName() + ChatColor.GOLD + " !";
+				break;
+			case 16:
+				message = ChatColor.GOLD + "Le BRI veux mettre la main sur " + p.getDisplayName() + ChatColor.GOLD + " !";
+				break;
+			case 20:
+				message = ChatColor.GOLD + "Maïte a envoyé un cookie de soutient à " + p.getDisplayName() + ChatColor.GOLD + " !";
+				break;
+			case 25:
+				message = p.getDisplayName() + ChatColor.GOLD + " a réussi à semer les forces spéciales !";
+				break;
+			default:
+				break;
+		}
+		killStreakMessage(message);
+	}
+
+	public void killStreakMessage(String message)
+	{
+		if(message == null || message.equals(""))
+			return;
+
+		arena.nbroadcast("" + ChatColor.RED + ChatColor.BOLD + killstreak + " kills à la suite !");
+		arena.nbroadcast(""+ ChatColor.BOLD + message);
+		arena.nbroadcast("");
+	}
+
+	public void hasDiedBy(String player)
+	{
+		if(killstreak >= 3)
+		{
+			arena.nbroadcast(""+ ChatColor.BOLD + p.getDisplayName() + ChatColor.GOLD + ChatColor.BOLD + " s'est fait arrété par " + player);
+			arena.nbroadcast("");
+		}
+		killstreak = 0;
+	}
 	
 	public void addCoins(int c)
 	{
@@ -369,6 +443,7 @@ public class APlayer {
 	
 	public void addScore(int i)
 	{
+		addKill();
 		score += i;
 		try{
 			setLevel(i);

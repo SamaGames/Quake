@@ -19,7 +19,7 @@ public class FragGrenade extends GrenadeBasic{
 
     @Override
     public ItemStack getItem() {
-        ItemStack coucou = setItemNameAndLore(new ItemStack(Material.COCOA), ""+ChatColor.RED + ChatColor.BOLD + "Grenade à Fragmentation", new String[]{
+        ItemStack coucou = setItemNameAndLore(new ItemStack(Material.CLAY_BALL), ""+ChatColor.RED + ChatColor.BOLD + "Grenade à Fragmentation", new String[]{
                 ChatColor.DARK_GRAY + "Explose au bout de " + ChatColor.GOLD + "3" + ChatColor.DARK_GRAY + " secondes.",
                 ChatColor.DARK_GRAY + "Élimine les joueurs " + ChatColor.GOLD + "3" + ChatColor.DARK_GRAY + " blocs au tour."
         }, true);
