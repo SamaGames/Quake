@@ -4,6 +4,9 @@ import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer.Role;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
+import net.minecraft.server.v1_8_R1.ChatSerializer;
+import net.minecraft.server.v1_8_R1.IChatBaseComponent;
+import net.minecraft.server.v1_8_R1.PacketPlayOutChat;
 import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
@@ -11,6 +14,7 @@ import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -53,6 +57,8 @@ public abstract class Arena implements GameArena {
 
 	public boolean vip;
 
+	public String warningJoinMessage = null;
+
 	/*** Variable dynamiques ***/
 
 	public Status eta = Status.Idle;
@@ -60,8 +66,12 @@ public abstract class Arena implements GameArena {
 	public List<APlayer> players = new ArrayList<>();
 	//ScoreBoard teams
 	protected Scoreboard tboard;
-	private Starter CountDown = null;
-	private Team spectates;
+	protected Starter CountDown = null;
+
+	//ScoreBoard teams
+	protected Scoreboard tboard;
+
+	protected Team spectates;
 
 	public Arena(Quake pl, String name)
 	{
@@ -112,6 +122,8 @@ public abstract class Arena implements GameArena {
 		vipSlots = config.getInt("Slots-VIP");
 		spectateSlots = config.getInt("Slots-Spectator");
 
+		warningJoinMessage = config.getString("WarningJoinMessage");
+
 		List<PotionEffect> l = new ArrayList<>();
 		for(String popo : config.getStringList("Potions"))
 		{
@@ -145,6 +157,8 @@ public abstract class Arena implements GameArena {
 		setDefaultConfig(config, "Slots-VIP", 5);
 		setDefaultConfig(config, "Slots-Spectator", 5);
 
+		setDefaultConfig(config, "WarningJoinMessage", "");
+
 		List<String> l = new ArrayList<>();
 		l.add("SPEED:2");
 		l.add("JUMP:1");
@@ -175,6 +189,8 @@ public abstract class Arena implements GameArena {
 
 		config.set("Slots-VIP", vipSlots);
 		config.set("Slots-Spectator", spectateSlots);
+
+		config.set("WarningJoinMessage", warningJoinMessage);
 
 		List<String> l = new ArrayList<String>();
 		for(PotionEffect popo : potions)
@@ -224,6 +240,11 @@ public abstract class Arena implements GameArena {
 			p.updateInventory();
 		}catch(Exception e)
 		{/*LOL*/}
+
+		if(warningJoinMessage != null && !warningJoinMessage.equals(""))
+		{
+			p.sendMessage(""+ChatColor.RED + ChatColor.BOLD + warningJoinMessage);
+		}
 	}
 
 	protected abstract void execJoinPlayer(APlayer ap);
@@ -251,6 +272,11 @@ public abstract class Arena implements GameArena {
 		refresh();
 
 		execAfterLeavePlayer();
+
+		if(players.size() < getMinPlayers() && eta == Status.Starting)
+		{
+			resetCountdown();
+		}
 
 		return;
 	}
@@ -353,7 +379,7 @@ public abstract class Arena implements GameArena {
 
 	}
 
-	public void win(final Object p)
+	public void win(Object p)
 	{
 		eta = Status.Stopping;
 
@@ -408,6 +434,8 @@ public abstract class Arena implements GameArena {
 		}, 5L);
 
 	}
+
+	public abstract void extraStuf(APlayer ap);
 
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
 	{
@@ -620,6 +648,21 @@ public abstract class Arena implements GameArena {
 				p.showPlayer(pp);
 			}
 		}
+	}
+
+	public void sendBar(String message)
+	{
+		for(APlayer ap : players)
+		{
+			sendBarTo(ap.getP(), message);
+		}
+	}
+
+	public void sendBarTo(Player p, String message)
+	{
+		IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \"" + message + "\"}");
+		PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc, (byte)2);
+		((CraftPlayer)p).getHandle().playerConnection.sendPacket(ppoc);
 	}
 
 	public void loseHider(Player p)
@@ -892,7 +935,7 @@ public abstract class Arena implements GameArena {
 
 		public void start()
 		{
-			arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans " + Time_Before +" sec.");
+			arena.broadcast(ChatColor.GOLD + "Le jeu va démarrer dans " + Time_Before +" sec.");
 			arena.broadcastXP(time);
 
 			ID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, 1L, 20L);
@@ -904,13 +947,15 @@ public abstract class Arena implements GameArena {
 
 			if(time == 10)
 			{
-				arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans 10 sec.");
+				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "Le jeu va démarrer dans "+ ChatColor.RED + "10" + ChatColor.GOLD +" sec.");
+				//arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans 10 sec.");
 				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
 			}
 
 			if(time  <= 5 && time >=1)
 			{
-				arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans " + time + " sec.");
+				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "Le jeu va démarrer dans " + ChatColor.RED + time + ChatColor.GOLD + " sec.");
+				//arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans " + time + " sec.");
 				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
 			}
 			if(time == 1)
@@ -924,7 +969,8 @@ public abstract class Arena implements GameArena {
 				arena.playsound(Sound.NOTE_PLING, 9.0F, 1F);
 				arena.playsound(Sound.NOTE_PLING, 9.0F, 5F);
 				arena.playsound(Sound.NOTE_PLING, 9.0F, 10F);
-				arena.broadcast(ChatColor.YELLOW + "C'est parti !");
+				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "C'est parti !");
+				//arena.broadcast(ChatColor.YELLOW + "C'est parti !");
 				arena.start();
 				abord();
 			}

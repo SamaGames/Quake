@@ -1,6 +1,14 @@
 package com.Geekpower14.quake.utils;
 
+<<<<<<< HEAD
 import com.Geekpower14.quake.Quake;
+=======
+/**
+ * Created by Geekpower14 on 10/01/2015.
+ */
+
+import org.bukkit.Bukkit;
+>>>>>>> 1.8
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -1208,7 +1216,11 @@ public enum ParticleEffect {
             }
             String worldName = center.getWorld().getName();
             double squared = range * range;
+<<<<<<< HEAD
             for (Player player : Quake.getOnline()) {
+=======
+            for (Player player : Bukkit.getOnlinePlayers()) {
+>>>>>>> 1.8
                 if (!player.getWorld().getName().equals(worldName) || player.getLocation().distanceSquared(center) > squared) {
                     continue;
                 }

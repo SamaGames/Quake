@@ -342,6 +342,10 @@ public class ArenaTeam extends Arena{
 
         avictim.setinvincible(true);
         kill(victim);
+<<<<<<< HEAD
+=======
+        avictim.hasDiedBy(ashooter.getDisplayName());
+>>>>>>> 1.8
 
         Bukkit.getScheduler().runTask(plugin, new Runnable() {
             @Override

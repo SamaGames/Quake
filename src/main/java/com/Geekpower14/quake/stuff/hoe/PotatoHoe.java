@@ -26,4 +26,8 @@ public class PotatoHoe extends HoeBasic{
 
 		return coucou;
 	}
+<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/hoe/PotatoHoe.java
+=======
+
+>>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/hoe/PotatoHoe.java
 }

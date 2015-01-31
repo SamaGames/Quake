@@ -24,4 +24,8 @@ public class IronHoe extends HoeBasic{
 
 		return coucou;
 	}
+<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/hoe/IronHoe.java
+=======
+
+>>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/hoe/IronHoe.java
 }

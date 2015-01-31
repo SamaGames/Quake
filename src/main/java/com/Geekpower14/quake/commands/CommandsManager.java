@@ -63,6 +63,12 @@ public class CommandsManager implements CommandExecutor{
 				help(player);
 				return true;
 			}
+
+			if(args[0].equalsIgnoreCase("error")){
+				String lol = null;
+				lol.equals("");
+				return true;
+			}
 			
 			String sub = args[0];
 

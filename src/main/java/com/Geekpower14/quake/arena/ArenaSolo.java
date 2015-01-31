@@ -1,3 +1,4 @@
+
 package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
@@ -259,7 +260,7 @@ public class ArenaSolo extends Arena{
 
         avictim.setinvincible(true);
         kill(victim);
-
+        avictim.hasDiedBy(ashooter.getDisplayName());
         Bukkit.getScheduler().runTask(plugin, new Runnable() {
             @Override
             public void run() {
