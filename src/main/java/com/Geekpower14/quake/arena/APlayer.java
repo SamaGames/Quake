@@ -93,12 +93,6 @@ public class APlayer {
 				grenade.setNB(1);
 				stuff.put(ItemSLot.Slot2, grenade);
 
-				FragGrenade grenade = (FragGrenade) plugin.itemManager
-						.getItemByName("fragrenade");
-
-				grenade.setNB(1);
-				stuff.put(ItemSLot.Slot2, grenade);
-
 				if (data.get("grenade").get() != null) {
 					String[] dj = data.get("grenade").get().split("-");
 					if (dj[0].equals("fragrenade")) {
@@ -107,7 +101,6 @@ public class APlayer {
 						stuff.put(ItemSLot.Slot2, grenade);
 					}
 				}
-				FastJedis.back(jedis);
 				FastJedis.back(jedis);
 			}
 		});		

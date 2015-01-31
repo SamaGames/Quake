@@ -2,15 +2,9 @@ package com.Geekpower14.quake.stuff;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/TItem.java
-import net.minecraft.server.v1_7_R4.NBTTagCompound;
-import net.minecraft.server.v1_7_R4.NBTTagList;
-import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
-=======
 import net.minecraft.server.v1_8_R1.NBTTagCompound;
 import net.minecraft.server.v1_8_R1.NBTTagList;
 import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/TItem.java
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -42,22 +36,14 @@ public abstract class TItem implements Cloneable{
 	}
 	
 	public static ItemStack addGlow(ItemStack item){
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/TItem.java
-		  net.minecraft.server.v1_7_R4.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
-=======
 
 		  net.minecraft.server.v1_8_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/TItem.java
 		  NBTTagCompound tag = null;
 		  if (!nmsStack.hasTag()) {
 		      tag = new NBTTagCompound();
 		      nmsStack.setTag(tag);
 		  }
 		  if (tag == null) tag = nmsStack.getTag();
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/TItem.java
-=======
-
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/TItem.java
 		  NBTTagList ench = new NBTTagList();
 		  tag.set("ench", ench);
 		  nmsStack.setTag(tag);
@@ -74,10 +60,6 @@ public abstract class TItem implements Cloneable{
 		if (lore != null)
 			im.setLore(Arrays.asList(lore));
 		item.setItemMeta(im);
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/TItem.java
-		if(glow)
-			item = addGlow(item);
-=======
 		try{
 			if(glow)
 				item = addGlow(item);
@@ -85,7 +67,6 @@ public abstract class TItem implements Cloneable{
 		{
 			e.printStackTrace();
 		}
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/TItem.java
 		return item;
 	}
 	
@@ -167,12 +148,8 @@ public abstract class TItem implements Cloneable{
 	public abstract ItemStack getItem();
 	
 	public abstract void rightAction(APlayer ap, APlayer.ItemSLot slot);
-	
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/TItem.java
-	public abstract void leftAction(APlayer ap, APlayer.ItemSLot slot);
-=======
+
 	public abstract void leftAction(APlayer p, APlayer.ItemSLot slot);
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/TItem.java
 	
 	//public abstract void onItemTouchGround(arena arena, Item item);
 

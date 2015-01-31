@@ -101,17 +101,6 @@ public abstract class GrenadeBasic extends TItem {
                     {
                         p.getWorld().playSound(item.getLocation(), Sound.NOTE_STICKS, 0.5F, 0.5F);
                     }
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/grenade/GrenadeBasic.java
-                    if(item != null && item.isOnGround())
-                    {
-                        try {
-                            ParticleEffect.FIREWORKS_SPARK.display(1.2F, 2.1F, 1.2F, 0.00005F, 4, item.getLocation(), 30);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-=======
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/grenade/GrenadeBasic.java
                 }
 
                 if(item == null || item.isDead())
@@ -161,10 +150,6 @@ public abstract class GrenadeBasic extends TItem {
             public void run() {
                 try {
                     Utils.launchfw(item.getLocation(), effect);
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/grenade/GrenadeBasic.java
-                   // CustomEntityFirework.spawn(item.getLocation(), effect, null);
-=======
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/grenade/GrenadeBasic.java
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

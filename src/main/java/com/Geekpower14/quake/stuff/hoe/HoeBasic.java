@@ -191,11 +191,8 @@ public abstract class HoeBasic extends TItem{
 			ly = loc.getY();
 			lz = loc.getZ();
 
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/hoe/HoeBasic.java
-			ParticleEffect.FIREWORKS_SPARK.display(0.07F, 0.04F, 0.07F, 0.00005F, 1, loc, 40);
-=======
 			ParticleEffect.FIREWORKS_SPARK.display(0.07F, 0.04F, 0.07F, 0.00005F, 1, loc, 50);
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/hoe/HoeBasic.java
+
 			for(Player apa : arena.getPlayers())
 			{
 				try {

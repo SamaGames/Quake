@@ -1,11 +1,7 @@
 package com.Geekpower14.quake.utils;
 
 /**
-<<<<<<< HEAD
  * Created by Geekpower14 on 29/12/2014.
-=======
- * Created by Geekpower14 on 10/01/2015.
->>>>>>> 1.8
  */
 
 import org.bukkit.Bukkit;
@@ -611,8 +607,5 @@ public final class ReflectionUtils {
             return reference;
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 1.8
+

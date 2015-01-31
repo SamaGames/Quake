@@ -65,7 +65,6 @@ public abstract class Arena implements GameArena {
 
 	public List<APlayer> players = new ArrayList<>();
 	//ScoreBoard teams
-	protected Scoreboard tboard;
 	protected Starter CountDown = null;
 
 	//ScoreBoard teams
@@ -434,8 +433,6 @@ public abstract class Arena implements GameArena {
 		}, 5L);
 
 	}
-
-	public abstract void extraStuf(APlayer ap);
 
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
 	{

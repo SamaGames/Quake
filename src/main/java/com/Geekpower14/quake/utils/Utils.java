@@ -27,7 +27,7 @@ public class Utils {
 		Bukkit.getScheduler().runTaskLater(Quake.getPlugin(), new Runnable() {
 			@Override
 			public void run() {
-				net.minecraft.server.v1_7_R4.World w = (((CraftWorld) loc.getWorld()).getHandle());
+				net.minecraft.server.v1_8_R1.World w = (((CraftWorld) loc.getWorld()).getHandle());
 				EntityFireworks fireworks = ((CraftFirework)fw).getHandle();
 				w.broadcastEntityEffect(fireworks, (byte)17);
 				fireworks.die();
@@ -94,25 +94,6 @@ public class Utils {
 			return true;
 		
 		return false;
-	}
-
-	public static void launchfw(final Location loc, final FireworkEffect effect)
-	{
-		final Firework fw = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
-		FireworkMeta fwm = fw.getFireworkMeta();
-		fwm.addEffect(effect);
-		fwm.setPower(0);
-		fw.setFireworkMeta(fwm);
-		((CraftFirework)fw).getHandle().setInvisible(true);
-		Bukkit.getScheduler().runTaskLater(Quake.getPlugin(), new Runnable() {
-			@Override
-			public void run() {
-				net.minecraft.server.v1_8_R1.World w = (((CraftWorld) loc.getWorld()).getHandle());
-				EntityFireworks fireworks = ((CraftFirework)fw).getHandle();
-				w.broadcastEntityEffect(fireworks, (byte)17);
-				fireworks.die();
-			}
-		}, 1);
 	}
 
 }

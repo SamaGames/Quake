@@ -24,8 +24,4 @@ public class StoneHoe extends HoeBasic{
 
 		return coucou;
 	}
-<<<<<<< HEAD:src/main/java/com/Geekpower14/quake/stuff/hoe/StoneHoe.java
-=======
-
->>>>>>> 1.8:src/main/java/com/Geekpower14/quake/stuff/hoe/StoneHoe.java
 }
