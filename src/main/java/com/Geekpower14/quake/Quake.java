@@ -118,7 +118,13 @@ public class Quake extends JavaPlugin{
 
 		String type_ = (type.equals("team"))?"quaketeam":"quake";
 
-		GameAPI.registerGame(type_, DefaultPort, BungeeName);
+		String overrideType = getConfig().getString("OverrideType");
+		if(overrideType != null)
+		{
+			GameAPI.registerGame(overrideType, DefaultPort, BungeeName);
+		}else{
+			GameAPI.registerGame(type_, DefaultPort, BungeeName);
+		}
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 

@@ -1,16 +1,15 @@
 package com.Geekpower14.quake.commands;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Vector;
-
+import com.Geekpower14.quake.Quake;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.quake.Quake;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class CommandsManager implements CommandExecutor{
 	
@@ -62,6 +61,12 @@ public class CommandsManager implements CommandExecutor{
 			
 			if(args[0].equalsIgnoreCase("help")){
 				help(player);
+				return true;
+			}
+
+			if(args[0].equalsIgnoreCase("error")){
+				String lol = null;
+				lol.equals("");
 				return true;
 			}
 			

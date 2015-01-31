@@ -414,7 +414,7 @@ public class APlayer {
 	{
 		if(killstreak >= 3)
 		{
-			arena.nbroadcast(""+ ChatColor.BOLD + p.getDisplayName() + ChatColor.GOLD + ChatColor.BOLD + " s'est fait arrété par " + player);
+			arena.nbroadcast(""+ ChatColor.BOLD + p.getDisplayName() + ChatColor.GOLD + ChatColor.BOLD + " s'est fait arrêter par " + player);
 			arena.nbroadcast("");
 		}
 		killstreak = 0;
