@@ -191,7 +191,7 @@ public abstract class HoeBasic extends TItem{
 			ly = loc.getY();
 			lz = loc.getZ();
 
-			ParticleEffect.FIREWORKS_SPARK.display(0.07F, 0.04F, 0.07F, 0.00005F, 1, loc, 50);
+			ParticleEffect.FIREWORKS_SPARK.display(0.07F, 0.04F, 0.07F, 0.00005F, 1, loc, 75);
 
 			for(Player apa : arena.getPlayers())
 			{

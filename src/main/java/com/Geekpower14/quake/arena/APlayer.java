@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ShardedJedis;
-import redis.clients.jedis.ShardedJedisPipeline;
+import redis.clients.jedis.Transaction;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,25 +76,23 @@ public class APlayer {
 			@Override
 			public void run() {
 				//TODO recherche database
-				HashMap<String, Response<String>> data = new HashMap<>();
-
 				//Requetes (optimise pour resultat rapide)
 				ShardedJedis jedis = FastJedis.jedis();
-				ShardedJedisPipeline pipeline = jedis.pipelined();
-				data.put("hoe", pipeline.get("shops:quake:hoes:" + p.getUniqueId().toString() + ":current"));
-				data.put("grenade", pipeline.get("shops:quake:fragrenade:"+p.getUniqueId().toString()+":current"));
-				pipeline.sync();
+				Transaction pipeline = jedis.getAllShards().iterator().next().multi();
+				final Response<String> dhoe = pipeline.get("shops:quake:hoes:" + p.getUniqueId().toString() + ":current");
+				final Response<String> dgrenade = pipeline.get("shops:quake:fragrenade:" + p.getUniqueId().toString() + ":current");
+				pipeline.exec();
 
 				//Shooter
-				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data.get("hoe").get(), "woodenhoe"));
+				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(dhoe.get(), "woodenhoe"));
 
 				//grenade
 				FragGrenade grenade = (FragGrenade) plugin.itemManager.getItemByName("fragrenade");
 				grenade.setNB(1);
 				stuff.put(ItemSLot.Slot2, grenade);
 
-				if (data.get("grenade").get() != null) {
-					String[] dj = data.get("grenade").get().split("-");
+				if (dgrenade.get() != null) {
+					String[] dj = dgrenade.get().split("-");
 					if (dj[0].equals("fragrenade")) {
 						final int add = Integer.parseInt(dj[1]);
 						grenade.setNB(1 + add);
