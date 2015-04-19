@@ -955,11 +955,6 @@ public abstract class Arena implements GameArena {
 				//arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans " + time + " sec.");
 				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
 			}
-			if(time == 1)
-			{
-				arena.setStatus(Status.InGame);
-				refresh();
-			}
 
 			if(time == 0)
 			{
