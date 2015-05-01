@@ -7,8 +7,8 @@
   
   	<repositories>
         <repository>
-            <id>zyuiop-repo</id>
-            <url>http://repo.zyuiop.net</url>
+            <id>samagames-repo</id>
+            <url>http://maven.samagames.net/public/</url>
         </repository>
 	</repositories>
 
