@@ -7,8 +7,7 @@ import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
-import net.zyuiop.coinsManager.CoinsManager;
-import net.zyuiop.statsapi.StatsApi;
+import net.samagames.api.player.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -145,31 +144,25 @@ public abstract class GrenadeBasic extends TItem {
                 }
             }
         }
-        Bukkit.getScheduler().runTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Utils.launchfw(item.getLocation(), effect);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                item.remove();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            try {
+                Utils.launchfw(item.getLocation(), effect);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            item.remove();
         });
 
         final int tt = compte;
         if (tt >= 1) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
-            {
-                public void run() {
-                    try{
-                        int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), tt * 1, true, true);
-                        ap.setCoins(ap.getCoins() + up);
-                        StatsApi.increaseStat(ap.getP().getUniqueId(), StatsNames.GAME_NAME, StatsNames.KILL, tt);
-                    }catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try{
+                    PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
+                    playerData.creditCoins(tt * 1, "Kill !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
+                    plugin.samaGamesAPI.getStatsManager(arena.getOriginalGameName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
+                }catch(Exception e)
+                {
+                    e.printStackTrace();
                 }
             });
             arena.updateScore();

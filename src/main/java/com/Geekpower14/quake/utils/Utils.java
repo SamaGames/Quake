@@ -1,12 +1,12 @@
 package com.Geekpower14.quake.utils;
 
 import com.Geekpower14.quake.Quake;
-import net.minecraft.server.v1_8_R1.EntityFireworks;
+import net.minecraft.server.v1_8_R2.EntityFireworks;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftFirework;
+import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftFirework;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -24,15 +24,12 @@ public class Utils {
 		fwm.setPower(0);
 		fw.setFireworkMeta(fwm);
 		((CraftFirework)fw).getHandle().setInvisible(true);
-		Bukkit.getScheduler().runTaskLater(Quake.getPlugin(), new Runnable() {
-			@Override
-			public void run() {
-				net.minecraft.server.v1_8_R1.World w = (((CraftWorld) loc.getWorld()).getHandle());
-				EntityFireworks fireworks = ((CraftFirework)fw).getHandle();
-				w.broadcastEntityEffect(fireworks, (byte)17);
-				fireworks.die();
-			}
-		}, 1);
+		Bukkit.getScheduler().runTaskLater(Quake.getPlugin(), () -> {
+            net.minecraft.server.v1_8_R2.World w = (((CraftWorld) loc.getWorld()).getHandle());
+            EntityFireworks fireworks = ((CraftFirework)fw).getHandle();
+            w.broadcastEntityEffect(fireworks, (byte)17);
+            fireworks.die();
+        }, 1);
 	}
 	
 	public static Location str2loc(String loc)
@@ -88,7 +85,7 @@ public class Utils {
 			return true;
 		if(p.isOp())
 			return true;
-		if(p.hasPermission("UpperVoid.admin"))
+		if(p.hasPermission("Quake.admin"))
 			return true;
 		if(p.hasPermission(perm))
 			return true;

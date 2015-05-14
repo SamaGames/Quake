@@ -4,57 +4,31 @@ import com.Geekpower14.quake.arena.ArenaManager;
 import com.Geekpower14.quake.commands.CommandsManager;
 import com.Geekpower14.quake.listener.PlayerListener;
 import com.Geekpower14.quake.stuff.ItemManager;
-import net.minecraft.server.v1_8_R1.EntityPlayer;
-import net.samagames.gameapi.GameAPI;
+import net.minecraft.server.v1_8_R2.EntityPlayer;
+import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Quake extends JavaPlugin{
 
 	public static Quake plugin;
-	private static String[] colors = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "a","b", "c", "d", "f", "g", "h", "i", "j","k","l","m","n","o","p","r","s","t","u","v","w","x","y","z"};
-	private static int e = 0;
-	private static int r = 0;
+
 	public Logger log;
 	public ArenaManager arenaManager;
 	public CommandsManager commandsManager;
 	public ItemManager itemManager;
-	public int DefaultPort;
-	public String BungeeName;
+
+	public SamaGamesAPI samaGamesAPI;
 
 	public String type = "solo";
-
-	public HashMap<Player, ArrayList<Object>> cachedPackets = new HashMap<Player, ArrayList<Object>>();
-	
-	public BukkitTask TabTask;
-
-	
-	/* return the next null filler */
-	public static String nextNull(){
-		String s = "";
-		for(int a = 0; a < r; a++){
-			s = " "+s;
-		}
-		s = s + "\u00A7" + colors[e];
-		e++;
-		if(e > 14){
-			e = 0;
-			r++;
-		}
-		return s;
-	}
 
 	public static Quake getPlugin() {
 		return plugin;
@@ -66,7 +40,7 @@ public class Quake extends JavaPlugin{
 			return true;
 		if(p.isOp())
 			return true;
-		if(p.hasPermission("UpperVoid.admin"))
+		if(p.hasPermission("Quake.admin"))
 			return true;
 		if(p.hasPermission(perm))
 			return true;
@@ -101,30 +75,17 @@ public class Quake extends JavaPlugin{
 		log = getLogger();
 		plugin = this;
 
-		File conf = new File(getDataFolder().getAbsoluteFile().getParentFile().getParentFile(), "data.yml");
-		this.getLogger().info("Searching data.yml in "+conf.getAbsolutePath());
-		if (!conf.exists()) {
-			this.getLogger().log(Level.SEVERE, "StatsApi stopped loading : data.yml not found");
-			this.getPluginLoader().disablePlugin(this);
-			return;
-		}
+		 samaGamesAPI = SamaGamesAPI.get();
+
 		Bukkit.getWorld("world").setAutoSave(false);
 
 		this.saveDefaultConfig();
 
-		DefaultPort = getConfig().getInt("port");
-		BungeeName = getConfig().getString("BungeeName");
 		type = getConfig().getString("Type", "solo");
 
 		String type_ = (type.equals("team"))?"quaketeam":"quake";
 
 		String overrideType = getConfig().getString("OverrideType");
-		if(overrideType != null)
-		{
-			GameAPI.registerGame(overrideType, DefaultPort, BungeeName);
-		}else{
-			GameAPI.registerGame(type_, DefaultPort, BungeeName);
-		}
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
@@ -137,15 +98,6 @@ public class Quake extends JavaPlugin{
 		getCommand("q").setExecutor(commandsManager);
 
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
-
-		/*TabTask = Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
-
-			public void run() {
-				flushPackets();
-			}
-		}, 10L, 5L);*/
-
-		GameAPI.getManager().sendArenas();
 		log.info("quake enabled!");
 	}
 
@@ -155,6 +107,11 @@ public class Quake extends JavaPlugin{
 		arenaManager.disable();
 
 		log.info("quake disabled!");
+	}
+
+	public SamaGamesAPI getSamaGamesAPI()
+	{
+		return samaGamesAPI;
 	}
 
 }

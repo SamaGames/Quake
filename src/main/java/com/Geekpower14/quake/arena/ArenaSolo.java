@@ -6,12 +6,10 @@ import com.Geekpower14.quake.task.ScoreHandler;
 import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
-import net.samagames.gameapi.json.Status;
+import net.samagames.api.games.Status;
+import net.samagames.api.player.PlayerData;
+import net.samagames.permissionsapi.PermissionsAPI;
 import net.samagames.permissionsbukkit.PermissionsBukkit;
-import net.zyuiop.MasterBundle.MasterBundle;
-import net.zyuiop.MasterBundle.StarsManager;
-import net.zyuiop.coinsManager.CoinsManager;
-import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
@@ -36,7 +34,7 @@ public class ArenaSolo extends Arena{
 
         loadConfig();
 
-        eta = Status.Available;
+        setStatus(Status.READY_TO_START);
     }
 
     @Override
@@ -85,7 +83,7 @@ public class ArenaSolo extends Arena{
                 + ChatColor.DARK_GRAY
                 + "]");
 
-        if(players.size() >= minPlayer && eta == Status.Available)
+        if(players.size() >= minPlayer && eta == Status.READY_TO_START)
         {
             startCountdown();
         }
@@ -98,24 +96,13 @@ public class ArenaSolo extends Arena{
 
     @Override
     protected void execAfterLeavePlayer() {
-        if(getActualPlayers() <= 1 && eta == Status.InGame)
+        if(getConnectedPlayers() <= 1 && eta == Status.READY_TO_START)
         {
             if(players.size() >= 1)
             {
-
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-                    @Override
-                    public void run() {
-                        win(players.get(0).getP());
-                    }
-                }, 1L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(players.get(0).getP()), 1L);
             }else{
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-                    @Override
-                    public void run() {
-                        stop();
-                    }
-                }, 1L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> stop(), 1L);
             }
         }
     }
@@ -139,7 +126,12 @@ public class ArenaSolo extends Arena{
 
             ap.setReloading(1 * 20L);
 
-            StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.PARTIES, 1);
+            try{
+                plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.PARTIES, 1);
+            }catch(Exception e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -167,9 +159,9 @@ public class ArenaSolo extends Arena{
         this.nbroadcast(ChatColor.AQUA + "#"+ ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
 
         try{
-            StarsManager.creditJoueur(ap.getP(), 1, "Premier au Quake !");
-            int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 20, true, true, "Victoire !");
-            ap.setCoins(ap.getCoins() + up);
+            PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
+            playerData.creditStars(1, "Premier au Quake !");
+            playerData.creditCoins(20, "Victoire !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -180,7 +172,7 @@ public class ArenaSolo extends Arena{
             broadcast(a.getP(), ChatColor.GOLD + "Tu as gagné " + a.getCoins() + " coins au total !");
         }
         try{
-            StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.VICTOIRES, 1);
+            plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
         }catch(Exception e)
         {}
 
@@ -235,11 +227,9 @@ public class ArenaSolo extends Arena{
             }
         }, 5L, 5L);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-            public void run() {
-                plugin.getServer().getScheduler().cancelTask(infoxp);
-                stop();
-            }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
+            plugin.getServer().getScheduler().cancelTask(infoxp);
+            stop();
         }, (Time_After * 20));
     }
 
@@ -261,36 +251,30 @@ public class ArenaSolo extends Arena{
         avictim.setinvincible(true);
         kill(victim);
         avictim.hasDiedBy(ashooter.getDisplayName());
-        Bukkit.getScheduler().runTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Utils.launchfw(victim.getLocation(), effect);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                broadcast(ChatColor.RED
-                        + PermissionsBukkit.getPrefix(MasterBundle.api.getUser(shooter.getUniqueId()))
-                        + shooter.getName()
-                        + ChatColor.YELLOW
-                        + " a touché "
-                        + PermissionsBukkit.getPrefix(MasterBundle.api.getUser(victim.getUniqueId()))
-                        + victim.getName());
-                shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            try {
+                Utils.launchfw(victim.getLocation(), effect);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            PermissionsAPI permissionsAPI = plugin.samaGamesAPI.getPermissionsManager().getApi();
+
+            broadcast(ChatColor.RED
+                    + PermissionsBukkit.getPrefix(permissionsAPI.getUser(shooter.getUniqueId()))
+                    + shooter.getName()
+                    + ChatColor.YELLOW
+                    + " a touché "
+                    + PermissionsBukkit.getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
+                    + victim.getName());
+            shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
         });
         ashooter.addScore(1);
 
         if(ashooter.getScore() == Goal)
         {
-            eta = Status.Stopping;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-            {
-                public void run() {
-                    win(shooter);
-                }
-            }, 2);
+            setStatus(Status.REBOOTING);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> win(shooter), 2);
         }
         return true;
     }
@@ -358,6 +342,11 @@ public class ArenaSolo extends Arena{
     public void addSpawn(Location loc)
     {
         spawn.add(new Spawn(loc));
+    }
+
+    public String getGameName()
+    {
+        return "quake";
     }
 
 

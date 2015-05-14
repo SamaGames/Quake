@@ -5,9 +5,8 @@ import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
-import net.samagames.gameapi.json.Status;
-import net.zyuiop.coinsManager.CoinsManager;
-import net.zyuiop.statsapi.StatsApi;
+import net.samagames.api.games.Status;
+import net.samagames.api.player.PlayerData;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by Geekpower14 on 17/12/2014.
@@ -46,7 +46,7 @@ public class ArenaTeam extends Arena{
 
         loadConfig();
 
-        eta = Status.Available;
+        setStatus(Status.READY_TO_START);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ArenaTeam extends Arena{
     {
         for(ATeam team : teams)
         {
-            setDefaultConfig(config, "Spawns_"+team.getName(), new ArrayList<String>());
+            setDefaultConfig(config, "Spawns_" + team.getName(), new ArrayList<String>());
         }
 
         return config;
@@ -87,7 +87,7 @@ public class ArenaTeam extends Arena{
             {
                 s.add(sp.get(i).getSaveLoc());
             }
-            config.set("Spawns_"+team.getName(), s);
+            config.set("Spawns_" + team.getName(), s);
         }
     }
 
@@ -98,13 +98,10 @@ public class ArenaTeam extends Arena{
         ATeam at = addPlayerToTeam(ap.getP());
         ap.getP().teleport(getSpawn(ap.getP()));
 
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                for(Player pp : Quake.getOnline())
-                {
-                    pp.setScoreboard(getScoreboard());
-                }
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for(Player pp : Quake.getOnline())
+            {
+                pp.setScoreboard(getScoreboard());
             }
         }, 5L);
 
@@ -120,7 +117,7 @@ public class ArenaTeam extends Arena{
                 + ChatColor.DARK_GRAY
                 + "]");
 
-        if (players.size() >= minPlayer && eta == Status.Available) {
+        if (players.size() >= minPlayer && eta == Status.READY_TO_START) {
             startCountdown();
         }
     }
@@ -136,28 +133,13 @@ public class ArenaTeam extends Arena{
 
     @Override
     protected void execAfterLeavePlayer() {
-        final List<ATeam> remain = new ArrayList<ATeam>();
-        for (ATeam team : getActiveTeams()) {
-            if (team.getSize() > 0) {
-                remain.add(team);
-            }
-        }
+        final List<ATeam> remain = getActiveTeams().stream().filter(team -> team.getSize() > 0).collect(Collectors.toList());
 
-        if (remain.size() <= 1 && eta == Status.InGame) {
+        if (remain.size() <= 1 && eta == Status.IN_GAME) {
             if (remain.size() == 1) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        win(remain.get(0));
-                    }
-                }, 1L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(remain.get(0)), 1L);
             } else {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        stop();
-                    }
-                }, 1L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> stop(), 1L);
             }
         }
     }
@@ -191,7 +173,7 @@ public class ArenaTeam extends Arena{
 
             ap.setReloading(1 * 20L);
             try{
-                StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.PARTIES, 1);
+                plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.PARTIES, 1);
             }catch(Exception e)
             {
                 e.printStackTrace();
@@ -221,16 +203,19 @@ public class ArenaTeam extends Arena{
             APlayer ap = this.getAplayer(p.getName());
             if (ap == null)
                 continue;
-            try {
-                int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 20, true, true);
-                ap.setCoins(ap.getCoins() + up);
-            } catch (Exception e) {
+
+            try{
+                PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
+                playerData.creditCoins(20, "Victoire !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
+            }catch(Exception e)
+            {
                 e.printStackTrace();
             }
-            try {
-                StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.VICTOIRES, 1);
-            } catch (Exception e) {
-            }
+
+            try{
+                plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+            }catch(Exception e)
+            {}
         }
 
         for (APlayer a : players) {
@@ -294,11 +279,9 @@ public class ArenaTeam extends Arena{
             }
         }, 5L, 5L);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-            public void run() {
-                plugin.getServer().getScheduler().cancelTask(infoxp);
-                stop();
-            }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
+            plugin.getServer().getScheduler().cancelTask(infoxp);
+            stop();
         }
                 , (Time_After * 20));
 
@@ -332,7 +315,7 @@ public class ArenaTeam extends Arena{
 
         if (avictim == null)
             return false;
-        if (eta == Status.Stopping)
+        if (eta == Status.REBOOTING)
             return false;
         if (victim.equals(shooter) || avictim.isInvincible() || isSameTeam(victim, shooter))
             return false;
@@ -345,29 +328,22 @@ public class ArenaTeam extends Arena{
 
         avictim.hasDiedBy(ashooter.getDisplayName());
 
-        Bukkit.getScheduler().runTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Utils.launchfw(victim.getLocation(), effect);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                broadcast(s.getColor() + shooter.getName() + ChatColor.YELLOW + " a touché " + v.getColor() + victim.getName());
-                shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            try {
+                Utils.launchfw(victim.getLocation(), effect);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            broadcast(s.getColor() + shooter.getName() + ChatColor.YELLOW + " a touché " + v.getColor() + victim.getName());
+            shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
         });
         ashooter.addScore(1);
         s.addScore(1);
 
         if (s.getScore() >= Goal) {
-            eta = Status.Stopping;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-                public void run() {
-                    win(s);
-                }
-            }, 2);
+            setStatus(Status.REBOOTING);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> win(s), 2);
         }
 
         return true;
@@ -405,20 +381,17 @@ public class ArenaTeam extends Arena{
 
     @Override
     public void updateScore() {
-        Bukkit.getScheduler().runTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                if (players.size() <= 0) {
-                    return;
-                }
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (players.size() <= 0) {
+                return;
+            }
 
-                for (APlayer player : players) {
-                    perso.getScore(player.getP()).setScore(player.getScore());
-                }
+            for (APlayer player : players) {
+                perso.getScore(player.getP().getName()).setScore(player.getScore());
+            }
 
-                for (ATeam at : getActiveTeams()) {
-                    score.getScore(Bukkit.getOfflinePlayer(at.getColor() + at.getName() + "    ")).setScore(at.getScore());
-                }
+            for (ATeam at : getActiveTeams()) {
+                score.getScore(at.getColor() + at.getName() + "    ").setScore(at.getScore());
             }
         });
     }
@@ -448,7 +421,7 @@ public class ArenaTeam extends Arena{
             return;
         }
 
-        if(eta == Status.InGame && !Quake.hasPermission(p, "quake.ChangeTeamInGame"))
+        if(eta == Status.IN_GAME && !Quake.hasPermission(p, "quake.ChangeTeamInGame"))
         {
             this.broadcast(p, ChatColor.RED + "Vous ne pouvez pas changer de Team en jeu.");
             return;
@@ -460,7 +433,7 @@ public class ArenaTeam extends Arena{
             return;
         }
 
-        if(nteam.getSize() >= (this.getActualPlayers()/this.getActiveTeams().size())+1)
+        if(nteam.getSize() >= (this.getConnectedPlayers()/this.getActiveTeams().size())+1)
         {
             this.broadcast(p, ChatColor.RED + "La Team "+ nteam.getColor() + nteam.getName() + ChatColor.RED + " est pleine.");
             return;
@@ -468,13 +441,13 @@ public class ArenaTeam extends Arena{
 
         oteam.removePlayer(p);
 
-        if(eta == Status.InGame)
+        if(eta == Status.IN_GAME)
         {
             kill(p);
         }
         nteam.addPlayer(p);
 
-        if(eta.isLobby())
+        if(eta.isAllowJoin())
         {
             setWoolStuff(ap);
         }
@@ -535,12 +508,7 @@ public class ArenaTeam extends Arena{
 
     public List<ATeam> getActiveTeams()
     {
-        List<ATeam> r = new ArrayList<ATeam>();
-        for(ATeam at : teams)
-        {
-            if(at.isActive())
-                r.add(at);
-        }
+        List<ATeam> r = teams.stream().filter(at -> at.isActive()).collect(Collectors.toList());
         return r;
     }
 
@@ -570,5 +538,10 @@ public class ArenaTeam extends Arena{
         result.addPlayer(p);
 
         return result;
+    }
+
+    public String getGameName()
+    {
+        return "quaketeam";
     }
 }

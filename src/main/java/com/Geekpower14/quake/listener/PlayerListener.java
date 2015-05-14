@@ -7,8 +7,7 @@ import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.arena.ArenaTeam;
 import com.Geekpower14.quake.stuff.TItem;
-import net.samagames.gameapi.events.FinishJoinPlayerEvent;
-import net.samagames.gameapi.json.Status;
+import net.samagames.api.games.Status;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -39,50 +38,6 @@ public class PlayerListener implements Listener{
 	public void onPlayerLogin(PlayerJoinEvent event)
 	{
 		event.setJoinMessage("");
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onFinishJoinPlayer(FinishJoinPlayerEvent event)
-	{
-		if(!event.isCancelled())
-		{
-			Player p = Bukkit.getPlayer(event.getPlayer());
-			Arena arena = plugin.arenaManager.getArena();
-
-			if (arena == null)
-			{
-				event.refuse("arène invalide !");
-			}
-
-			arena.joinArena(p);
-		}
-	}
-
-	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onPlayerQuit(PlayerQuitEvent event)
-	{
-		Player p = event.getPlayer();
-		event.setQuitMessage("");
-		Arena arena = plugin.arenaManager.getArena();
-
-		if(arena == null)
-			return;
-
-		arena.leaveArena(p);
-	}
-
-	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onPlayerKick(PlayerKickEvent event)
-	{
-		Player p = event.getPlayer();
-
-		event.setLeaveMessage("");
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-		if(arena == null)
-			return;
-		
-		arena.leaveArena(p);
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -144,12 +99,8 @@ public class PlayerListener implements Listener{
 			if(!arena.isTeam())
 				return;
 			final ArenaTeam arenaTeam = (ArenaTeam) arena;
-			/*if(arena.eta == Status.InGame)
-			{
-				arenaTeam.extraStuf(ap);
-			}*/
 
-			if(!arena.eta.isLobby())
+			if(!arena.getStatus().isAllowJoin())
 				return;
 
 			ATeam at = arenaTeam.getTeamByColor(DyeColor.getByWoolData(hand.getData().getData()));
@@ -157,11 +108,7 @@ public class PlayerListener implements Listener{
 				return;
 
 			arenaTeam.changeTeam(player, at.getName());
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-				public void run() {
-					arenaTeam.setWoolStuff(ap);
-				}
-			}, 1L);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> arenaTeam.setWoolStuff(ap), 1L);
 			return;
 		}
 
@@ -170,7 +117,7 @@ public class PlayerListener implements Listener{
 		if(ap.getRole() == Role.Spectator)
 			return;
 
-		if(arena.eta != Status.InGame)
+		if(arena.eta != Status.IN_GAME)
 			return;
 
 		TItem item = ap.getStuff(player.getInventory().getHeldItemSlot());
@@ -203,7 +150,7 @@ public class PlayerListener implements Listener{
 
 			if(event.getCause() == EntityDamageEvent.DamageCause.VOID)
 			{
-				if(arena.eta.isLobby())
+				if(arena.eta.isAllowJoin())
 				{
 					p.teleport(arena.getSpawn(p));
 					return;
@@ -245,7 +192,7 @@ public class PlayerListener implements Listener{
 
 		if(ap.isInvincible())
 			return;
-		if(arena.eta != Status.InGame)
+		if(arena.eta != Status.IN_GAME)
 			return;
 
 		// For all.
@@ -313,29 +260,25 @@ public class PlayerListener implements Listener{
 		event.getDrops().clear();
 		event.setDroppedExp(0);
 
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-		{ 
-			public void run() 
-			{
-				try {
-					Object nmsPlayer = player.getClass().getMethod("getHandle").invoke(player);
-					Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".PacketPlayInClientCommand").newInstance();
-					Class<?> enumClass = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".EnumClientCommand");
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            try {
+                Object nmsPlayer = player.getClass().getMethod("getHandle").invoke(player);
+                Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".PacketPlayInClientCommand").newInstance();
+                Class<?> enumClass = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".EnumClientCommand");
 
-					for(Object ob : enumClass.getEnumConstants()){
-						if(ob.toString().equals("PERFORM_RESPAWN")){
-							packet = packet.getClass().getConstructor(enumClass).newInstance(ob);
-						}
-					}
+                for(Object ob : enumClass.getEnumConstants()){
+                    if(ob.toString().equals("PERFORM_RESPAWN")){
+                        packet = packet.getClass().getConstructor(enumClass).newInstance(ob);
+                    }
+                }
 
-					Object con = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
-					con.getClass().getMethod("a", packet.getClass()).invoke(con, packet);
-				}
-				catch(Throwable t){
-					t.printStackTrace();
-				}
-			}
-		}, 15L);
+                Object con = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
+                con.getClass().getMethod("a", packet.getClass()).invoke(con, packet);
+            }
+            catch(Throwable t){
+                t.printStackTrace();
+            }
+        }, 15L);
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)

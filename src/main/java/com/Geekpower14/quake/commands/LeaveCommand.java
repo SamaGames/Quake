@@ -27,7 +27,7 @@ public class LeaveCommand implements BasicCommand{
 				player.sendMessage(ChatColor.RED + "Vous n'êtes pas en jeux.");
 				return true;
 			}
-		arena.leaveArena(player);
+			player.kickPlayer("");
 		}else
 		{
 			player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission.");

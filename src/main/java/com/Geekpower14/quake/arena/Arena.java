@@ -4,17 +4,14 @@ import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer.Role;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
-import net.minecraft.server.v1_8_R1.ChatSerializer;
-import net.minecraft.server.v1_8_R1.IChatBaseComponent;
-import net.minecraft.server.v1_8_R1.PacketPlayOutChat;
-import net.samagames.gameapi.GameAPI;
-import net.samagames.gameapi.json.Status;
-import net.samagames.gameapi.types.GameArena;
-import net.zyuiop.statsapi.StatsApi;
+import net.minecraft.server.v1_8_R2.IChatBaseComponent;
+import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
+import net.samagames.api.games.IManagedGame;
+import net.samagames.api.games.Status;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -31,9 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
-public abstract class Arena implements GameArena {
+public abstract class Arena implements IManagedGame {
 
 	public Quake plugin;
 
@@ -61,7 +59,7 @@ public abstract class Arena implements GameArena {
 
 	/*** Variable dynamiques ***/
 
-	public Status eta = Status.Idle;
+	public Status eta = Status.NOT_RESPONDING;
 
 	public List<APlayer> players = new ArrayList<>();
 	//ScoreBoard teams
@@ -74,7 +72,6 @@ public abstract class Arena implements GameArena {
 
 	public Arena(Quake pl, String name)
 	{
-		super();
 		plugin = pl;
 
 		this.name = name;
@@ -123,11 +120,7 @@ public abstract class Arena implements GameArena {
 
 		warningJoinMessage = config.getString("WarningJoinMessage");
 
-		List<PotionEffect> l = new ArrayList<>();
-		for(String popo : config.getStringList("Potions"))
-		{
-			l.add(Utils.StrToPo(popo));
-		}
+		List<PotionEffect> l = config.getStringList("Potions").stream().map(Utils::StrToPo).collect(Collectors.toList());
 		potions = l;
 
 		toConfigLoad(config);
@@ -191,11 +184,7 @@ public abstract class Arena implements GameArena {
 
 		config.set("WarningJoinMessage", warningJoinMessage);
 
-		List<String> l = new ArrayList<String>();
-		for(PotionEffect popo : potions)
-		{
-			l.add(Utils.PoToStr(popo));
-		}
+		List<String> l = potions.stream().map(Utils::PoToStr).collect(Collectors.toList());
 		config.set("Potions", l);
 
 		toSaveConfig(config);
@@ -217,7 +206,7 @@ public abstract class Arena implements GameArena {
 	/*** Mouvement des joueurs ***/
 
 	@SuppressWarnings("deprecation")
-	public void joinArena(Player p)
+	public void playerJoin(Player p)
 	{
 
 		joinHider(p);
@@ -252,7 +241,7 @@ public abstract class Arena implements GameArena {
 	 * Gestion de l'arène.
 	 */
 
-	public void leaveArena(Player p)
+	public void playerDisconnect(Player p)
 	{
 		p.setAllowFlight(false);
 		leaveCleaner(p);
@@ -272,7 +261,7 @@ public abstract class Arena implements GameArena {
 
 		execAfterLeavePlayer();
 
-		if(players.size() < getMinPlayers() && eta == Status.Starting)
+		if(players.size() < getMinPlayers() && eta == Status.STARTING)
 		{
 			resetCountdown();
 		}
@@ -284,9 +273,10 @@ public abstract class Arena implements GameArena {
 
 	protected abstract void execAfterLeavePlayer();
 
-	public void start()
+	@Override
+	public void startGame()
 	{
-		eta = Status.InGame;
+		eta = Status.IN_GAME;
 
 		refresh();
 
@@ -299,7 +289,7 @@ public abstract class Arena implements GameArena {
 
 	public void stop()
 	{
-		eta = Status.Stopping;
+		eta = Status.REBOOTING;
 		refresh();
 		/*
 		 * TO/DO: Stopper l'arène.
@@ -307,29 +297,19 @@ public abstract class Arena implements GameArena {
 
         execStop();
 
-		List<Player> tokick = new ArrayList<>();
-		for(APlayer ap : players)
-		{
-			tokick.add(ap.getP());
-		}
+		List<Player> tokick = players.stream().map(APlayer::getP).collect(Collectors.toList());
 
-		for(Player p : tokick)
-		{
-			kickPlayer(p);
-		}
+		tokick.forEach(this::kickPlayer);
 		refresh();
 
 		if (plugin.isEnabled()) {
-			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-				@Override
-				public void run() {
-					Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-					Bukkit.getLogger().info("server will reboot now");
-					Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-					Bukkit.getServer().shutdown();
+			Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
+                Bukkit.getLogger().info("server will reboot now");
+                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
+                Bukkit.getServer().shutdown();
 
-				}
-			}, 5 * 20L);
+            }, 5 * 20L);
 		}
 
 	}
@@ -338,7 +318,7 @@ public abstract class Arena implements GameArena {
 
 	public void refresh()
 	{
-		GameAPI.getManager().sendArena();
+		plugin.samaGamesAPI.getGameManager().refreshArena();
 	}
 
 	public void disable()
@@ -380,7 +360,7 @@ public abstract class Arena implements GameArena {
 
 	public void win(Object p)
 	{
-		eta = Status.Stopping;
+		eta = Status.REBOOTING;
 
 		refresh();
 
@@ -399,44 +379,29 @@ public abstract class Arena implements GameArena {
 		p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 3));
 
 		//BETA
-		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-			@Override
-			public void run() {
+		Bukkit.getScheduler().runTaskLater(plugin, () -> {
 
-				p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 35, 0));
-				p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 35, 3));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 35, 0));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 35, 3));
 
-				p.teleport(getSpawn(p));
-				ap.giveStuff();
+            p.teleport(getSpawn(p));
+            ap.giveStuff();
 
-				Long timetoRespawn = 35L + Quake.msToTick(Quake.getPing(p));
+            Long timetoRespawn = 35L + Quake.msToTick(Quake.getPing(p));
 
-				ap.setInvincible(timetoRespawn+10L);
-				ap.setReloading(timetoRespawn);
+            ap.setInvincible(timetoRespawn+10L);
+            ap.setReloading(timetoRespawn);
 
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> giveEffect(p), 5L);
 
-					@Override
-					public void run() {
-						giveEffect(p);
-					}
-				}, 5L);
-
-				Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
-
-					@Override
-					public void run() {
-						StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME, StatsNames.DEATH, 1);
-					}
-				});
-			}
-		}, 5L);
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.DEATH, 1));
+        }, 5L);
 
 	}
 
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
 	{
-        if(eta == Status.Stopping)
+        if(eta == Status.REBOOTING)
             return false;
 
 		return execShotPlayer(shooter, victim, effect);
@@ -542,19 +507,15 @@ public abstract class Arena implements GameArena {
 
 	public Collection<Player> getPlayers()
 	{
-		List<Player> t = new ArrayList<Player>();
-		for(APlayer ap : players)
-			t.add(ap.getP());
+		List<Player> t = players.stream().map(APlayer::getP).collect(Collectors.toList());
 
 		return t;
 	}
 	
 	public List<Player> getPlayersList()
 	{
-		List<Player> t = new ArrayList<Player>();
-		for(APlayer ap : players)
-			t.add(ap.getP());
-		
+		List<Player> t = players.stream().map(APlayer::getP).collect(Collectors.toList());
+
 		return t;
 	}
 	
@@ -592,10 +553,7 @@ public abstract class Arena implements GameArena {
 		for (PotionEffect effect : player.getActivePotionEffects())
 			player.removePotionEffect(effect.getType());
 
-		for(PotionEffect popo : potions)
-		{
-			player.addPotionEffect(popo);
-		}
+		potions.forEach(player::addPotionEffect);
 	}
 
 	public ItemStack getLeaveDoor()
@@ -612,7 +570,7 @@ public abstract class Arena implements GameArena {
 
 	public void startCountdown()
 	{
-		eta = Status.Starting;
+		setStatus(Status.STARTING);
 
 		CountDown = new Starter(plugin, this, Time_Before);
 
@@ -621,7 +579,7 @@ public abstract class Arena implements GameArena {
 
 	public void resetCountdown()
 	{
-		eta = Status.Available;
+		setStatus(Status.READY_TO_START);
 
 		if(CountDown != null)
 		{
@@ -657,7 +615,7 @@ public abstract class Arena implements GameArena {
 
 	public void sendBarTo(Player p, String message)
 	{
-		IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \"" + message + "\"}");
+		IChatBaseComponent cbc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + message + "\"}");
 		PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc, (byte)2);
 		((CraftPlayer)p).getHandle().playerConnection.sendPacket(ppoc);
 	}
@@ -730,14 +688,9 @@ public abstract class Arena implements GameArena {
 		minPlayer = nb;
 	}
 
-	@Override
-	public int countGamePlayers() {
-		return this.getActualPlayers();
-	}
-
 	public int getMaxPlayers()
 	{
-		return maxPlayer;
+		return maxPlayer + this.getVIPSlots();
 	}
 
 	public void setMaxPlayers(int nb)
@@ -745,12 +698,6 @@ public abstract class Arena implements GameArena {
 		maxPlayer = nb;
 	}
 
-	@Override
-	public int getTotalMaxPlayers() {
-		return this.getMaxPlayers() + this.getVIPSlots();
-	}
-
-	@Override
 	public int getVIPSlots() {
 		return this.vipSlots;
 	}
@@ -760,12 +707,12 @@ public abstract class Arena implements GameArena {
 		return eta;
 	}
 
-	@Override
 	public void setStatus(Status status) {
 		this.eta = status;
+		refresh();
 	}
 
-	public int getActualPlayers()
+	public int getConnectedPlayers()
 	{
 		int nb = 0;
 
@@ -790,10 +737,7 @@ public abstract class Arena implements GameArena {
 
 	public void initScorebords()
 	{
-		for(APlayer ap : players)
-		{
-			ap.setScoreboard();
-		}
+		players.forEach(com.Geekpower14.quake.arena.APlayer::setScoreboard);
 	}
 
 	public String getMapName()
@@ -804,14 +748,6 @@ public abstract class Arena implements GameArena {
 	public void setMapName(String name)
 	{
 		Map_name = name;
-	}
-
-	public boolean isFamous() {
-		return false;
-	}
-
-	public int countPlayersIngame() {
-		return this.getActualPlayers();
 	}
 
 	public int getTimeBefore()
@@ -846,60 +782,29 @@ public abstract class Arena implements GameArena {
 	}
 
 	public Color getColor(int i) {
-		Color c = null;
-		if(i==1){
-			c=Color.AQUA;
-		}
-		if(i==2){
-			c=Color.BLACK;
-		}
-		if(i==3){
-			c=Color.BLUE;
-		}
-		if(i==4){
-			c=Color.FUCHSIA;
-		}
-		if(i==5){
-			c=Color.GRAY;
-		}
-		if(i==6){
-			c=Color.GREEN;
-		}
-		if(i==7){
-			c=Color.LIME;
-		}
-		if(i==8){
-			c=Color.MAROON;
-		}
-		if(i==9){
-			c=Color.NAVY;
-		}
-		if(i==10){
-			c=Color.OLIVE;
-		}
-		if(i==11){
-			c=Color.ORANGE;
-		}
-		if(i==12){
-			c=Color.PURPLE;
-		}
-		if(i==13){
-			c=Color.RED;
-		}
-		if(i==14){
-			c=Color.SILVER;
-		}
-		if(i==15){
-			c=Color.TEAL;
-		}
-		if(i==16){
-			c=Color.WHITE;
-		}
-		if(i==17){
-			c=Color.YELLOW;
-		}
+		if(i==1) return Color.AQUA;
+		if(i==2) return Color.BLACK;
+		if(i==3) return Color.BLUE;
+		if(i==4) return Color.FUCHSIA;
+		if(i==5) return Color.GRAY;
+		if(i==6) return Color.GREEN;
+		if(i==7) return Color.LIME;
+		if(i==8) return Color.MAROON;
+		if(i==9) return Color.NAVY;
+		if(i==10) return Color.OLIVE;
+		if(i==11) return Color.ORANGE;
+		if(i==12) return Color.PURPLE;
+		if(i==13) return Color.RED;
+		if(i==14) return Color.SILVER;
+		if(i==15) return Color.TEAL;
+		if(i==16) return Color.WHITE;
+		if(i==17) return Color.YELLOW;
+		return null;
+	}
 
-		return c;
+	public String getOriginalGameName()
+	{
+		return "quake";
 	}
 
 	public class Starter implements Runnable
@@ -963,7 +868,7 @@ public abstract class Arena implements GameArena {
 				arena.playsound(Sound.NOTE_PLING, 9.0F, 10F);
 				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "C'est parti !");
 				//arena.broadcast(ChatColor.YELLOW + "C'est parti !");
-				arena.start();
+				arena.startGame();
 				abord();
 			}
 

@@ -33,7 +33,7 @@ public class CommandsManager implements CommandExecutor{
 		commands.put("setmap", new SetMapCommand(plugin));
 		commands.put("setmin", new SetMinCommand(plugin));
 		commands.put("setmax", new SetMaxCommand(plugin));
-		commands.put("start", new StartCommand(plugin));
+		commands.put("startGame", new StartCommand(plugin));
 		commands.put("stop", new StopCommand(plugin));
 		commands.put("remove", new RemoveCommand(plugin));
 

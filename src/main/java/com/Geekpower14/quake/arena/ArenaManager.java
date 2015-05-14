@@ -1,7 +1,6 @@
 package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
-import net.samagames.gameapi.GameAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -72,7 +71,7 @@ public class ArenaManager {
 			arena = new ArenaSolo(plugin, name);
 		}
 
-		GameAPI.registerArena(arena);
+		plugin.samaGamesAPI.getGameManager().registerGame(arena);
 		ARENA = arena;
 	}
 

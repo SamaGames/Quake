@@ -5,14 +5,14 @@ import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.stuff.grenade.FragGrenade;
 import com.Geekpower14.quake.utils.SimpleScoreboard;
 import com.Geekpower14.quake.utils.Utils;
-import net.zyuiop.MasterBundle.FastJedis;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.shops.ShopsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
-import redis.clients.jedis.ShardedJedis;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,34 +70,36 @@ public class APlayer {
 	public void resquestStuff()
 	{
 		final APlayer ap = this;
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			@Override
-			public void run() {
-				//TODO recherche database
-				//Requetes (optimise pour resultat rapide)
-				ShardedJedis jedis = FastJedis.jedis();
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            //TODO recherche database
+            //Requetes (optimise pour resultat rapide)
 
-				//Shooter
-				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(jedis.get("shops:quake:hoes:" + p.getUniqueId().toString() + ":current"), "woodenhoe"));
+            SamaGamesAPI samaGamesAPI = plugin.samaGamesAPI;
 
-				//Grenade
-				FragGrenade grenade = (FragGrenade) plugin.itemManager.getItemByName("fragrenade");
-				grenade.setNB(1);
-				stuff.put(ItemSLot.Slot2, grenade);
+            ShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getOriginalGameName());
 
-				String dataGrenade = jedis.get("shops:quake:fragrenade:" + p.getUniqueId().toString() + ":current");
+            String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
+            String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
 
-				if (dataGrenade != null) {
-					String[] dj = dataGrenade.split("-");
-					if (dj[0].equals("fragrenade")) {
-						final int add = Integer.parseInt(dj[1]);
-						grenade.setNB(1 + add);
-						stuff.put(ItemSLot.Slot2, grenade);
-					}
-				}
-				FastJedis.back(jedis);
-			}
-		});		
+            //Shooter
+            stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(hoe_, "woodenhoe"));
+
+            //Grenade
+            FragGrenade grenade = (FragGrenade) plugin.itemManager.getItemByName("fragrenade");
+            grenade.setNB(1);
+            stuff.put(ItemSLot.Slot2, grenade);
+
+            String dataGrenade = grenade_;
+
+            if (dataGrenade != null) {
+                String[] dj = dataGrenade.split("-");
+                if (dj[0].equals("fragrenade")) {
+                    final int add = Integer.parseInt(dj[1]);
+                    grenade.setNB(1 + add);
+                    stuff.put(ItemSLot.Slot2, grenade);
+                }
+            }
+        });
 	}
 
 	@SuppressWarnings("deprecation")

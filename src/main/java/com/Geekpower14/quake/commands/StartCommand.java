@@ -26,7 +26,7 @@ public class StartCommand implements BasicCommand{
 				return true;
 			}
 			
-			arena.start();
+			arena.startGame();
 			
 			player.sendMessage(ChatColor.GREEN + "Force beginning for the arena");
 			
@@ -43,7 +43,7 @@ public class StartCommand implements BasicCommand{
 	public String help(Player p) {
 		if(Quake.hasPermission(p, this.getPermission()))
 		{
-			return "/q start [arena] - Force start an arena.";
+			return "/q startGame [arena] - Force startGame an arena.";
 		}
 		return "";
 	}
