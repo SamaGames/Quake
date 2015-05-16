@@ -117,7 +117,7 @@ public class PlayerListener implements Listener{
 		if(ap.getRole() == Role.Spectator)
 			return;
 
-		if(arena.eta != Status.IN_GAME)
+		if(arena.getStatus() != Status.IN_GAME)
 			return;
 
 		TItem item = ap.getStuff(player.getInventory().getHeldItemSlot());
@@ -150,7 +150,7 @@ public class PlayerListener implements Listener{
 
 			if(event.getCause() == EntityDamageEvent.DamageCause.VOID)
 			{
-				if(arena.eta.isAllowJoin())
+				if(arena.getStatus().isAllowJoin())
 				{
 					p.teleport(arena.getSpawn(p));
 					return;
@@ -192,7 +192,7 @@ public class PlayerListener implements Listener{
 
 		if(ap.isInvincible())
 			return;
-		if(arena.eta != Status.IN_GAME)
+		if(arena.getStatus() != Status.IN_GAME)
 			return;
 
 		// For all.

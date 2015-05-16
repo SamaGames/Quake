@@ -8,6 +8,7 @@ import net.minecraft.server.v1_8_R2.IChatBaseComponent;
 import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
 import net.samagames.api.games.IManagedGame;
 import net.samagames.api.games.Status;
+import net.samagames.core.api.games.GameManagerImpl;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -58,8 +59,6 @@ public abstract class Arena implements IManagedGame {
 	public String warningJoinMessage = null;
 
 	/*** Variable dynamiques ***/
-
-	public Status eta = Status.NOT_RESPONDING;
 
 	public List<APlayer> players = new ArrayList<>();
 	//ScoreBoard teams
@@ -205,7 +204,7 @@ public abstract class Arena implements IManagedGame {
 
 	/*** Mouvement des joueurs ***/
 
-	@SuppressWarnings("deprecation")
+	@Override
 	public void playerJoin(Player p)
 	{
 
@@ -241,6 +240,7 @@ public abstract class Arena implements IManagedGame {
 	 * Gestion de l'arène.
 	 */
 
+	@Override
 	public void playerDisconnect(Player p)
 	{
 		p.setAllowFlight(false);
@@ -261,7 +261,7 @@ public abstract class Arena implements IManagedGame {
 
 		execAfterLeavePlayer();
 
-		if(players.size() < getMinPlayers() && eta == Status.STARTING)
+		if(players.size() < getMinPlayers() && getStatus() == Status.STARTING)
 		{
 			resetCountdown();
 		}
@@ -276,9 +276,7 @@ public abstract class Arena implements IManagedGame {
 	@Override
 	public void startGame()
 	{
-		eta = Status.IN_GAME;
-
-		refresh();
+		setStatus(Status.IN_GAME);
 
 		execStart();
 
@@ -289,8 +287,7 @@ public abstract class Arena implements IManagedGame {
 
 	public void stop()
 	{
-		eta = Status.REBOOTING;
-		refresh();
+		setStatus(Status.REBOOTING);
 		/*
 		 * TO/DO: Stopper l'arène.
 		 */
@@ -360,9 +357,7 @@ public abstract class Arena implements IManagedGame {
 
 	public void win(Object p)
 	{
-		eta = Status.REBOOTING;
-
-		refresh();
+		setStatus(Status.REBOOTING);
 
 		execWin(p);
 	}
@@ -401,7 +396,7 @@ public abstract class Arena implements IManagedGame {
 
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
 	{
-        if(eta == Status.REBOOTING)
+        if(getStatus() == Status.REBOOTING)
             return false;
 
 		return execShotPlayer(shooter, victim, effect);
@@ -702,14 +697,12 @@ public abstract class Arena implements IManagedGame {
 		return this.vipSlots;
 	}
 
-	@Override
 	public Status getStatus() {
-		return eta;
+		return ((GameManagerImpl)plugin.samaGamesAPI.getGameManager()).getGameStatus();
 	}
 
 	public void setStatus(Status status) {
-		this.eta = status;
-		refresh();
+		plugin.samaGamesAPI.getGameManager().setStatus(status);
 	}
 
 	public int getConnectedPlayers()

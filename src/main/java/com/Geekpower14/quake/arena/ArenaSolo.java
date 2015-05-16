@@ -33,8 +33,6 @@ public class ArenaSolo extends Arena{
         super(pl, name);
 
         loadConfig();
-
-        setStatus(Status.READY_TO_START);
     }
 
     @Override
@@ -83,7 +81,7 @@ public class ArenaSolo extends Arena{
                 + ChatColor.DARK_GRAY
                 + "]");
 
-        if(players.size() >= minPlayer && eta == Status.READY_TO_START)
+        if(players.size() >= minPlayer && getStatus() == Status.READY_TO_START)
         {
             startCountdown();
         }
@@ -96,7 +94,7 @@ public class ArenaSolo extends Arena{
 
     @Override
     protected void execAfterLeavePlayer() {
-        if(getConnectedPlayers() <= 1 && eta == Status.READY_TO_START)
+        if(getConnectedPlayers() <= 1 && getStatus() == Status.READY_TO_START)
         {
             if(players.size() >= 1)
             {
@@ -137,7 +135,10 @@ public class ArenaSolo extends Arena{
 
     @Override
     protected void execStop() {
-        scoreHandler.stop();
+        if(scoreHandler !=null)
+        {
+            scoreHandler.stop();
+        }
         scoreHandler = null;
     }
 

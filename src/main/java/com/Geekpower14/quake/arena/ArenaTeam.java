@@ -45,8 +45,6 @@ public class ArenaTeam extends Arena{
         teams.add(new ATeam(plugin, this, "Green", ChatColor.GREEN, Color.GREEN, DyeColor.GREEN));
 
         loadConfig();
-
-        setStatus(Status.READY_TO_START);
     }
 
     @Override
@@ -117,7 +115,7 @@ public class ArenaTeam extends Arena{
                 + ChatColor.DARK_GRAY
                 + "]");
 
-        if (players.size() >= minPlayer && eta == Status.READY_TO_START) {
+        if (players.size() >= minPlayer && getStatus() == Status.READY_TO_START) {
             startCountdown();
         }
     }
@@ -135,7 +133,7 @@ public class ArenaTeam extends Arena{
     protected void execAfterLeavePlayer() {
         final List<ATeam> remain = getActiveTeams().stream().filter(team -> team.getSize() > 0).collect(Collectors.toList());
 
-        if (remain.size() <= 1 && eta == Status.IN_GAME) {
+        if (remain.size() <= 1 && getStatus() == Status.IN_GAME) {
             if (remain.size() == 1) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(remain.get(0)), 1L);
             } else {
@@ -315,7 +313,7 @@ public class ArenaTeam extends Arena{
 
         if (avictim == null)
             return false;
-        if (eta == Status.REBOOTING)
+        if (getStatus() == Status.REBOOTING)
             return false;
         if (victim.equals(shooter) || avictim.isInvincible() || isSameTeam(victim, shooter))
             return false;
@@ -421,7 +419,7 @@ public class ArenaTeam extends Arena{
             return;
         }
 
-        if(eta == Status.IN_GAME && !Quake.hasPermission(p, "quake.ChangeTeamInGame"))
+        if(getStatus() == Status.IN_GAME && !Quake.hasPermission(p, "quake.ChangeTeamInGame"))
         {
             this.broadcast(p, ChatColor.RED + "Vous ne pouvez pas changer de Team en jeu.");
             return;
@@ -441,13 +439,13 @@ public class ArenaTeam extends Arena{
 
         oteam.removePlayer(p);
 
-        if(eta == Status.IN_GAME)
+        if(getStatus() == Status.IN_GAME)
         {
             kill(p);
         }
         nteam.addPlayer(p);
 
-        if(eta.isAllowJoin())
+        if(getStatus().isAllowJoin())
         {
             setWoolStuff(ap);
         }
