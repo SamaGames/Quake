@@ -1,16 +1,21 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.Geekpower14</groupId>
-  <artifactId>QuakeSolo_Serv</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>Quake_Serv</name>
-  
-  	<repositories>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.Geekpower14</groupId>
+    <artifactId>QuakeSolo_Serv</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Quake_Serv</name>
+
+    <repositories>
         <repository>
-            <id>samagames-repo</id>
+            <id>samagames-public</id>
             <url>http://maven.samagames.net/public/</url>
         </repository>
-	</repositories>
+
+        <repository>
+            <id>samagames-network</id>
+            <url>http://maven.samagames.net/network/</url>
+        </repository>
+    </repositories>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -25,12 +30,12 @@
             </plugin>
         </plugins>
     </build>
-  
+
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.8.3-R0.1-SNAPSHOT</version>
+            <version>1.8.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -48,13 +53,7 @@
         </dependency>
         <dependency>
             <groupId>net.samagames</groupId>
-            <artifactId>PermissionsBukkit</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.samagames</groupId>
-            <artifactId>samapi</artifactId>
+            <artifactId>SamaGamesAPI</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

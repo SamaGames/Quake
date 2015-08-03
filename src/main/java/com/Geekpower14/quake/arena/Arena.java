@@ -1,28 +1,22 @@
 package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
-import com.Geekpower14.quake.arena.APlayer.Role;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
-import net.minecraft.server.v1_8_R2.IChatBaseComponent;
-import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
-import net.samagames.api.games.IManagedGame;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
+import net.samagames.api.games.Game;
 import net.samagames.api.games.Status;
-import net.samagames.core.api.games.GameManagerImpl;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +26,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-public abstract class Arena implements IManagedGame {
+public abstract class Arena extends Game<APlayer> {
 
 	public Quake plugin;
 
@@ -48,38 +42,23 @@ public abstract class Arena implements IManagedGame {
 	public int spectateSlots = 5;
 
 	public int Time_Before = 20;
-	public int Time_After = 15;
 
 	public int Goal = 25;
 
 	public List<PotionEffect> potions = new ArrayList<>();
 
-	public boolean vip;
-
 	public String warningJoinMessage = null;
 
 	/*** Variable dynamiques ***/
 
-	public List<APlayer> players = new ArrayList<>();
-	//ScoreBoard teams
-	protected Starter CountDown = null;
-
-	//ScoreBoard teams
-	protected Scoreboard tboard;
-
-	protected Team spectates;
+	//public List<APlayer> players = new ArrayList<>();
 
 	public Arena(Quake pl, String name)
 	{
+		super("quake","Quake", APlayer.class);
 		plugin = pl;
 
 		this.name = name;
-
-		tboard = Bukkit.getScoreboardManager().getNewScoreboard();
-
-		spectates = tboard.registerNewTeam("spectator");
-		spectates.setCanSeeFriendlyInvisibles(true);
-
 	}
 
 	/*
@@ -104,10 +83,7 @@ public abstract class Arena implements IManagedGame {
 
 		uuid = UUID.fromString(config.getString("UUID"));
 
-		vip = config.getBoolean("VIP");
-
 		Time_Before = config.getInt("Time-Before");
-		Time_After = config.getInt("Time-After");
 
 		minPlayer = config.getInt("MinPlayers");
 		maxPlayer = config.getInt("MaxPlayers");
@@ -168,10 +144,7 @@ public abstract class Arena implements IManagedGame {
 		config.set("Map", Map_name);
 		config.set("UUID", uuid.toString());
 
-		config.set("VIP", vip);
-
 		config.set("Time-Before", Time_Before);
-		config.set("Time-After", Time_After);
 
 		config.set("MinPlayers", minPlayer);
 		config.set("MaxPlayers", maxPlayer);
@@ -205,18 +178,16 @@ public abstract class Arena implements IManagedGame {
 	/*** Mouvement des joueurs ***/
 
 	@Override
-	public void playerJoin(Player p)
+	public void handleLogin(Player p)
 	{
-
-		joinHider(p);
 		p.setFlying(false);
 		p.setAllowFlight(false);
-
 		cleaner(p);
 
 		APlayer ap = new APlayer(plugin, this, p);
-		players.add(ap);
+		gamePlayers.put(p.getUniqueId(), ap);
 
+        this.coherenceMachine.getMessageManager().writePlayerJoinToAll(p);
 		execJoinPlayer(ap);
 
 		refresh();
@@ -230,7 +201,7 @@ public abstract class Arena implements IManagedGame {
 
 		if(warningJoinMessage != null && !warningJoinMessage.equals(""))
 		{
-			p.sendMessage(""+ChatColor.RED + ChatColor.BOLD + warningJoinMessage);
+			p.sendMessage("" + ChatColor.RED + ChatColor.BOLD + warningJoinMessage);
 		}
 	}
 
@@ -241,30 +212,18 @@ public abstract class Arena implements IManagedGame {
 	 */
 
 	@Override
-	public void playerDisconnect(Player p)
+	public void handleLogout(Player p)
 	{
 		p.setAllowFlight(false);
-		leaveCleaner(p);
-		for(Player pp : Quake.getOnline())
-		{
-			p.showPlayer(pp);
-		}
+        leaveCleaner(p);
 
-		APlayer ap = getAplayer(p);
-		ap.removeScoreboard();
+        APlayer ap = getAplayer(p);
 
-		execLeavePlayer(ap);
+        execLeavePlayer(ap);
 
-		players.remove(ap);
-
-		refresh();
+        super.handleLogout(p);
 
 		execAfterLeavePlayer();
-
-		if(players.size() < getMinPlayers() && getStatus() == Status.STARTING)
-		{
-			resetCountdown();
-		}
 
 		return;
 	}
@@ -285,30 +244,10 @@ public abstract class Arena implements IManagedGame {
 
 	protected abstract void execStart();
 
-	public void stop()
+	public void handleGameEnd()
 	{
-		setStatus(Status.REBOOTING);
-		/*
-		 * TO/DO: Stopper l'arène.
-		 */
-
         execStop();
-
-		List<Player> tokick = players.stream().map(APlayer::getP).collect(Collectors.toList());
-
-		tokick.forEach(this::kickPlayer);
-		refresh();
-
-		if (plugin.isEnabled()) {
-			Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-                Bukkit.getLogger().info("server will reboot now");
-                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-                Bukkit.getServer().shutdown();
-
-            }, 5 * 20L);
-		}
-
+        super.handleGameEnd();
 	}
 
 	protected abstract void execStop();
@@ -320,46 +259,17 @@ public abstract class Arena implements IManagedGame {
 
 	public void disable()
 	{
-		stop();
+		handleGameEnd();
 		return;
-	}
-
-	public void kickPlayer(Player p)
-	{
-		kickPlayer(p, "");
-	}
-
-	public void kickPlayer(Player p, String msg)
-	{
-
-		if(!plugin.isEnabled())
-		{
-			p.kickPlayer(msg);
-			return;
-		}
-
-		if(!p.isOnline())
-			return;
-
-		//kickPlayer(p, "");
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(b);
-		try {
-			out.writeUTF("Connect");
-			out.writeUTF("lobby");
-
-		} catch (IOException eee) {
-			Bukkit.getLogger().info("You'll never see me!");
-		}
-		p.sendPluginMessage(plugin, "BungeeCord", b.toByteArray());
-
 	}
 
 	public void win(Object p)
 	{
-		setStatus(Status.REBOOTING);
+		setStatus(Status.FINISHED);
 
 		execWin(p);
+
+        handleGameEnd();
 	}
 
 	protected abstract void execWin(Object p);
@@ -370,8 +280,10 @@ public abstract class Arena implements IManagedGame {
 		ap.setinvincible(true);
 		ap.setReloading(true);
 
-		p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0));
-		p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 3));
+		Bukkit.getScheduler().runTask(plugin, () -> {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 3));
+        });
 
 		//BETA
 		Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -428,96 +340,48 @@ public abstract class Arena implements IManagedGame {
 
 	public abstract Location getSpawn(Player p);
 
-	public APlayer getAplayer(Player p)
-	{
-		return getAplayer(p.getName());
+	public APlayer getAplayer(Player p) {
+        return getAplayer(p.getUniqueId());
 	}
 	
-	public APlayer getAplayer(String p)
+	public APlayer getAplayer(UUID p)
 	{
-		for(APlayer ap : players)
-		{
-			if(ap.getName().equals(p))
-			{
-				return ap;
-			}
-		}
-
-		return null;
+		return gamePlayers.get(p);
 	}
 
 	public abstract void extraStuf(APlayer ap);
 
 	public abstract void updateScore();
-	
-	public Scoreboard getScoreboard()
-	{
-		return tboard;
-	}
 
-	public void broadcast(String message)
-	{
-		for(APlayer player : players)
-		{
-			broadcast(player.getP(), message);
-		}
-	}
-
-	public void broadcast(Player p, String message)
+	/*public void broadcast(Player p, String message)
 	{
 		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "Quake" + ChatColor.DARK_AQUA + "] "+ ChatColor.ITALIC + message);
-	}
-
-	public void chat(String message)
-	{
-		for(APlayer player : players)
-		{
-			player.tell(message);
-		}
-	}
-
-	public void nbroadcast(String message)
-	{
-		for(APlayer player : players)
-		{
-			player.tell(message);
-		}
-	}
+	}*/
 
 	public void broadcastXP(int xp)
 	{
-		for(APlayer player : players)
-		{
-			player.setLevel(xp);
+		for(APlayer player : gamePlayers.values()) {
+            player.setLevel(xp);
 		}
 	}
 
 	public void playsound(Sound sound, float a, float b)
 	{
-		for(APlayer player : players)
+		for(APlayer player : gamePlayers.values())
 		{
 			player.getP().playSound(player.getP().getLocation(), sound, a, b);
 		}
 	}
-
-	public Collection<Player> getPlayers()
-	{
-		List<Player> t = players.stream().map(APlayer::getP).collect(Collectors.toList());
-
-		return t;
-	}
 	
-	public List<Player> getPlayersList()
+	public Collection<APlayer> getAPlayersList()
 	{
-		List<Player> t = players.stream().map(APlayer::getP).collect(Collectors.toList());
+		return gamePlayers.values();
+	}
 
-		return t;
-	}
-	
-	public List<APlayer> getAPlayersList()
-	{
-		return players;
-	}
+    public List<Player> getPlayers()
+    {
+        return gamePlayers.values().stream().map(APlayer::getP).collect(Collectors.toList());
+    }
 
 	@SuppressWarnings("deprecation")
 	public void cleaner(Player player)
@@ -548,7 +412,7 @@ public abstract class Arena implements IManagedGame {
 		for (PotionEffect effect : player.getActivePotionEffects())
 			player.removePotionEffect(effect.getType());
 
-		potions.forEach(player::addPotionEffect);
+        potions.forEach(player::addPotionEffect);
 	}
 
 	public ItemStack getLeaveDoor()
@@ -563,46 +427,9 @@ public abstract class Arena implements IManagedGame {
 		return coucou;
 	}
 
-	public void startCountdown()
-	{
-		setStatus(Status.STARTING);
-
-		CountDown = new Starter(plugin, this, Time_Before);
-
-		CountDown.start();		
-	}
-
-	public void resetCountdown()
-	{
-		setStatus(Status.READY_TO_START);
-
-		if(CountDown != null)
-		{
-			CountDown.abord();
-			broadcast(ChatColor.YELLOW + "Compte à rebour remis à zero.");
-		}		
-	}
-
-
-	public void joinHider(Player p)
-	{
-		for(Player pp : Quake.getOnline())
-		{	
-			if(!this.hasPlayer(pp))
-			{
-				pp.hidePlayer(p);
-				p.hidePlayer(pp);
-			}else
-			{
-				pp.showPlayer(p);
-				p.showPlayer(pp);
-			}
-		}
-	}
-
 	public void sendBar(String message)
 	{
-		for(APlayer ap : players)
+		for(APlayer ap : gamePlayers.values())
 		{
 			sendBarTo(ap.getP(), message);
 		}
@@ -615,62 +442,14 @@ public abstract class Arena implements IManagedGame {
 		((CraftPlayer)p).getHandle().playerConnection.sendPacket(ppoc);
 	}
 
-	public void loseHider(Player p)
-	{
-		for(APlayer ap : players)
-		{
-			if(ap.getRole() != Role.Spectator)
-			{
-				ap.getP().hidePlayer(p);
-			}else if(ap.getRole() == Role.Spectator)
-			{
-				ap.getP().showPlayer(p);
-				p.showPlayer(ap.getP());
-			}
-		}
-	}
-
 	public UUID getUUID()
 	{
 		return uuid;
 	}
 
-	public boolean hasPlayer(UUID uuid)
-	{
-		return hasPlayer(Bukkit.getPlayer(uuid));
-	}
-
-	public boolean hasPlayer(Player p)
-	{
-		return hasPlayer(p.getName());
-	}
-
-	public boolean hasPlayer(String p)
-	{
-		for(APlayer ap : players)
-		{
-			if(ap.getName().equals(p))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	public String getName()
 	{
 		return name;
-	}
-
-	public boolean isVip()
-	{
-		return vip;
-	}
-
-	public void setVip(boolean vip)
-	{
-		this.vip = vip;
 	}
 
 	public int getMinPlayers()
@@ -697,19 +476,11 @@ public abstract class Arena implements IManagedGame {
 		return this.vipSlots;
 	}
 
-	public Status getStatus() {
-		return ((GameManagerImpl)plugin.samaGamesAPI.getGameManager()).getGameStatus();
-	}
-
-	public void setStatus(Status status) {
-		plugin.samaGamesAPI.getGameManager().setStatus(status);
-	}
-
-	public int getConnectedPlayers()
+	/*public int getConnectedPlayers()
 	{
 		int nb = 0;
 
-		for(APlayer ap : players)
+		for(APlayer ap : gamePlayers.values())
 		{
 			if(ap.getRole() == Role.Player)
 			{
@@ -718,7 +489,7 @@ public abstract class Arena implements IManagedGame {
 		}
 
 		return nb;
-	}
+	}*/
 
 	public boolean isTeam()
 	{
@@ -726,11 +497,6 @@ public abstract class Arena implements IManagedGame {
 			return true;
 
 		return false;
-	}
-
-	public void initScorebords()
-	{
-		players.forEach(com.Geekpower14.quake.arena.APlayer::setScoreboard);
 	}
 
 	public String getMapName()
@@ -743,134 +509,10 @@ public abstract class Arena implements IManagedGame {
 		Map_name = name;
 	}
 
-	public int getTimeBefore()
-	{
-		return Time_Before;
-	}
-
-	public void setTimeBefore(int time)
-	{
-		Time_Before = time;
-	}
-
-	public int getTimeAfter()
-	{
-		return Time_After;
-	}
-
-	public void setTimeAfter(int time)
-	{
-		Time_After = time;
-	}
-
 	public abstract void addSpawn(Location loc);
-
-
-	public int getCountDownRemain()
-	{
-		if(CountDown == null)
-			return 0;
-
-		return this.CountDown.time;
-	}
-
-	public Color getColor(int i) {
-		if(i==1) return Color.AQUA;
-		if(i==2) return Color.BLACK;
-		if(i==3) return Color.BLUE;
-		if(i==4) return Color.FUCHSIA;
-		if(i==5) return Color.GRAY;
-		if(i==6) return Color.GREEN;
-		if(i==7) return Color.LIME;
-		if(i==8) return Color.MAROON;
-		if(i==9) return Color.NAVY;
-		if(i==10) return Color.OLIVE;
-		if(i==11) return Color.ORANGE;
-		if(i==12) return Color.PURPLE;
-		if(i==13) return Color.RED;
-		if(i==14) return Color.SILVER;
-		if(i==15) return Color.TEAL;
-		if(i==16) return Color.WHITE;
-		if(i==17) return Color.YELLOW;
-		return null;
-	}
 
 	public String getOriginalGameName()
 	{
 		return "quake";
-	}
-
-	public class Starter implements Runnable
-	{
-
-		public int time = 0;
-
-		public int tt = 0;
-
-		private Quake plugin;
-
-		private Arena arena;
-
-		private int ID;
-
-		public Starter(Quake pl, Arena aren, int time)
-		{
-			this.time = time;
-			this.tt = time;
-			plugin = pl;
-			arena = aren;
-
-		}
-
-		public void abord()
-		{
-			time = tt;
-			Bukkit.getScheduler().cancelTask(ID);
-		}
-
-		public void start()
-		{
-			arena.broadcast(ChatColor.GOLD + "Le jeu va démarrer dans " + Time_Before +" sec.");
-			arena.broadcastXP(time);
-
-			ID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, 1L, 20L);
-		}
-
-		@Override
-		public void run() {
-			arena.broadcastXP(time);
-
-			if(time == 10)
-			{
-				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "Le jeu va démarrer dans "+ ChatColor.RED + "10" + ChatColor.GOLD +" sec.");
-				//arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans 10 sec.");
-				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
-			}
-
-			if(time  <= 5 && time >=1)
-			{
-				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "Le jeu va démarrer dans " + ChatColor.RED + time + ChatColor.GOLD + " sec.");
-				//arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans " + time + " sec.");
-				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
-			}
-
-			if(time == 0)
-			{
-				arena.playsound(Sound.NOTE_PLING, 9.0F, 1F);
-				arena.playsound(Sound.NOTE_PLING, 9.0F, 5F);
-				arena.playsound(Sound.NOTE_PLING, 9.0F, 10F);
-				arena.sendBar("" +ChatColor.BOLD + ChatColor.GOLD + "C'est parti !");
-				//arena.broadcast(ChatColor.YELLOW + "C'est parti !");
-				arena.startGame();
-				abord();
-			}
-
-			if(time <= 0)
-			{
-				abord();
-			}
-			time--;
-		}
-
 	}
 }

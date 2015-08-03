@@ -7,7 +7,6 @@ import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
-import net.samagames.api.player.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -61,6 +60,9 @@ public abstract class GrenadeBasic extends TItem {
         }
 
         gStack.setAmount(gStack.getAmount()-1);
+        //Update number of grenade
+        setNB(gStack.getAmount());
+
         player.getInventory().setItem(slot.getSlot(), gStack);
         player.updateInventory();
 
@@ -157,8 +159,8 @@ public abstract class GrenadeBasic extends TItem {
         if (tt >= 1) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try{
-                    PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
-                    playerData.creditCoins(tt * 1, "Kill !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
+                    arena.addCoins(ap.getP(), tt*1, "Kill !");
+                    ap.setCoins(ap.getCoins() + tt * 1);
                     plugin.samaGamesAPI.getStatsManager(arena.getOriginalGameName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
                 }catch(Exception e)
                 {

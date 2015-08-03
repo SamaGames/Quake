@@ -381,11 +381,6 @@ public enum ParticleEffect {
 
     private static final Map<String, ParticleEffect> NAME_MAP = new HashMap<String, ParticleEffect>();
     private static final Map<Integer, ParticleEffect> ID_MAP = new HashMap<Integer, ParticleEffect>();
-    private final String name;
-    private final int id;
-    private final int requiredVersion;
-    private final boolean requiresData;
-    private final boolean requiresWater;
 
     // Initialize map for quick name and id lookup
     static {
@@ -394,6 +389,12 @@ public enum ParticleEffect {
             ID_MAP.put(effect.id, effect);
         }
     }
+
+    private final String name;
+    private final int id;
+    private final int requiredVersion;
+    private final boolean requiresData;
+    private final boolean requiresWater;
 
     /**
      * Construct a new particle effect
@@ -713,7 +714,7 @@ public enum ParticleEffect {
     /**
      * Displays a particle effect which requires additional data and is only visible for all players within a certain range in the world of @param center
      *
-     * @param data Data of the effect
+     * @param data data of the effect
      * @param offsetX Maximum distance particles can fly away from the center on the x-axis
      * @param offsetY Maximum distance particles can fly away from the center on the y-axis
      * @param offsetZ Maximum distance particles can fly away from the center on the z-axis
@@ -742,7 +743,7 @@ public enum ParticleEffect {
     /**
      * Displays a particle effect which requires additional data and is only visible for the specified players
      *
-     * @param data Data of the effect
+     * @param data data of the effect
      * @param offsetX Maximum distance particles can fly away from the center on the x-axis
      * @param offsetY Maximum distance particles can fly away from the center on the y-axis
      * @param offsetZ Maximum distance particles can fly away from the center on the z-axis
@@ -771,7 +772,7 @@ public enum ParticleEffect {
     /**
      * Displays a particle effect which requires additional data and is only visible for the specified players
      *
-     * @param data Data of the effect
+     * @param data data of the effect
      * @param offsetX Maximum distance particles can fly away from the center on the x-axis
      * @param offsetY Maximum distance particles can fly away from the center on the y-axis
      * @param offsetZ Maximum distance particles can fly away from the center on the z-axis
@@ -790,7 +791,7 @@ public enum ParticleEffect {
     /**
      * Displays a single particle which requires additional data that flies into a determined direction and is only visible for all players within a certain range in the world of @param center
      *
-     * @param data Data of the effect
+     * @param data data of the effect
      * @param direction Direction of the particle
      * @param speed Display speed of the particles
      * @param center Center location of the effect
@@ -816,7 +817,7 @@ public enum ParticleEffect {
     /**
      * Displays a single particle which requires additional data that flies into a determined direction and is only visible for the specified players
      *
-     * @param data Data of the effect
+     * @param data data of the effect
      * @param direction Direction of the particle
      * @param speed Display speed of the particles
      * @param center Center location of the effect
@@ -842,7 +843,7 @@ public enum ParticleEffect {
     /**
      * Displays a single particle which requires additional data that flies into a determined direction and is only visible for the specified players
      *
-     * @param data Data of the effect
+     * @param data data of the effect
      * @param direction Direction of the particle
      * @param speed Display speed of the particles
      * @param center Center location of the effect
@@ -872,7 +873,7 @@ public enum ParticleEffect {
          * Construct a new particle data
          *
          * @param material Material of the item/block
-         * @param data Data value of the item/block
+         * @param data data value of the item/block
          */
         @SuppressWarnings("deprecation")
         public ParticleData(Material material, byte data) {
@@ -931,7 +932,7 @@ public enum ParticleEffect {
          * Construct a new item data
          *
          * @param material Material of the item
-         * @param data Data value of the item
+         * @param data data value of the item
          * @see ParticleData#ParticleData(Material, byte)
          */
         public ItemData(Material material, byte data) {
@@ -952,7 +953,7 @@ public enum ParticleEffect {
          * Construct a new block data
          *
          * @param material Material of the block
-         * @param data Data value of the block
+         * @param data data value of the block
          * @throws IllegalArgumentException If the material is not a block
          * @see ParticleData#ParticleData(Material, byte)
          */
@@ -1009,7 +1010,7 @@ public enum ParticleEffect {
     }
 
     /**
-     * Represents a particle effect packet with all attributes which is used for sending packets to the players
+     * Represents a particle effect packet with all attributes which is used for sending connection to the players
      * <p>
      * This class is part of the <b>ParticleEffect Library</b> and follows the same usage conditions
      *
@@ -1044,7 +1045,7 @@ public enum ParticleEffect {
          * @param speed Display speed of the particles
          * @param amount Amount of particles
          * @param longDistance Indicates whether the maximum distance is increased from 256 to 65536
-         * @param data Data of the effect
+         * @param data data of the effect
          * @throws IllegalArgumentException If the speed is lower than 0 or the amount is lower than 1
          * @see #initialize()
          */
@@ -1073,7 +1074,7 @@ public enum ParticleEffect {
          * @param direction Direction of the particle
          * @param speed Display speed of the particle
          * @param longDistance Indicates whether the maximum distance is increased from 256 to 65536
-         * @param data Data of the effect
+         * @param data data of the effect
          * @throws IllegalArgumentException If the speed is lower than 0
          * @see #initialize()
          */

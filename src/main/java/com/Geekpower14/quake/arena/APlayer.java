@@ -3,22 +3,22 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.stuff.grenade.FragGrenade;
-import com.Geekpower14.quake.utils.SimpleScoreboard;
-import com.Geekpower14.quake.utils.Utils;
 import net.samagames.api.SamaGamesAPI;
-import net.samagames.api.shops.ShopsManager;
+import net.samagames.api.games.GamePlayer;
+import net.samagames.api.games.themachine.messages.IMessageManager;
+import net.samagames.api.shops.AbstractShopsManager;
+import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class APlayer {
+public class APlayer extends GamePlayer{
 
 	private Quake plugin;
 
@@ -28,40 +28,27 @@ public class APlayer {
 
 	private Role role = Role.Player;
 
-	private boolean vip = false;
-
 	private boolean Reloading = false;
 
 	private Boolean Invincible = false;
 
-	private Scoreboard board;
-	
-	private SimpleScoreboard sboard;
-
-	private int coins = 0;
+    private ObjectiveSign objective;
 
 	private int killstreak = 0;
 
 	private int score = 0;
 
-	private HashMap<ItemSLot, TItem> stuff = new HashMap<ItemSLot, TItem>();
+	private HashMap<ItemSLot, TItem> stuff = new HashMap<>();
 
 	public APlayer(Quake pl, Arena arena, Player p)
 	{
+		super(p);
 		plugin = pl;
 		this.arena = arena;
 		this.p = p;
 
-		if(Utils.hasPermission(p, "quake.vip"))
-		{
-			vip = true;
-		}
-
-		board = Bukkit.getScoreboardManager().getNewScoreboard();
-		
-		sboard = new SimpleScoreboard(board, "" + ChatColor.RED + ChatColor.BOLD + "Quake", p.getName());
-		//updateScoreboard();
-		//setScoreboard();
+        objective = new ObjectiveSign("quake", "" + ChatColor.RED + ChatColor.BOLD + "Quake");
+        objective.addReceiver(p);
 
 		resquestStuff();
 
@@ -76,7 +63,7 @@ public class APlayer {
 
             SamaGamesAPI samaGamesAPI = plugin.samaGamesAPI;
 
-            ShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getOriginalGameName());
+            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getOriginalGameName());
 
             String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
             String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
@@ -143,51 +130,29 @@ public class APlayer {
 		return null;
 	}
 
-	public void removeScoreboard()
-	{
-		p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-	}
-
-	public void setScoreboard()
-	{
-		p.setScoreboard(board);
-	}
-
-	@SuppressWarnings("deprecation")
 	public void updateScoreboard()
 	{
 		if(this.getArena() instanceof ArenaSolo)
 		{
 			ArenaSolo arenaSolo = (ArenaSolo)arena;
-			sboard.reset();
+            List<APlayer> sortedList = arenaSolo.getScoreHandler().getSortedList();
 
-			List<APlayer> ps = arenaSolo.getTopFive();
+            for(int i = 0; i <= Math.max(6, sortedList.size()); i++)
+            {
+                APlayer aPlayer = sortedList.get(i);
+                objective.setLine(aPlayer.getScore(), aPlayer.getName());
+            }
+            objective.setLine(getScore(), getName());
 
-			for(int i = 0; i < ps.size(); i++)
-			{
-				APlayer aps = ps.get(i);
-				sboard.add(aps.getName(), aps.getScore());
-			}
-			setLevel(this.getScore());
-
-			sboard.build();
+            objective.updateLines(false);
 		}
 
-		if(this.getArena() instanceof ArenaTeam)
+        setLevel(this.getScore());
+
+		/*if(this.getArena() instanceof ArenaTeam)
 		{
-			/*ArenaSolo arenaSolo = (ArenaSolo)arena;
-			sboard.reset();*/
-
-
-
 			setLevel(this.getScore());
-
-			//sboard.build();
-		}
-
-
-
-
+		}*/
 	}
 
 	public void setReloading(Long Ticks)
@@ -198,45 +163,25 @@ public class APlayer {
 
 		p.setExp(0);
 
-		final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable()
-		{
+		final BukkitTask infoxp = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            float xp = p.getExp();
+            xp += getincr(temp);
+            if (xp >= 1) {
+                xp = 1;
+            }
+            p.setExp(xp);
+        }, 0L, 2L);
 
-			public void run() {
-				float xp = p.getExp();
-				xp += getincr(temp);
-				if(xp >= 1)
-				{
-					xp = 1;
-				}
-				p.setExp(xp);
-			}
-		}, 0L, 2L);
+		Bukkit.getScheduler().runTaskLater(plugin, () -> p.playSound(p.getLocation(), Sound.CLICK, 1, 10), Ticks - 5);
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-		{
-			public void run() {
-                p.playSound(p.getLocation(), Sound.CLICK, 1, 1);
-			}
-		}
-		, Ticks-5);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-		{
-			public void run() {
-				Reloading = false;
-				arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
-				p.setExp(1);
-				plugin.getServer().getScheduler().cancelTask(infoxp);
-                //p.playSound(p.getLocation(), Sound.CLICK, 1, 1);
-			}
-		}
-		, Ticks);
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-		{
-			public void run() {
-				arena.sendBarTo(p, "");
-			}
-		}
-				, Ticks+5);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Reloading = false;
+            arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
+            p.setExp(1);
+            infoxp.cancel();
+            //p.playSound(p.getLocation(), Sound.CLICK, 1, 1);
+        }, Ticks);
+		Bukkit.getScheduler().runTaskLater(plugin, () -> arena.sendBarTo(p, ""), Ticks + 5);
 
 		return;
 	}
@@ -265,55 +210,39 @@ public class APlayer {
 	{
 		Invincible = true;
 
-		final Long temp = Ticks;
+        final Long temp = Ticks;
 
-		p.setExp(0);
+        p.setExp(0);
 
-		final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable()
-		{
+        final BukkitTask infoxp = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            float xp = p.getExp();
+            xp += getincr(temp);
+            if (xp >= 1) {
+                xp = 1;
+            }
+            p.setExp(xp);
+        }, 0L, 2L);
 
-			public void run() {
-				float xp = p.getExp();
-				xp += getincr(temp);
-				if(xp >= 1)
-				{
-					xp = 1;
-				}
-				p.setExp(xp);
-			}
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Invincible = false;
+            p.setExp(1);
+            infoxp.cancel();
+        }, Ticks);
 
-		}, 0L, 2L);
+        return;
+    }
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-		{
-			public void run() {
+    public float getincr(Long time)
+    {
+        float result = 0;
 
-				Invincible = false;
-				p.setExp(1);
-				plugin.getServer().getScheduler().cancelTask(infoxp);
-			}
-		}
-				, Ticks);
+        float temp = time;
 
-		return;
-	}
-
-	public float getincr(Long time)
-	{
-		float result = 0;
-
-		float temp = time; 
-
-		result = (100/(temp/2))/100;
+        result = (100/(temp/2))/100;
 
 
-		return result;
-	}
-
-	public boolean isVIP()
-	{
-		return vip;
-	}
+        return result;
+    }
 
 	public Arena getArena()
 	{
@@ -398,25 +327,21 @@ public class APlayer {
 	{
 		if(message == null || message.equals(""))
 			return;
-
-		arena.nbroadcast("" + ChatColor.RED + ChatColor.BOLD + killstreak + " kills à la suite !");
-		arena.nbroadcast(""+ ChatColor.BOLD + message);
-		arena.nbroadcast("");
+        IMessageManager messageManager = SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager();
+        messageManager.writeCustomMessage("" + ChatColor.RED + ChatColor.BOLD + killstreak + " kills à la suite !", true);
+        messageManager.writeCustomMessage("" + ChatColor.BOLD + message, true);
+        messageManager.writeCustomMessage("", false);
 	}
 
 	public void hasDiedBy(String player)
 	{
 		if(killstreak >= 3)
 		{
-			arena.nbroadcast(""+ ChatColor.BOLD + p.getDisplayName() + ChatColor.GOLD + ChatColor.BOLD + " s'est fait arrêter par " + player);
-			arena.nbroadcast("");
+            IMessageManager messageManager = SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager();
+            messageManager.writeCustomMessage("" + ChatColor.BOLD + p.getDisplayName() + ChatColor.GOLD + ChatColor.BOLD + " s'est fait arrêter par " + player, true);
+            messageManager.writeCustomMessage("", false);
 		}
 		killstreak = 0;
-	}
-	
-	public void addCoins(int c)
-	{
-		coins += c;
 	}
 	
 	public int getScore()
@@ -451,19 +376,6 @@ public class APlayer {
 	{
 		return p.getDisplayName();
 	}
-
-	public Location getLocation() {
-		return p.getLocation();
-	}
-
-	public Location getEyeLocation() {
-		return p.getEyeLocation();
-	}
-
-	public boolean isDead() {
-		return p.isDead();
-	}
-
 	public Role getRole()
 	{
 		return role;
@@ -472,11 +384,6 @@ public class APlayer {
 	public void setRole(Role r)
 	{
 		role = r;
-	}
-
-	public void tell(String message)
-	{
-		p.sendMessage(message);
 	}
 
 	public void setLevel(int xp) {
@@ -499,7 +406,7 @@ public class APlayer {
 		private String info;
 		private int value;
 
-		private ItemSLot(String info, int value)
+		ItemSLot(String info, int value)
 		{
 			this.info = info;
 			this.value = value;
@@ -528,7 +435,7 @@ public class APlayer {
 		private String info;
 		private int value;
 
-		private Role(String info, int value)
+		Role(String info, int value)
 		{
 			this.info = info;
 			this.value = value;

@@ -6,17 +6,17 @@ import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.StatsNames;
-import net.minecraft.server.v1_8_R2.AxisAlignedBB;
-import net.minecraft.server.v1_8_R2.BlockPosition;
-import net.minecraft.server.v1_8_R2.IBlockData;
-import net.minecraft.server.v1_8_R2.Vec3D;
-import net.samagames.api.player.PlayerData;
+import net.minecraft.server.v1_8_R3.AxisAlignedBB;
+import net.minecraft.server.v1_8_R3.BlockPosition;
+import net.minecraft.server.v1_8_R3.IBlockData;
+import net.minecraft.server.v1_8_R3.Vec3D;
+import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -79,19 +79,16 @@ public abstract class HoeBasic extends TItem{
                 }
 
                 final int finalCompte = compte;
-                Bukkit.getScheduler().runTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        if (finalCompte == 2)
-                        {
-                            arena.broadcast("Double kill !");
-                        } else if (finalCompte == 3)
-                        {
-                            arena.broadcast("Triple kill !");
-                        } else if (finalCompte >= 4)
-                        {
-                            arena.broadcast("Amazing kill !");
-                        }
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (finalCompte == 2)
+                    {
+                        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Double kill !", true);
+                    } else if (finalCompte == 3)
+                    {
+                        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Triple kill !", true);
+                    } else if (finalCompte >= 4)
+                    {
+                        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Amazing kill !", true);
                     }
                 });
 
@@ -106,8 +103,8 @@ public abstract class HoeBasic extends TItem{
                 {
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                         try{
-                            PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
-                            playerData.creditCoins(tt * 1, "Kill !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
+							arena.addCoins(ap.getP(), tt*1, "Kill !");
+							ap.setCoins(ap.getCoins() + tt * 1);
                             plugin.samaGamesAPI.getStatsManager(arena.getOriginalGameName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
                         }catch(Exception e)
                         {
@@ -169,11 +166,11 @@ public abstract class HoeBasic extends TItem{
 			//if (!wallHack)
 				if (!block.getType().isTransparent())
 				{
-					net.minecraft.server.v1_8_R2.World w = ((CraftWorld)block.getWorld()).getHandle();
+					net.minecraft.server.v1_8_R3.World w = ((CraftWorld)block.getWorld()).getHandle();
 
 					BlockPosition var21 = new BlockPosition(block.getX(), block.getY(), block.getZ());
 					IBlockData iblockdata = w.getType(var21);
-					net.minecraft.server.v1_8_R2.Block b = iblockdata.getBlock();
+					net.minecraft.server.v1_8_R3.Block b = iblockdata.getBlock();
 
 					b.updateShape(w, var21);
 					AxisAlignedBB vec3d = b.a(w, var21, iblockdata);

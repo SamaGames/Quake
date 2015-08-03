@@ -1,12 +1,12 @@
 package com.Geekpower14.quake.utils;
 
 import com.Geekpower14.quake.Quake;
-import net.minecraft.server.v1_8_R2.EntityFireworks;
+import net.minecraft.server.v1_8_R3.EntityFireworks;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftFirework;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftFirework;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class Utils {
 		fw.setFireworkMeta(fwm);
 		((CraftFirework)fw).getHandle().setInvisible(true);
 		Bukkit.getScheduler().runTaskLater(Quake.getPlugin(), () -> {
-            net.minecraft.server.v1_8_R2.World w = (((CraftWorld) loc.getWorld()).getHandle());
+            net.minecraft.server.v1_8_R3.World w = (((CraftWorld) loc.getWorld()).getHandle());
             EntityFireworks fireworks = ((CraftFirework)fw).getHandle();
             w.broadcastEntityEffect(fireworks, (byte)17);
             fireworks.die();

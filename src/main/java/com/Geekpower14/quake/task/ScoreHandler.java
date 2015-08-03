@@ -6,8 +6,9 @@ import com.Geekpower14.quake.arena.ArenaSolo;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.List;
 
 public class ScoreHandler implements Runnable{
 
@@ -21,11 +22,25 @@ public class ScoreHandler implements Runnable{
 
     public boolean needToUpdate = true;
 
+    public List<APlayer> players = new ArrayList<>();
+
     public ScoreHandler(Quake plugin, ArenaSolo aren)
     {
         this.plugin = plugin;
         this.arena = aren;
+        players.addAll(aren.getAPlayersList());
+
         bt = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, 0L, 1L);
+    }
+
+    public void addPlayer(APlayer aPlayer)
+    {
+        players.add(aPlayer);
+    }
+
+    public void removePlayer(APlayer aPlayer)
+    {
+        players.remove(aPlayer);
     }
 
     public void stop()
@@ -57,26 +72,21 @@ public class ScoreHandler implements Runnable{
             //plugin.log.info("LOOLL");
             needToUpdate = false;
 
-            Collections.sort(arena.getAPlayersList(), new Comparator<APlayer>() {
-                @Override
-                public int compare(APlayer o1, APlayer o2) {
-                    return -Integer.compare(o1.getScore(), o2.getScore());
-                }
-            });
+            Collections.sort(players, (o1, o2) -> -Integer.compare(o1.getScore(), o2.getScore()));
 
             try{
-                Bukkit.getScheduler().runTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        for (APlayer player : arena.getAPlayersList()) {
-                            player.updateScoreboard();
-                        }
-                    }
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    arena.getAPlayersList().forEach(com.Geekpower14.quake.arena.APlayer::updateScoreboard);
                 });
             }catch(Exception e)
             {
                 e.printStackTrace();
             }
         }
+    }
+
+    public List<APlayer> getSortedList()
+    {
+        return players;
     }
 }

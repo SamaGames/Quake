@@ -1,20 +1,18 @@
 package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
+import net.samagames.tools.scoreboards.TeamHandler;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ATeam {
-	
-	private Team team;
 	
 	private String name;
 	
@@ -45,11 +43,10 @@ public class ATeam {
 	
 	public void createTeam()
 	{
-		team = aren.getScoreboard().registerNewTeam(name);
-		
-		team.setPrefix("" + color);
-		team.setAllowFriendlyFire(false);
-		team.setCanSeeFriendlyInvisibles(true);
+		ArenaTeam arenaTeam = (ArenaTeam) aren;
+		TeamHandler.VTeam team = arenaTeam.getTeamHandler().createNewTeam(name, "");
+        team.setRealName(name);
+        team.setPrefix("" + color);
 	}
 	
 	public boolean isActive()
@@ -90,13 +87,15 @@ public class ATeam {
 	public void addPlayer(Player p)
 	{
         players.add(p);
-		team.addPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()));
+        ArenaTeam arenaTeam = (ArenaTeam) aren;
+        arenaTeam.getTeamHandler().getTeamByName(name).addPlayer(p);
 	}
 	
 	public void removePlayer(Player p)
 	{
         players.remove(p);
-		team.removePlayer(Bukkit.getOfflinePlayer(p.getUniqueId()));
+        ArenaTeam arenaTeam = (ArenaTeam) aren;
+        arenaTeam.getTeamHandler().getTeamByName(name).removePlayer(p);
 	}
 	
 	public Boolean hasPlayer(Player p)
@@ -152,14 +151,6 @@ public class ATeam {
 	public int getSize()
 	{
 		return players.size();
-	}
-	
-	public void reset()
-	{
-		Score = 0;
-        players.clear();
-		team.unregister();
-		createTeam();
 	}
 	
 	public ChatColor getColor()

@@ -7,6 +7,7 @@ import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.arena.ArenaTeam;
 import com.Geekpower14.quake.stuff.TItem;
+import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -43,7 +44,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerChat(AsyncPlayerChatEvent event)
 	{
-		Player player = event.getPlayer();
+		/*Player player = event.getPlayer();
 		final Arena arena = plugin.arenaManager.getArena();
 
 		if(arena == null)
@@ -52,7 +53,7 @@ public class PlayerListener implements Listener{
 		}
 
 		event.getRecipients().clear();
-		event.getRecipients().addAll(arena.getPlayers());
+		event.getRecipients().addAll(arena.getPlayers());*/
 		//arena.chat(player.getDisplayName()+ ChatColor.GRAY + ": " + event.getMessage());		   
 
 		return;   
@@ -86,7 +87,7 @@ public class PlayerListener implements Listener{
 				|| action == Action.LEFT_CLICK_BLOCK
 				|| action == Action.RIGHT_CLICK_AIR
 				|| action == Action.RIGHT_CLICK_BLOCK))
-			arena.kickPlayer(player);
+			SamaGamesAPI.get().getGameManager().kickPlayer(player, "");
 
 		//TEAM
 		if(hand != null
@@ -222,7 +223,7 @@ public class PlayerListener implements Listener{
 					//plugin.log.info("stand not good team !");
 					arena.kill(p);
 					ATeam at = arenaTeam.getTeamByColor(color);
-					arena.broadcast(pt.getColor() + p.getName() + ChatColor.YELLOW + " est entré dans le spawn de la team " + at.getColor() + at.getName());
+					SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage(pt.getColor() + p.getName() + ChatColor.YELLOW + " est entré dans le spawn de la team " + at.getColor() + at.getName(), true);
 					at.addScore(1);
 					arena.updateScore();
 					return;

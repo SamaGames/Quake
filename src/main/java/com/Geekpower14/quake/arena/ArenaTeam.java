@@ -6,7 +6,12 @@ import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import net.samagames.api.games.Status;
-import net.samagames.api.player.PlayerData;
+import net.samagames.tools.ColorUtils;
+import net.samagames.tools.PlayerUtils;
+import net.samagames.tools.chat.ChatUtils;
+import net.samagames.tools.scoreboards.ObjectiveSign;
+import net.samagames.tools.scoreboards.TeamHandler;
+import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
@@ -15,8 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.material.Wool;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,20 +32,29 @@ import java.util.stream.Collectors;
  */
 public class ArenaTeam extends Arena{
 
-    public List<ATeam> teams = new ArrayList<ATeam>();
+    public List<ATeam> teams = new ArrayList<>();
 
-    public HashMap<String, List<Spawn>> spawns = new HashMap<String, List<Spawn>>();
+    public HashMap<String, List<Spawn>> spawns = new HashMap<>();
 
-    private Objective score;
-    private Objective perso;
+    private ObjectiveSign objectiveScore;
+    private ObjectiveSign objectivePerso;
+    private TeamHandler teamHandler;
 
     public ArenaTeam(Quake pl, String name) {
         super(pl, name);
+
+        teamHandler = new TeamHandler();
 
         teams.add(new ATeam(plugin, this, "Red", ChatColor.RED, Color.RED, DyeColor.RED));
         teams.add(new ATeam(plugin, this, "Blue", ChatColor.BLUE, Color.BLUE, DyeColor.BLUE));
         teams.add(new ATeam(plugin, this, "Yellow", ChatColor.YELLOW, Color.YELLOW, DyeColor.YELLOW));
         teams.add(new ATeam(plugin, this, "Green", ChatColor.GREEN, Color.GREEN, DyeColor.GREEN));
+
+        objectiveScore = new ObjectiveSign("score", "" + ChatColor.RED + ChatColor.BOLD + "Quake");
+        objectiveScore.setLocation(VObjective.ObjectiveLocation.SIDEBAR);
+
+        objectivePerso = new ObjectiveSign("perso", "");
+        objectivePerso.setLocation(VObjective.ObjectiveLocation.LIST);
 
         loadConfig();
     }
@@ -96,16 +108,12 @@ public class ArenaTeam extends Arena{
         ATeam at = addPlayerToTeam(ap.getP());
         ap.getP().teleport(getSpawn(ap.getP()));
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            for(Player pp : Quake.getOnline())
-            {
-                pp.setScoreboard(getScoreboard());
-            }
-        }, 5L);
-
+        objectiveScore.addReceiver(ap.getP());
+        objectivePerso.addReceiver(ap.getP());
+        teamHandler.addReceiver(ap.getP());
 
         setWoolStuff(ap);
-        this.broadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène "
+        /*this.broadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène "
                 + ChatColor.DARK_GRAY
                 + "[" + ChatColor.RED
                 + players.size()
@@ -113,11 +121,9 @@ public class ArenaTeam extends Arena{
                 + "/" + ChatColor.RED
                 + maxPlayer
                 + ChatColor.DARK_GRAY
-                + "]");
+                + "]");*/
 
-        if (players.size() >= minPlayer && getStatus() == Status.READY_TO_START) {
-            startCountdown();
-        }
+
     }
 
     @Override
@@ -126,7 +132,9 @@ public class ArenaTeam extends Arena{
         final Player p = ap.getP();
         getTeam(p).removePlayer(p);
 
-        p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        objectiveScore.removeReceiver(ap.getP());
+        objectivePerso.removeReceiver(ap.getP());
+        teamHandler.removeReceiver(ap.getP());
     }
 
     @Override
@@ -137,30 +145,15 @@ public class ArenaTeam extends Arena{
             if (remain.size() == 1) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(remain.get(0)), 1L);
             } else {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> stop(), 1L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
             }
         }
     }
 
     @Override
     protected void execStart() {
-        for (APlayer ap : players) {
+        for (APlayer ap : gamePlayers.values()) {
             Player p = ap.getP();
-
-            //ap.setScoreboard();
-            if (score != null) {
-                score.unregister();
-            }
-            if (perso != null) {
-                perso.unregister();
-            }
-
-            perso = tboard.registerNewObjective(name + "_Perso", "dummy");
-            perso.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-
-            score = tboard.registerNewObjective(name + "_Teams", "dummy");
-            score.setDisplaySlot(DisplaySlot.SIDEBAR);
-            score.setDisplayName("" + ChatColor.RED + ChatColor.BOLD + "Quake");
 
             cleaner(p);
             tp(p);
@@ -189,22 +182,30 @@ public class ArenaTeam extends Arena{
     {
         final ATeam team = (ATeam) o;
 
-        this.nbroadcast(ChatColor.AQUA + "#" + ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
-        this.nbroadcast(ChatColor.GRAY + "");
-        this.nbroadcast(ChatColor.AQUA + "L'équipe " + team.getColor() + team.getName() + ChatColor.YELLOW + " a gagné !");
-        this.nbroadcast(ChatColor.GRAY + "");
-        this.nbroadcast(ChatColor.AQUA + "#" + ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
+        StringBuilder players = new StringBuilder();
+
+        for(OfflinePlayer aPlayer : team.getPlayers())
+        {
+            players.append(PlayerUtils.getColoredFormattedPlayerName(aPlayer.getPlayer())).append(ChatColor.GRAY).append(", ");
+        }
+
+        ArrayList<String> winTemplateLines = new ArrayList<>();
+        winTemplateLines.add(ChatUtils.getCenteredText(ChatColor.GREEN + "Gagnant" + ChatColor.GRAY + " - " + ChatColor.RESET + "Equipe " + team.getColor() + team.getName()));
+        winTemplateLines.add(players.substring(0, players.length() - 2));
+
+        this.coherenceMachine.getTemplateManager().getWinMessageTemplate().execute(winTemplateLines);
 
         //ap.updateScoreboard();
 
         for (OfflinePlayer p : team.getPlayers()) {
-            APlayer ap = this.getAplayer(p.getName());
+            APlayer ap = this.getAplayer(p.getUniqueId());
             if (ap == null)
                 continue;
 
             try{
-                PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
-                playerData.creditCoins(20, "Victoire !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
+                addCoins(ap.getP(), 20, "Victoire !");
+                addStars(ap.getP(), 1, "Gagné en quake équipe !");
+                ap.setCoins(ap.getCoins() + 20);
             }catch(Exception e)
             {
                 e.printStackTrace();
@@ -216,11 +217,7 @@ public class ArenaTeam extends Arena{
             {}
         }
 
-        for (APlayer a : players) {
-            broadcast(a.getP(), ChatColor.GOLD + "Tu as gagné " + a.getCoins() + " coins au total !");
-        }
-
-        final int nb = (int) (Time_After * 1.5);
+        final int nb = (int) (10 * 1.5);
 
         final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
             int compteur = 0;
@@ -231,7 +228,7 @@ public class ArenaTeam extends Arena{
                     return;
                 }
                 for (OfflinePlayer pp : team.getPlayers()) {
-                    APlayer ap = getAplayer(pp.getName());
+                    APlayer ap = getAplayer(pp.getUniqueId());
 
                     if (ap == null)
                         continue;
@@ -256,8 +253,8 @@ public class ArenaTeam extends Arena{
                     //Get our random colours
                     int r1i = r.nextInt(17) + 1;
                     int r2i = r.nextInt(17) + 1;
-                    Color c1 = getColor(r1i);
-                    Color c2 = getColor(r2i);
+                    Color c1 = ColorUtils.getColor(r1i);
+                    Color c2 = ColorUtils.getColor(r2i);
 
                     //Create our effect with this
                     FireworkEffect effect = FireworkEffect.builder().flicker(r.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(r.nextBoolean()).build();
@@ -279,9 +276,8 @@ public class ArenaTeam extends Arena{
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
             plugin.getServer().getScheduler().cancelTask(infoxp);
-            stop();
-        }
-                , (Time_After * 20));
+            handleGameEnd();
+        }, (10 * 20));
 
     }
 
@@ -333,7 +329,7 @@ public class ArenaTeam extends Arena{
                 e.printStackTrace();
             }
 
-            broadcast(s.getColor() + shooter.getName() + ChatColor.YELLOW + " a touché " + v.getColor() + victim.getName());
+            coherenceMachine.getMessageManager().writeCustomMessage(s.getColor() + shooter.getName() + ChatColor.YELLOW + " a touché " + v.getColor() + victim.getName(), true);
             shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
         });
         ashooter.addScore(1);
@@ -380,17 +376,16 @@ public class ArenaTeam extends Arena{
     @Override
     public void updateScore() {
         Bukkit.getScheduler().runTask(plugin, () -> {
-            if (players.size() <= 0) {
-                return;
-            }
 
-            for (APlayer player : players) {
-                perso.getScore(player.getP().getName()).setScore(player.getScore());
+            for (APlayer player : gamePlayers.values()) {
+                objectivePerso.setLine(player.getScore(), player.getP().getName());
             }
+            objectivePerso.updateLines(false);
 
             for (ATeam at : getActiveTeams()) {
-                score.getScore(at.getColor() + at.getName() + "    ").setScore(at.getScore());
+                objectiveScore.setLine(at.getScore(), at.getColor() + at.getName() + "    ");
             }
+            objectiveScore.updateLines(false);
         });
     }
 
@@ -415,42 +410,38 @@ public class ArenaTeam extends Arena{
 
         if(nteam == null)
         {
-            this.broadcast(p, ChatColor.RED + "Team invalide.");
+            p.sendMessage(coherenceMachine.getGameTag() + ChatColor.RED + "Team invalide.");
             return;
         }
 
-        if(getStatus() == Status.IN_GAME && !Quake.hasPermission(p, "quake.ChangeTeamInGame"))
-        {
-            this.broadcast(p, ChatColor.RED + "Vous ne pouvez pas changer de Team en jeu.");
+        if(getStatus() == Status.IN_GAME && !Quake.hasPermission(p, "quake.ChangeTeamInGame")) {
+            p.sendMessage(coherenceMachine.getGameTag() + ChatColor.RED + "Vous ne pouvez pas changer de Team en jeu.");
             return;
         }
 
-        if(nteam.hasPlayer(p))
-        {
-            this.broadcast(p, ChatColor.RED + "Vous êtes déja dans cette équipe.");
+        if(nteam.hasPlayer(p)) {
+            p.sendMessage(coherenceMachine.getGameTag() + ChatColor.RED + "Vous êtes déja dans cette équipe.");
             return;
         }
 
-        if(nteam.getSize() >= (this.getConnectedPlayers()/this.getActiveTeams().size())+1)
-        {
-            this.broadcast(p, ChatColor.RED + "La Team "+ nteam.getColor() + nteam.getName() + ChatColor.RED + " est pleine.");
+        if(nteam.getSize() >= (this.getConnectedPlayers()/this.getActiveTeams().size())+1) {
+            p.sendMessage(coherenceMachine.getGameTag() + ChatColor.RED + "La Team " + nteam.getColor() + nteam.getName() + ChatColor.RED + " est pleine.");
             return;
         }
 
         oteam.removePlayer(p);
 
-        if(getStatus() == Status.IN_GAME)
-        {
+        if(getStatus() == Status.IN_GAME) {
             kill(p);
         }
         nteam.addPlayer(p);
 
-        if(getStatus().isAllowJoin())
+        if(getStatus() == Status.READY_TO_START || getStatus() == Status.STARTING)
         {
             setWoolStuff(ap);
         }
 
-        this.broadcast(p, ChatColor.GREEN + "Vous êtes maintenant dans la Team: " + nteam.getColor() + nteam.getName());
+        p.sendMessage(coherenceMachine.getGameTag() + ChatColor.GREEN + "Vous êtes maintenant dans la Team: " + nteam.getColor() + nteam.getName());
         return;
     }
 
@@ -460,7 +451,6 @@ public class ArenaTeam extends Arena{
         for(ATeam at : getActiveTeams())
         {
             Wool it = new Wool(at.getDyeColor());
-
             if(at.hasPlayer(ap.getP()))
             {
                 ap.getP().getInventory().setItem(i,
@@ -541,5 +531,9 @@ public class ArenaTeam extends Arena{
     public String getGameName()
     {
         return "quaketeam";
+    }
+
+    public TeamHandler getTeamHandler() {
+        return teamHandler;
     }
 }

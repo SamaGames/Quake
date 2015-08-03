@@ -4,11 +4,11 @@ import com.Geekpower14.quake.arena.ArenaManager;
 import com.Geekpower14.quake.commands.CommandsManager;
 import com.Geekpower14.quake.listener.PlayerListener;
 import com.Geekpower14.quake.stuff.ItemManager;
-import net.minecraft.server.v1_8_R2.EntityPlayer;
+import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 

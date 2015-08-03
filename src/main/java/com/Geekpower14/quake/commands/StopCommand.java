@@ -26,7 +26,7 @@ public class StopCommand implements BasicCommand{
 				return true;
 			}
 			
-			arena.stop();
+			arena.handleGameEnd();
 			
 			player.sendMessage(ChatColor.GREEN + "Force beginning for the arena : " + args[0]);
 

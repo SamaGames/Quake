@@ -82,7 +82,7 @@ public class ArenaManager {
 	{
 		Arena aren = getArena(name);
 		
-		aren.stop();
+		aren.handleGameEnd();
 
 		ARENA = null;
 	}
@@ -102,7 +102,7 @@ public class ArenaManager {
 	{
 		Arena aren = getArena(name);
 		
-		aren.stop();
+		aren.handleGameEnd();
 		
 		File file = new File(plugin.getDataFolder(), "../../world/arenas/"+ aren.getName() +".yml");
 		
@@ -131,16 +131,11 @@ public class ArenaManager {
 
 	public Arena getArenabyPlayer(Player p)
 	{
-		return getArenabyPlayer(p.getName());
-	}
-	
-	public Arena getArenabyPlayer(String p)
-	{
 		if(ARENA.hasPlayer(p))
 		{
 			return ARENA;
 		}
-		
+
 		return null;
 	}
 

@@ -7,9 +7,9 @@ import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import net.samagames.api.games.Status;
-import net.samagames.api.player.PlayerData;
+import net.samagames.api.games.themachine.messages.templates.PlayerWinTemplate;
 import net.samagames.permissionsapi.PermissionsAPI;
-import net.samagames.permissionsbukkit.PermissionsBukkit;
+import net.samagames.tools.ColorUtils;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
@@ -68,8 +68,8 @@ public class ArenaSolo extends Arena{
     protected void execJoinPlayer(APlayer ap) {
         Player p  = ap.getP();
         p.teleport(getSpawn(p));
-
-        this.broadcast(ChatColor.YELLOW
+        scoreHandler.addPlayer(ap);
+        /*this.broadcast(ChatColor.YELLOW
                 + ap.getName()
                 + " a rejoint l'arène "
                 + ChatColor.DARK_GRAY
@@ -79,28 +79,24 @@ public class ArenaSolo extends Arena{
                 + "/" + ChatColor.RED
                 + maxPlayer
                 + ChatColor.DARK_GRAY
-                + "]");
-
-        if(players.size() >= minPlayer && getStatus() == Status.READY_TO_START)
-        {
-            startCountdown();
-        }
+                + "]");*/
     }
 
     @Override
     protected void execLeavePlayer(APlayer ap) {
-
+        scoreHandler.removePlayer(ap);
     }
 
     @Override
     protected void execAfterLeavePlayer() {
-        if(getConnectedPlayers() <= 1 && getStatus() == Status.READY_TO_START)
+        if(getStatus() == Status.IN_GAME)
         {
-            if(players.size() >= 1)
+            if(getInGamePlayers().size() == 1)
             {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(players.get(0).getP()), 1L);
-            }else{
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> stop(), 1L);
+
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(gamePlayers.values().iterator().next().getP()), 1L);
+            }else if(getConnectedPlayers() <= 0){
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
             }
         }
     }
@@ -109,11 +105,9 @@ public class ArenaSolo extends Arena{
     protected void execStart() {
         scoreHandler = new ScoreHandler(plugin, this);
 
-        for(APlayer ap : players)
+        for(APlayer ap : getInGamePlayers().values())
         {
             Player p = ap.getP();
-
-            ap.setScoreboard();
 
             cleaner(p);
             tp(p);
@@ -125,7 +119,7 @@ public class ArenaSolo extends Arena{
             ap.setReloading(1 * 20L);
 
             try{
-                plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.PARTIES, 1);
+                increaseStat(p.getUniqueId(), StatsNames.PARTIES, 1);
             }catch(Exception e)
             {
                 e.printStackTrace();
@@ -147,37 +141,30 @@ public class ArenaSolo extends Arena{
         final Player p = (Player) o;
         if(p == null)
         {
-            stop();
+            handleGameEnd();
             return;
         }
 
         APlayer ap = getAplayer(p);
 
-        this.nbroadcast(ChatColor.AQUA + "#"+ ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
-        this.nbroadcast(ChatColor.GRAY + "");
-        this.nbroadcast(ChatColor.AQUA + p.getDisplayName() + ChatColor.YELLOW + " a gagné !");
-        this.nbroadcast(ChatColor.GRAY + "");
-        this.nbroadcast(ChatColor.AQUA + "#"+ ChatColor.GRAY + "--------------------" + ChatColor.AQUA + "#");
+        PlayerWinTemplate template = this.coherenceMachine.getTemplateManager().getPlayerWinTemplate();
+        template.execute(p);
 
         try{
-            PlayerData playerData = plugin.samaGamesAPI.getPlayerManager().getPlayerData(ap.getP().getUniqueId());
-            playerData.creditStars(1, "Premier au Quake !");
-            playerData.creditCoins(20, "Victoire !", true, (newAmount, difference, error) -> ap.setCoins((int) (ap.getCoins() + difference)));
+            addCoins(p, 20, "Victoire !");
+            ap.setCoins(ap.getCoins() + 20);
+            addStars(p, 3, "Premier au Quake !");
         }catch(Exception e)
         {
             e.printStackTrace();
         }
-
-        for(APlayer a : players)
-        {
-            broadcast(a.getP(), ChatColor.GOLD + "Tu as gagné " + a.getCoins() + " coins au total !");
-        }
         try{
-            plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+            increaseStat(p.getUniqueId(), StatsNames.VICTOIRES, 1);
         }catch(Exception e)
         {}
 
-        final int nb = (int) (Time_After * 1.5);
+        final int nb = (int) (10 * 1.5);
+
 
         final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable()
         {
@@ -208,8 +195,8 @@ public class ArenaSolo extends Arena{
                 //Get our random colours
                 int r1i = r.nextInt(17) + 1;
                 int r2i = r.nextInt(17) + 1;
-                Color c1 = getColor(r1i);
-                Color c2 = getColor(r2i);
+                Color c1 = ColorUtils.getColor(r1i);
+                Color c2 = ColorUtils.getColor(r2i);
 
                 //Create our effect with this
                 FireworkEffect effect = FireworkEffect.builder().flicker(r.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(r.nextBoolean()).build();
@@ -230,8 +217,7 @@ public class ArenaSolo extends Arena{
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
             plugin.getServer().getScheduler().cancelTask(infoxp);
-            stop();
-        }, (Time_After * 20));
+        }, (10 * 20));
     }
 
     @Override
@@ -261,13 +247,13 @@ public class ArenaSolo extends Arena{
 
             PermissionsAPI permissionsAPI = plugin.samaGamesAPI.getPermissionsManager().getApi();
 
-            broadcast(ChatColor.RED
-                    + PermissionsBukkit.getPrefix(permissionsAPI.getUser(shooter.getUniqueId()))
+            coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED
+                    + plugin.samaGamesAPI.getPermissionsManager().getPrefix(permissionsAPI.getUser(shooter.getUniqueId()))
                     + shooter.getName()
                     + ChatColor.YELLOW
                     + " a touché "
-                    + PermissionsBukkit.getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
-                    + victim.getName());
+                    + plugin.samaGamesAPI.getPermissionsManager().getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
+                    + victim.getName(), true);
             shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
         });
         ashooter.addScore(1);
@@ -321,23 +307,7 @@ public class ArenaSolo extends Arena{
 
     public void updateScore()
     {
-        if(players.size() <= 0)
-        {
-            return;
-        }
         scoreHandler.requestUpdate();
-    }
-
-    public List<APlayer> getTopFive()
-    {
-        List<APlayer> r = new ArrayList<>();
-
-        for(int i = 0; i < players.size() && i < 10; i++)
-        {
-            r.add(players.get(i));
-        }
-
-        return r;
     }
 
     public void addSpawn(Location loc)
@@ -350,5 +320,7 @@ public class ArenaSolo extends Arena{
         return "quake";
     }
 
-
+    public ScoreHandler getScoreHandler() {
+        return scoreHandler;
+    }
 }
