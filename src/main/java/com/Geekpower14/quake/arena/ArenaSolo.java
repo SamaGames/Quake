@@ -6,16 +6,21 @@ import com.Geekpower14.quake.task.ScoreHandler;
 import com.Geekpower14.quake.utils.Spawn;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import net.samagames.api.games.themachine.messages.templates.PlayerWinTemplate;
 import net.samagames.permissionsapi.PermissionsAPI;
 import net.samagames.tools.ColorUtils;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,32 +34,32 @@ public class ArenaSolo extends Arena{
     public List<Spawn> spawn = new ArrayList<>();
     private ScoreHandler scoreHandler;
 
-    public ArenaSolo(Quake pl, String name) {
-        super(pl, name);
+    public ArenaSolo(Quake pl) {
+        super(pl);
+
+        scoreHandler = new ScoreHandler(pl, this);
 
         loadConfig();
     }
 
     @Override
-    protected void toConfigLoad(FileConfiguration config) {
-        List<String> s = config.getStringList("Spawns");
-        for(int i = 0; i < s.size(); i++)
+    protected void toConfigLoad() {
+        IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
+
+        JsonArray spawnDefault = new JsonArray();
+        spawnDefault.add(new JsonPrimitive(""));
+        spawnDefault.add(new JsonPrimitive(""));
+
+        JsonArray potions = properties.getOption("Spawns", spawnDefault).getAsJsonArray();
+
+        List<PotionEffect> s = new ArrayList<>();
+        for(JsonElement data : potions)
         {
-            spawn.add(new Spawn(s.get(i)));
+            spawn.add(new Spawn(Utils.str2loc(data.getAsString())));
         }
     }
 
-    @Override
-    protected FileConfiguration toBasicConfig(FileConfiguration config) {
-
-        setDefaultConfig(config, "Goal", 25);
-
-        setDefaultConfig(config, "Spawns", new ArrayList<String>());
-
-        return config;
-    }
-
-    @Override
+    /*
     protected void toSaveConfig(FileConfiguration config) {
         List<String> s = new ArrayList<String>();
         for(int i = 0; i < spawn.size(); i++)
@@ -62,7 +67,7 @@ public class ArenaSolo extends Arena{
             s.add(spawn.get(i).getSaveLoc());
         }
         config.set("Spawns", s);
-    }
+    }*/
 
     @Override
     protected void execJoinPlayer(APlayer ap) {

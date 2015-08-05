@@ -3,13 +3,16 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
+import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Game;
+import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,8 +20,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,17 +32,10 @@ public abstract class Arena extends Game<APlayer> {
 	public Quake plugin;
 
 	/*** Constantes ***/
-
-	public String name;
 	public String Map_name;
-	public UUID uuid;
 
 	public int minPlayer = 4;
 	public int maxPlayer = 24;
-	public int vipSlots = 5;
-	public int spectateSlots = 5;
-
-	public int Time_Before = 20;
 
 	public int Goal = 25;
 
@@ -53,12 +47,10 @@ public abstract class Arena extends Game<APlayer> {
 
 	//public List<APlayer> players = new ArrayList<>();
 
-	public Arena(Quake pl, String name)
+	public Arena(Quake pl)
 	{
-		super("quake","Quake", APlayer.class);
+		super("Quake","Quake", APlayer.class);
 		plugin = pl;
-
-		this.name = name;
 	}
 
 	/*
@@ -75,105 +67,34 @@ public abstract class Arena extends Game<APlayer> {
 
 	protected void loadConfig()
 	{
-		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "../../world/arenas/"+ name + ".yml"));
+        IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
 
-		config = basicConfig(config);
+		Map_name = properties.getMapName();
 
-		Map_name = config.getString("Map");
+		minPlayer = properties.getMinSlots();
+		maxPlayer = properties.getMaxSlots();
 
-		uuid = UUID.fromString(config.getString("UUID"));
+		Goal = properties.getOption("Goal", new JsonPrimitive(25)).getAsInt();
 
-		Time_Before = config.getInt("Time-Before");
+		warningJoinMessage = properties.getOption("WarningJoinMessage", new JsonPrimitive("")).getAsString();
 
-		minPlayer = config.getInt("MinPlayers");
-		maxPlayer = config.getInt("MaxPlayers");
+        JsonArray potionsDefault = new JsonArray();
+        potionsDefault.add(new JsonPrimitive("SPEED:2"));
+        potionsDefault.add(new JsonPrimitive("JUMP:1"));
 
-		Goal = config.getInt("Goal");
+        JsonArray potions = properties.getOption("Potions", potionsDefault).getAsJsonArray();
 
-		vipSlots = config.getInt("Slots-VIP");
-		spectateSlots = config.getInt("Slots-Spectator");
+        List<PotionEffect> l = new ArrayList<>();
+        for(JsonElement data : potions)
+        {
+            l.add(Utils.StrToPo(data.getAsString()));
+        }
+		this.potions = l;
 
-		warningJoinMessage = config.getString("WarningJoinMessage");
-
-		List<PotionEffect> l = config.getStringList("Potions").stream().map(Utils::StrToPo).collect(Collectors.toList());
-		potions = l;
-
-		toConfigLoad(config);
-
-		saveConfig();
+		toConfigLoad();
 	}
 
-	protected abstract void toConfigLoad(FileConfiguration config);
-
-	protected FileConfiguration basicConfig(FileConfiguration config)
-	{
-		setDefaultConfig(config, "Name", name);
-		setDefaultConfig(config, "Map", "Unknown");
-		setDefaultConfig(config, "UUID", UUID.randomUUID().toString());
-
-		setDefaultConfig(config, "VIP", false);
-
-		setDefaultConfig(config, "Time-Before", 20);
-		setDefaultConfig(config, "Time-After", 15);
-
-		setDefaultConfig(config, "MaxPlayers", 24);
-		setDefaultConfig(config, "MinPlayers", 4);
-
-		setDefaultConfig(config, "Goal", 25);
-
-		setDefaultConfig(config, "Slots-VIP", 5);
-		setDefaultConfig(config, "Slots-Spectator", 5);
-
-		setDefaultConfig(config, "WarningJoinMessage", "");
-
-		List<String> l = new ArrayList<>();
-		l.add("SPEED:2");
-		l.add("JUMP:1");
-		setDefaultConfig(config, "Potions", l);
-
-		return toBasicConfig(config);
-	}
-
-	protected abstract FileConfiguration toBasicConfig(FileConfiguration config);
-
-	public void saveConfig()
-	{
-		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "../../world/arenas/"+ name + ".yml"));
-
-		config.set("Name", name);
-		config.set("Map", Map_name);
-		config.set("UUID", uuid.toString());
-
-		config.set("Time-Before", Time_Before);
-
-		config.set("MinPlayers", minPlayer);
-		config.set("MaxPlayers", maxPlayer);
-
-		config.set("Goal", Goal);
-
-		config.set("Slots-VIP", vipSlots);
-		config.set("Slots-Spectator", spectateSlots);
-
-		config.set("WarningJoinMessage", warningJoinMessage);
-
-		List<String> l = potions.stream().map(Utils::PoToStr).collect(Collectors.toList());
-		config.set("Potions", l);
-
-		toSaveConfig(config);
-
-		try {
-			config.save(new File(plugin.getDataFolder(), "../../world/arenas/"+ name + ".yml"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	protected abstract void toSaveConfig(FileConfiguration config);
-
-	protected void setDefaultConfig(FileConfiguration config, String key, Object value) {
-		if (!config.contains(key))
-			config.set(key, value);
-	}
+	protected abstract void toConfigLoad();
 
 	/*** Mouvement des joueurs ***/
 
@@ -240,6 +161,8 @@ public abstract class Arena extends Game<APlayer> {
 		execStart();
 
 		updateScore();
+
+		super.startGame();
 	}
 
 	protected abstract void execStart();
@@ -442,16 +365,6 @@ public abstract class Arena extends Game<APlayer> {
 		((CraftPlayer)p).getHandle().playerConnection.sendPacket(ppoc);
 	}
 
-	public UUID getUUID()
-	{
-		return uuid;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
 	public int getMinPlayers()
 	{
 		return minPlayer;
@@ -464,16 +377,12 @@ public abstract class Arena extends Game<APlayer> {
 
 	public int getMaxPlayers()
 	{
-		return maxPlayer + this.getVIPSlots();
+		return maxPlayer;
 	}
 
 	public void setMaxPlayers(int nb)
 	{
 		maxPlayer = nb;
-	}
-
-	public int getVIPSlots() {
-		return this.vipSlots;
 	}
 
 	/*public int getConnectedPlayers()

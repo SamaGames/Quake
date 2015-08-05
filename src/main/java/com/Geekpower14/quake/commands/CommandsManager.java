@@ -28,14 +28,8 @@ public class CommandsManager implements CommandExecutor{
 	{
 		commands.put("leave", new LeaveCommand(plugin));
 		commands.put("addspawn", new AddSpawnCommand(plugin));
-		commands.put("create", new CreateCommand(plugin));
-		commands.put("save", new SaveCommand(plugin));
-		commands.put("setmap", new SetMapCommand(plugin));
-		commands.put("setmin", new SetMinCommand(plugin));
-		commands.put("setmax", new SetMaxCommand(plugin));
 		commands.put("startGame", new StartCommand(plugin));
 		commands.put("stop", new StopCommand(plugin));
-		commands.put("remove", new RemoveCommand(plugin));
 
 	}
 

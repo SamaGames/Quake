@@ -13,13 +13,13 @@ import net.samagames.tools.scoreboards.ObjectiveSign;
 import net.samagames.tools.scoreboards.TeamHandler;
 import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.material.Wool;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,8 +40,8 @@ public class ArenaTeam extends Arena{
     private ObjectiveSign objectivePerso;
     private TeamHandler teamHandler;
 
-    public ArenaTeam(Quake pl, String name) {
-        super(pl, name);
+    public ArenaTeam(Quake pl) {
+        super(pl);
 
         teamHandler = new TeamHandler();
 
@@ -60,8 +60,8 @@ public class ArenaTeam extends Arena{
     }
 
     @Override
-    protected void toConfigLoad(FileConfiguration config)
-    {
+    protected void toConfigLoad()
+    {/*
         for(ATeam team : teams)
         {
             List<String> s = config.getStringList("Spawns_"+team.getName());
@@ -72,10 +72,10 @@ public class ArenaTeam extends Arena{
                 team.setActive(true);
             }
             spawns.put(team.getName(), sp);
-        }
+        }*/
     }
 
-    @Override
+    /*@Override
     protected FileConfiguration toBasicConfig(FileConfiguration config)
     {
         for(ATeam team : teams)
@@ -84,9 +84,9 @@ public class ArenaTeam extends Arena{
         }
 
         return config;
-    }
+    }*/
 
-    @Override
+    /*@Override
     protected void toSaveConfig(FileConfiguration config)
     {
         for(ATeam team : teams)
@@ -99,7 +99,7 @@ public class ArenaTeam extends Arena{
             }
             config.set("Spawns_" + team.getName(), s);
         }
-    }
+    }*/
 
     @Override
     protected void execJoinPlayer(APlayer ap)
@@ -143,9 +143,9 @@ public class ArenaTeam extends Arena{
 
         if (remain.size() <= 1 && getStatus() == Status.IN_GAME) {
             if (remain.size() == 1) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(remain.get(0)), 1L);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> win(remain.get(0)), 1L);
             } else {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> handleGameEnd(), 1L);
             }
         }
     }
@@ -219,7 +219,7 @@ public class ArenaTeam extends Arena{
 
         final int nb = (int) (10 * 1.5);
 
-        final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
+        final BukkitTask infoxp = Bukkit.getScheduler().runTaskTimer(this.plugin, new Runnable() {
             int compteur = 0;
 
             public void run() {
@@ -274,10 +274,10 @@ public class ArenaTeam extends Arena{
             }
         }, 5L, 5L);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-            plugin.getServer().getScheduler().cancelTask(infoxp);
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            infoxp.cancel();
             handleGameEnd();
-        }, (10 * 20));
+        }, 10 * 20);
 
     }
 
@@ -337,7 +337,7 @@ public class ArenaTeam extends Arena{
 
         if (s.getScore() >= Goal) {
             setStatus(Status.REBOOTING);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> win(s), 2);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> win(s), 2);
         }
 
         return true;

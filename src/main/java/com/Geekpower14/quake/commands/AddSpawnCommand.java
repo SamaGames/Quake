@@ -34,8 +34,7 @@ public class AddSpawnCommand implements BasicCommand{
 			}
 			
 			arena.addSpawn(player.getLocation());
-					
-			arena.saveConfig();
+
 			player.sendMessage(ChatColor.YELLOW + "Spawn aouté avec succés");
 			
 		}else

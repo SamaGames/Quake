@@ -2,13 +2,7 @@ package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
 import net.samagames.api.games.Status;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class ArenaManager {
 	
@@ -25,7 +19,8 @@ public class ArenaManager {
 	
 	public void loadArenas()
 	{
-		File folder = new File(plugin.getDataFolder(), "../../world/arenas/");
+		addArena();
+		/*File folder = new File(plugin.getDataFolder(), "../../world/arenas/");
         if(!folder.exists())
             folder.mkdir();
         
@@ -56,20 +51,18 @@ public class ArenaManager {
         {
         	plugin.log.info(ChatColor.GREEN + "arena " + mapname);
         	
-        	addArena(mapname);
-        }
+        	addArena();
+        }*/
         
 	}
 
-	public void addArena(String name) {
-		if (name == null)
-			return;
+	public void addArena() {
 		Arena arena = null;
 		if(plugin.type.equals("team"))
 		{
-			arena = new ArenaTeam(plugin, name);
+			arena = new ArenaTeam(plugin);
 		}else{
-			arena = new ArenaSolo(plugin, name);
+			arena = new ArenaSolo(plugin);
 		}
 
 		plugin.samaGamesAPI.getGameManager().registerGame(arena);
@@ -96,20 +89,6 @@ public class ArenaManager {
 	{
 		return ARENA;
 	}
-
-	@Deprecated
-	public void deleteArena(String name)
-	{
-		Arena aren = getArena(name);
-		
-		aren.handleGameEnd();
-		
-		File file = new File(plugin.getDataFolder(), "../../world/arenas/"+ aren.getName() +".yml");
-		
-		file.delete();
-
-		ARENA = null;
-	}
 	
 	public boolean exist(String name)
 	{
@@ -124,11 +103,6 @@ public class ArenaManager {
 		ARENA.disable();
 	}
 
-	public String getArenaName()
-	{
-		return ARENA.getName();
-	}
-
 	public Arena getArenabyPlayer(Player p)
 	{
 		if(ARENA.hasPlayer(p))
@@ -136,15 +110,6 @@ public class ArenaManager {
 			return ARENA;
 		}
 
-		return null;
-	}
-
-	public Arena getArenaByUUID(UUID uuid)
-	{
-		if(ARENA.getUUID().equals(uuid))
-		{
-			return ARENA;
-		}
 		return null;
 	}
 }

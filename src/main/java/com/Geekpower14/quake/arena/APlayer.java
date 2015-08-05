@@ -137,7 +137,7 @@ public class APlayer extends GamePlayer{
 			ArenaSolo arenaSolo = (ArenaSolo)arena;
             List<APlayer> sortedList = arenaSolo.getScoreHandler().getSortedList();
 
-            for(int i = 0; i <= Math.max(6, sortedList.size()); i++)
+            for(int i = 0; i < Math.min(8, sortedList.size()); i++)
             {
                 APlayer aPlayer = sortedList.get(i);
                 objective.setLine(aPlayer.getScore(), aPlayer.getName());
