@@ -1,7 +1,6 @@
 package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
-import net.samagames.api.games.Status;
 import org.bukkit.entity.Player;
 
 public class ArenaManager {
@@ -51,7 +50,6 @@ public class ArenaManager {
         {
         	plugin.log.info(ChatColor.GREEN + "arena " + mapname);
         	
-        	addArena();
         }*/
         
 	}
@@ -66,7 +64,6 @@ public class ArenaManager {
 		}
 
 		plugin.samaGamesAPI.getGameManager().registerGame(arena);
-		arena.setStatus(Status.READY_TO_START);
 		ARENA = arena;
 	}
 

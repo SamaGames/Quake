@@ -98,7 +98,6 @@ public class ArenaSolo extends Arena{
         {
             if(getInGamePlayers().size() == 1)
             {
-
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(gamePlayers.values().iterator().next().getP()), 1L);
             }else if(getConnectedPlayers() <= 0){
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
@@ -108,21 +107,21 @@ public class ArenaSolo extends Arena{
 
     @Override
     protected void execStart() {
-        scoreHandler = new ScoreHandler(plugin, this);
 
         for(APlayer ap : getInGamePlayers().values())
         {
             Player p = ap.getP();
 
-            cleaner(p);
-            tp(p);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                cleaner(p);
+                tp(p);
 
-            ap.giveStuff();
+                ap.giveStuff();
 
-            giveEffect(p);
+                giveEffect(p);
 
-            ap.setReloading(1 * 20L);
-
+                ap.setReloading(1 * 20L);
+            });
             try{
                 increaseStat(p.getUniqueId(), StatsNames.PARTIES, 1);
             }catch(Exception e)
@@ -134,11 +133,7 @@ public class ArenaSolo extends Arena{
 
     @Override
     protected void execStop() {
-        if(scoreHandler !=null)
-        {
-            scoreHandler.stop();
-        }
-        scoreHandler = null;
+        scoreHandler.stop();
     }
 
     @Override
@@ -220,9 +215,7 @@ public class ArenaSolo extends Arena{
             }
         }, 5L, 5L);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-            plugin.getServer().getScheduler().cancelTask(infoxp);
-        }, (10 * 20));
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> plugin.getServer().getScheduler().cancelTask(infoxp), (10 * 20));
     }
 
     @Override
@@ -318,11 +311,6 @@ public class ArenaSolo extends Arena{
     public void addSpawn(Location loc)
     {
         spawn.add(new Spawn(loc));
-    }
-
-    public String getGameName()
-    {
-        return "quake";
     }
 
     public ScoreHandler getScoreHandler() {

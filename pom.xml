@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.Geekpower14</groupId>
-    <artifactId>QuakeSolo_Serv</artifactId>
+    <artifactId>Quake</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Quake_Serv</name>
+    <name>Quake</name>
 
     <repositories>
         <repository>

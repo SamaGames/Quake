@@ -164,7 +164,7 @@ public class ArenaTeam extends Arena{
 
             ap.setReloading(1 * 20L);
             try{
-                plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.PARTIES, 1);
+                plugin.samaGamesAPI.getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.PARTIES, 1);
             }catch(Exception e)
             {
                 e.printStackTrace();
@@ -212,7 +212,7 @@ public class ArenaTeam extends Arena{
             }
 
             try{
-                plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+                plugin.samaGamesAPI.getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
             }catch(Exception e)
             {}
         }
@@ -526,11 +526,6 @@ public class ArenaTeam extends Arena{
         result.addPlayer(p);
 
         return result;
-    }
-
-    public String getGameName()
-    {
-        return "quaketeam";
     }
 
     public TeamHandler getTeamHandler() {

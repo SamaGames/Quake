@@ -49,7 +49,7 @@ public abstract class Arena extends Game<APlayer> {
 
 	public Arena(Quake pl)
 	{
-		super("Quake","Quake", APlayer.class);
+		super("quake","Quake", APlayer.class);
 		plugin = pl;
 	}
 
@@ -224,7 +224,7 @@ public abstract class Arena extends Game<APlayer> {
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> giveEffect(p), 5L);
 
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.samaGamesAPI.getStatsManager(getOriginalGameName()).increase(p.getUniqueId(), StatsNames.DEATH, 1));
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.samaGamesAPI.getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.DEATH, 1));
         }, 5L);
 
 	}
@@ -332,10 +332,12 @@ public abstract class Arena extends Game<APlayer> {
 
 	public void giveEffect(Player player)
 	{
-		for (PotionEffect effect : player.getActivePotionEffects())
-			player.removePotionEffect(effect.getType());
+		Bukkit.getScheduler().runTask(plugin, () -> {
+            for (PotionEffect effect : player.getActivePotionEffects())
+                player.removePotionEffect(effect.getType());
 
-        potions.forEach(player::addPotionEffect);
+            potions.forEach(player::addPotionEffect);
+        });
 	}
 
 	public ItemStack getLeaveDoor()
@@ -419,9 +421,4 @@ public abstract class Arena extends Game<APlayer> {
 	}
 
 	public abstract void addSpawn(Location loc);
-
-	public String getOriginalGameName()
-	{
-		return "quake";
-	}
 }

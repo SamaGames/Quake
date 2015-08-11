@@ -7,7 +7,7 @@ import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.themachine.messages.IMessageManager;
 import net.samagames.api.shops.AbstractShopsManager;
-import net.samagames.tools.scoreboards.ObjectiveSign;
+import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -32,7 +32,7 @@ public class APlayer extends GamePlayer{
 
 	private Boolean Invincible = false;
 
-    private ObjectiveSign objective;
+    private VObjective objective;
 
 	private int killstreak = 0;
 
@@ -47,7 +47,7 @@ public class APlayer extends GamePlayer{
 		this.arena = arena;
 		this.p = p;
 
-        objective = new ObjectiveSign("quake", "" + ChatColor.RED + ChatColor.BOLD + "Quake");
+        objective = new VObjective("quake", "" + ChatColor.RED + ChatColor.BOLD + "Quake");
         objective.addReceiver(p);
 
 		resquestStuff();
@@ -63,7 +63,7 @@ public class APlayer extends GamePlayer{
 
             SamaGamesAPI samaGamesAPI = plugin.samaGamesAPI;
 
-            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getOriginalGameName());
+            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getGameCodeName());
 
             String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
             String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
@@ -134,18 +134,19 @@ public class APlayer extends GamePlayer{
 	{
 		if(this.getArena() instanceof ArenaSolo)
 		{
+
 			ArenaSolo arenaSolo = (ArenaSolo)arena;
+            objective.clearScores();
             List<APlayer> sortedList = arenaSolo.getScoreHandler().getSortedList();
 
             for(int i = 0; i < Math.min(8, sortedList.size()); i++)
             {
                 APlayer aPlayer = sortedList.get(i);
-                objective.setLine(aPlayer.getScore(), aPlayer.getName());
+                objective.getScore(aPlayer.getName()).setScore(aPlayer.getScore());
             }
-            objective.setLine(getScore(), getName());
-
-            objective.updateLines(false);
-		}
+			objective.getScore(getName()).setScore(getScore());
+            objective.updateScore(true);
+        }
 
         setLevel(this.getScore());
 

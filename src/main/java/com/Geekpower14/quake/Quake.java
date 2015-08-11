@@ -79,8 +79,6 @@ public class Quake extends JavaPlugin{
 
 		Bukkit.getWorld("world").setAutoSave(false);
 
-		this.saveDefaultConfig();
-
 		type = getConfig().getString("Type", "solo");
 
 		String type_ = (type.equals("team"))?"quaketeam":"quake";
