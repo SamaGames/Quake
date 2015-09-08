@@ -13,7 +13,7 @@ import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import net.samagames.api.games.themachine.messages.templates.PlayerWinTemplate;
-import net.samagames.permissionsapi.PermissionsAPI;
+import net.samagames.api.permissions.PermissionsAPI;
 import net.samagames.tools.ColorUtils;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
