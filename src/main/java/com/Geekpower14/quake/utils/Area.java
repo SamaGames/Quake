@@ -168,9 +168,9 @@ public class Area {
 		return false;
 	}
 	
-	public List<String> ToString()
+	public List<String> toStringArray()
 	{
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		
 
 		result.add(loc2str(min));

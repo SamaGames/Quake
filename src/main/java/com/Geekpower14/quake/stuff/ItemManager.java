@@ -9,13 +9,10 @@ import java.util.List;
 
 public class ItemManager {
 	
-	public Quake plugin;
+	public List<TItem> stuff = new ArrayList<>();
 	
-	public List<TItem> stuff = new ArrayList<TItem>(); 
-	
-	public ItemManager(Quake pl)
+	public ItemManager()
 	{
-		plugin = pl;
 		
 		stuff.add(new WoodenHoe());
 		stuff.add(new StoneHoe());

@@ -25,8 +25,6 @@ public abstract class GrenadeBasic extends TItem {
 
     public FireworkEffect effect;
 
-    public double aim = 1.5;
-
     public double timeBeforeExplode = 1;
 
     public int currentNumber = 0;
@@ -36,9 +34,9 @@ public abstract class GrenadeBasic extends TItem {
         effect = e;
     }
 
-    protected void basicShot(final Player player, APlayer.ItemSLot slot)
+    protected void basicShot(final Player player, APlayer.ItemSlot slot)
     {
-        final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
+        final Arena arena = plugin.getArenaManager().getArenabyPlayer(player);
 
         if(arena == null)
         {
@@ -95,7 +93,7 @@ public abstract class GrenadeBasic extends TItem {
                 }
                 for(Player p : Quake.getOnline())
                 {
-                    if(time%2 == 0)
+                    if(time % 2 == 0.0F)
                     {
                         p.getWorld().playSound(item.getLocation(), Sound.NOTE_STICKS, 0.5F, 1.5F);
                     }else
@@ -159,9 +157,9 @@ public abstract class GrenadeBasic extends TItem {
         if (tt >= 1) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try{
-                    arena.addCoins(ap.getP(), tt*1, "Kill !");
-                    ap.setCoins(ap.getCoins() + tt * 1);
-                    plugin.samaGamesAPI.getStatsManager(arena.getGameCodeName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
+                    arena.addCoins(ap.getP(), tt, "Kill !");
+                    ap.setCoins(ap.getCoins() + tt);
+                    plugin.getSamaGamesAPI().getStatsManager(arena.getGameCodeName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
                 }catch(Exception e)
                 {
                     e.printStackTrace();
@@ -188,11 +186,11 @@ public abstract class GrenadeBasic extends TItem {
         currentNumber = nb;
     }
 
-    public void leftAction(APlayer p, APlayer.ItemSLot slot) {
+    public void leftAction(APlayer p, APlayer.ItemSlot slot) {
         return;
     }
 
-    public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
+    public void rightAction(APlayer ap, APlayer.ItemSlot slot) {
         basicShot(ap.getP(), slot);
     }
 

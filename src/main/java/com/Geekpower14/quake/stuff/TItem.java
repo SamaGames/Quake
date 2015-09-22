@@ -42,7 +42,7 @@ public abstract class TItem implements Cloneable{
 		ItemMeta im = item.getItemMeta();
 		if (im == null)
 			return item;
-		if (name != "")
+		if (!name.isEmpty())
 			im.setDisplayName(name);
 		if (lore != null)
 			im.setLore(Arrays.asList(lore));
@@ -134,9 +134,9 @@ public abstract class TItem implements Cloneable{
 	
 	public abstract ItemStack getItem();
 	
-	public abstract void rightAction(APlayer ap, APlayer.ItemSLot slot);
+	public abstract void rightAction(APlayer ap, APlayer.ItemSlot slot);
 
-	public abstract void leftAction(APlayer p, APlayer.ItemSLot slot);
+	public abstract void leftAction(APlayer p, APlayer.ItemSlot slot);
 	
 	//public abstract void onItemTouchGround(arena arena, Item item);
 

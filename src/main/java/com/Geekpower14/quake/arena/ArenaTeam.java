@@ -104,8 +104,6 @@ public class ArenaTeam extends Arena{
     @Override
     protected void execJoinPlayer(APlayer ap)
     {
-        final Player p = ap.getP();
-        ATeam at = addPlayerToTeam(ap.getP());
         ap.getP().teleport(getSpawn(ap.getP()));
 
         objectiveScore.addReceiver(ap.getP());
@@ -145,7 +143,7 @@ public class ArenaTeam extends Arena{
             if (remain.size() == 1) {
                 Bukkit.getScheduler().runTaskLater(plugin, () -> win(remain.get(0)), 1L);
             } else {
-                Bukkit.getScheduler().runTaskLater(plugin, () -> handleGameEnd(), 1L);
+                Bukkit.getScheduler().runTaskLater(plugin, this::handleGameEnd, 1L);
             }
         }
     }
@@ -162,13 +160,7 @@ public class ArenaTeam extends Arena{
 
             giveEffect(p);
 
-            ap.setReloading(1 * 20L);
-            try{
-                plugin.samaGamesAPI.getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.PARTIES, 1);
-            }catch(Exception e)
-            {
-                e.printStackTrace();
-            }
+            ap.setReloading(20L);
         }
     }
 
@@ -212,7 +204,7 @@ public class ArenaTeam extends Arena{
             }
 
             try{
-                plugin.samaGamesAPI.getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+                plugin.getSamaGamesAPI().getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
             }catch(Exception e)
             {}
         }
@@ -335,7 +327,7 @@ public class ArenaTeam extends Arena{
         ashooter.addScore(1);
         s.addScore(1);
 
-        if (s.getScore() >= Goal) {
+        if (s.getScore() >= goal) {
             setStatus(Status.REBOOTING);
             Bukkit.getScheduler().runTaskLater(this.plugin, () -> win(s), 2);
         }
@@ -496,7 +488,7 @@ public class ArenaTeam extends Arena{
 
     public List<ATeam> getActiveTeams()
     {
-        List<ATeam> r = teams.stream().filter(at -> at.isActive()).collect(Collectors.toList());
+        List<ATeam> r = teams.stream().filter(ATeam::isActive).collect(Collectors.toList());
         return r;
     }
 

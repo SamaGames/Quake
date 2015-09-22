@@ -52,7 +52,6 @@ public class ArenaSolo extends Arena{
 
         JsonArray potions = properties.getOption("Spawns", spawnDefault).getAsJsonArray();
 
-        List<PotionEffect> s = new ArrayList<>();
         for(JsonElement data : potions)
         {
             spawn.add(new Spawn(Utils.str2loc(data.getAsString())));
@@ -100,7 +99,7 @@ public class ArenaSolo extends Arena{
             {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(gamePlayers.values().iterator().next().getP()), 1L);
             }else if(getConnectedPlayers() <= 0){
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::handleGameEnd, 1L);
             }
         }
     }
@@ -120,14 +119,8 @@ public class ArenaSolo extends Arena{
 
                 giveEffect(p);
 
-                ap.setReloading(1 * 20L);
+                ap.setReloading(20L);
             });
-            try{
-                increaseStat(p.getUniqueId(), StatsNames.PARTIES, 1);
-            }catch(Exception e)
-            {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -243,20 +236,20 @@ public class ArenaSolo extends Arena{
                 e.printStackTrace();
             }
 
-            PermissionsAPI permissionsAPI = plugin.samaGamesAPI.getPermissionsManager().getApi();
+            PermissionsAPI permissionsAPI = plugin.getSamaGamesAPI().getPermissionsManager().getApi();
 
             coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED
-                    + plugin.samaGamesAPI.getPermissionsManager().getPrefix(permissionsAPI.getUser(shooter.getUniqueId()))
+                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(permissionsAPI.getUser(shooter.getUniqueId()))
                     + shooter.getName()
                     + ChatColor.YELLOW
                     + " a touché "
-                    + plugin.samaGamesAPI.getPermissionsManager().getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
+                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
                     + victim.getName(), true);
             shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
         });
         ashooter.addScore(1);
 
-        if(ashooter.getScore() == Goal)
+        if(ashooter.getScore() == goal)
         {
             setStatus(Status.REBOOTING);
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> win(shooter), 2);
@@ -275,7 +268,7 @@ public class ArenaSolo extends Arena{
     public Location getSpawn(Player p)
     {
         Spawn r = null;
-        List<Spawn> spawns = new ArrayList<Spawn>();
+        List<Spawn> spawns = new ArrayList<>();
         for(Spawn s : spawn)
         {
             if(r == null)

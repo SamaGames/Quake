@@ -55,15 +55,15 @@ public class ArenaManager {
 	}
 
 	public void addArena() {
-		Arena arena = null;
-		if(plugin.type.equals("team"))
+		Arena arena;
+		if(plugin.getType().equals("team"))
 		{
 			arena = new ArenaTeam(plugin);
 		}else{
 			arena = new ArenaSolo(plugin);
 		}
 
-		plugin.samaGamesAPI.getGameManager().registerGame(arena);
+		plugin.getSamaGamesAPI().getGameManager().registerGame(arena);
 		ARENA = arena;
 	}
 

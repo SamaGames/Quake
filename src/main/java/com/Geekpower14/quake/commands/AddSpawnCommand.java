@@ -23,9 +23,9 @@ public class AddSpawnCommand implements BasicCommand{
 		if(Quake.hasPermission(player, this.getPermission()))
 		{
 			Arena arena = null;
-			if(plugin.arenaManager.exist(args[0]))
+			if(plugin.getArenaManager().exist(args[0]))
 			{
-				arena = plugin.arenaManager.getArena(args[0]);
+				arena = plugin.getArenaManager().getArena(args[0]);
 			}
 			if(arena == null)
 			{

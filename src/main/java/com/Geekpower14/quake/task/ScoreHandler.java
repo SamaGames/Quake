@@ -17,9 +17,6 @@ public class ScoreHandler implements Runnable{
     public ArenaSolo arena;
 
     public BukkitTask bt;
-
-    public boolean running = true;
-
     public boolean needToUpdate = true;
 
     public List<APlayer> players = new ArrayList<>();
@@ -45,7 +42,6 @@ public class ScoreHandler implements Runnable{
 
     public void stop()
     {
-        running = false;
         bt.cancel();
     }
 
@@ -75,9 +71,7 @@ public class ScoreHandler implements Runnable{
             Collections.sort(players, (o1, o2) -> -Integer.compare(o1.getScore(), o2.getScore()));
 
             try{
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    arena.getAPlayersList().forEach(com.Geekpower14.quake.arena.APlayer::updateScoreboard);
-                });
+                Bukkit.getScheduler().runTask(plugin, () -> arena.getAPlayersList().forEach(com.Geekpower14.quake.arena.APlayer::updateScoreboard));
             }catch(Exception e)
             {
                 e.printStackTrace();

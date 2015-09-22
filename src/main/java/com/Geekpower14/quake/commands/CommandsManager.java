@@ -7,9 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Vector;
+import java.util.*;
 
 public class CommandsManager implements CommandExecutor{
 	
@@ -20,7 +18,7 @@ public class CommandsManager implements CommandExecutor{
 	public CommandsManager(Quake pl)
 	{
 		plugin = pl;
-		commands = new HashMap<String, BasicCommand>();
+		commands = new HashMap<>();
 		loadCommands();
 	}
 	
@@ -59,20 +57,17 @@ public class CommandsManager implements CommandExecutor{
 			}
 
 			if(args[0].equalsIgnoreCase("error")){
-				String lol = null;
-				lol.equals("");
 				return true;
 			}
 			
 			String sub = args[0];
 
-			Vector<String> l  = new Vector<String>();
-			l.addAll(Arrays.asList(args));
+			List<String> l  = Arrays.asList(args);
 			l.remove(0);
-			args = (String[]) l.toArray(new String[0]);
+			args = l.toArray(new String[l.size()]);
 			if(!commands.containsKey(sub)){
 				player.sendMessage(ChatColor.RED+"Command dosent exist.");
-				player.sendMessage(ChatColor.GOLD +"Type /uv help for help" );
+				player.sendMessage(ChatColor.GOLD +"Type /q help for help" );
 				return true;
 			}
 			try{
@@ -81,7 +76,7 @@ public class CommandsManager implements CommandExecutor{
 				e.printStackTrace(); 
 				
 			player.sendMessage(ChatColor.RED+"An error occured while executing the command. Check the console");
-			player.sendMessage(ChatColor.BLUE +"Type /uv help for help" );
+			player.sendMessage(ChatColor.BLUE +"Type /q help for help" );
 			
 			}
 			
