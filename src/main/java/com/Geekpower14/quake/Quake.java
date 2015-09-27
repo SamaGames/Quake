@@ -40,8 +40,6 @@ public class Quake extends JavaPlugin{
 			return true;
 		if(p.isOp())
 			return true;
-		if(p.hasPermission("Quake.admin"))
-			return true;
 		if(p.hasPermission(perm))
 			return true;
 
@@ -92,6 +90,7 @@ public class Quake extends JavaPlugin{
 		getCommand("q").setExecutor(commandsManager);
 
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
+		samaGamesAPI.getGameManager().disableNature();
 		log.info("quake enabled!");
 	}
 
