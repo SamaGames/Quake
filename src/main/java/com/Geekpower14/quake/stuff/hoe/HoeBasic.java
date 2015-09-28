@@ -36,11 +36,7 @@ public abstract class HoeBasic extends TItem{
 
 	protected void basicShot(final Player player)
 	{
-		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
-
-        Location el = player.getEyeLocation();
-        Vector to = el.getDirection().normalize().multiply(2);
-        Location last = el.add(to);
+		final Arena arena = plugin.getArenaManager().getArenabyPlayer(player);
 
         if(arena == null)
 		{
@@ -63,65 +59,62 @@ public abstract class HoeBasic extends TItem{
 
 		//String wait = "Coded by geekpower14 if you use it put my name !";
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                long startTime = System.currentTimeMillis();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            long startTime = System.currentTimeMillis();
 
-                int compte = 0;
+            int compte = 0;
 
-                List<Player> victims = getTargetV3(arena, player, 100, aim, false);
+            List<Player> victims = getTargetV3(arena, player, 100, aim, false);
 
-                for(Player victim : victims)
+            for(Player victim : victims)
+            {
+                if(arena.shotplayer(player, victim, effect))
+                    compte++;
+            }
+
+            final int finalCompte = compte;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (finalCompte == 2)
                 {
-                    if(arena.shotplayer(player, victim, effect))
-                        compte++;
+                    SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Double kill !", true);
+                } else if (finalCompte == 3)
+                {
+                    SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Triple kill !", true);
+                } else if (finalCompte >= 4)
+                {
+                    SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Amazing kill !", true);
                 }
+            });
 
-                final int finalCompte = compte;
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (finalCompte == 2)
+            ap.setReloading(reloadTime);
+
+            long estimatedTime = System.currentTimeMillis() - startTime;
+
+            //plugin.log.info("Shot time : "+ estimatedTime);
+
+            final int tt = compte;
+            if(tt >= 1)
+            {
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try{
+                        arena.addCoins(ap.getP(), tt, "Kill !");
+                        ap.setCoins(ap.getCoins() + tt);
+                        plugin.getSamaGamesAPI().getStatsManager(arena.getGameCodeName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
+                    }catch(Exception e)
                     {
-                        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Double kill !", true);
-                    } else if (finalCompte == 3)
-                    {
-                        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Triple kill !", true);
-                    } else if (finalCompte >= 4)
-                    {
-                        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage("Amazing kill !", true);
+                        e.printStackTrace();
                     }
                 });
+        /*Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 
-                ap.setReloading(reloadTime);
-
-                long estimatedTime = System.currentTimeMillis() - startTime;
-
-                //plugin.log.info("Shot time : "+ estimatedTime);
-
-                final int tt = compte;
-                if(tt >= 1)
-                {
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try{
-							arena.addCoins(ap.getP(), tt*1, "Kill !");
-							ap.setCoins(ap.getCoins() + tt * 1);
-                            plugin.samaGamesAPI.getStatsManager(arena.getGameCodeName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
-                        }catch(Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    });
-			/*Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-
-				@Override
-				public void run() {*/
-                    arena.updateScore();
-            /*
-				}
-			});*/
-                }
-
+            @Override
+            public void run() {*/
+                arena.updateScore();
+        /*
             }
+        });*/
+            }
+
         });
 
 		return;
@@ -136,13 +129,13 @@ public abstract class HoeBasic extends TItem{
 	 * @return
 	 */
 	public List<Player> getTargetV3(Arena arena,Player player, int maxRange, double aiming, boolean wallHack) {
-		List<Player> target = new ArrayList<Player>();
+		List<Player> target = new ArrayList<>();
 		Location playerEyes = player.getEyeLocation();
 
 		final Vector direction = playerEyes.getDirection().normalize();
 
 		// Filtre de target
-		List<Player> targets = new ArrayList<Player>();
+		List<Player> targets = new ArrayList<>();
 		for (Player online : Quake.getOnline()) {
 			if (online != player && online.getLocation().distanceSquared(playerEyes) < maxRange * maxRange) {
 				targets.add(online);
@@ -224,11 +217,11 @@ public abstract class HoeBasic extends TItem{
 		return target;
 	}
 
-	public void leftAction(APlayer p, APlayer.ItemSLot slot) {
+	public void leftAction(APlayer p, APlayer.ItemSlot slot) {
 		return;
 	}
 
-	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
+	public void rightAction(APlayer ap, APlayer.ItemSlot slot) {
 		basicShot(ap.getP());
 	}
 

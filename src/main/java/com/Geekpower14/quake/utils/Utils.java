@@ -68,15 +68,15 @@ public class Utils {
 		+ ", " ;
 	}
 	
-	public static String PoToStr(PotionEffect popo)
+	public static String poToStr(PotionEffect popo)
 	{
 		return popo.getType().getName()+ ":" + popo.getAmplifier();
 	}
 	
-	public static PotionEffect StrToPo(String popo)
+	public static PotionEffect strToPo(String popo)
 	{
 		String[] list = popo.split(":");
-		return new PotionEffect(PotionEffectType.getByName(list[0]), Integer.MAX_VALUE, Integer.valueOf(list[1]));
+		return new PotionEffect(PotionEffectType.getByName(list[0]), Integer.MAX_VALUE, Integer.parseInt(list[1]));
 	}
 	
 	public static Boolean hasPermission(Player p, String perm)

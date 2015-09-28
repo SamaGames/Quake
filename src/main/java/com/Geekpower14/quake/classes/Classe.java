@@ -8,8 +8,6 @@ import com.Geekpower14.quake.Quake;
  */
 public abstract class Classe implements Cloneable{
 
-    public Quake plugin;
-
     public String name = "Unknown";
 
     public String alias = "";
@@ -20,8 +18,6 @@ public abstract class Classe implements Cloneable{
     {
         this.name = name;
         this.alias = display;
-
-        plugin = Quake.getPlugin();
     }
 
     public String getName()

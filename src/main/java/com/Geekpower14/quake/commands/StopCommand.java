@@ -19,7 +19,7 @@ public class StopCommand implements BasicCommand{
 
 		if(Quake.hasPermission(player, this.getPermission()))
 		{
-			Arena arena = plugin.arenaManager.getArenabyPlayer(player);
+			Arena arena = plugin.getArenaManager().getArenabyPlayer(player);
 			if(arena == null)
 			{
 				player.sendMessage(ChatColor.RED + "Vous n'êtes pas dans une arène!");

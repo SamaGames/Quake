@@ -19,16 +19,16 @@ import java.util.logging.Logger;
 
 public class Quake extends JavaPlugin{
 
-	public static Quake plugin;
+	private static Quake plugin;
 
-	public Logger log;
-	public ArenaManager arenaManager;
-	public CommandsManager commandsManager;
-	public ItemManager itemManager;
+	private Logger log;
+	private ArenaManager arenaManager;
+	private CommandsManager commandsManager;
+	private ItemManager itemManager;
 
-	public SamaGamesAPI samaGamesAPI;
+	private SamaGamesAPI samaGamesAPI;
 
-	public String type = "solo";
+	private String type = "solo";
 
 	public static Quake getPlugin() {
 		return plugin;
@@ -39,8 +39,6 @@ public class Quake extends JavaPlugin{
 		if(perm.equalsIgnoreCase(""))
 			return true;
 		if(p.isOp())
-			return true;
-		if(p.hasPermission("Quake.admin"))
 			return true;
 		if(p.hasPermission(perm))
 			return true;
@@ -81,21 +79,18 @@ public class Quake extends JavaPlugin{
 
 		type = getConfig().getString("Type", "solo");
 
-		String type_ = (type.equals("team"))?"quaketeam":"quake";
-
-		String overrideType = getConfig().getString("OverrideType");
-
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
 		arenaManager = new ArenaManager(this);
 
-		itemManager = new ItemManager(this);
+		itemManager = new ItemManager();
 
 		commandsManager = new CommandsManager(this);
 
 		getCommand("q").setExecutor(commandsManager);
 
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
+		samaGamesAPI.getGameManager().disableNature();
 		log.info("quake enabled!");
 	}
 
@@ -112,4 +107,18 @@ public class Quake extends JavaPlugin{
 		return samaGamesAPI;
 	}
 
+	public ArenaManager getArenaManager()
+	{
+		return arenaManager;
+	}
+
+	public ItemManager getItemManager()
+	{
+		return itemManager;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
 }

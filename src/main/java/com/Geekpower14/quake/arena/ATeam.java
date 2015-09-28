@@ -11,6 +11,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ATeam {
 	
@@ -113,7 +114,7 @@ public class ATeam {
 		ItemStack item = new ItemStack(Material.LEATHER_CHESTPLATE);
 		LeatherArmorMeta meta = (LeatherArmorMeta)item.getItemMeta();
 		meta.setDisplayName(color + "Team " + name);
-		List<String> l = new ArrayList<String>();
+		List<String> l = new ArrayList<>();
 		l.add(ChatColor.RESET + "A beautiful leather dress!");
 		meta.setLore(l);
 		meta.setColor(Scolor);
@@ -129,12 +130,8 @@ public class ATeam {
 	
 	public Collection<Player> getTalkPlayers()
 	{
-		List<Player> p = new ArrayList<Player>();
-		
-		for(OfflinePlayer ppp : getPlayers())
-		{
-			p.add(ppp.getPlayer());
-		}
+		List<Player> p = getPlayers().stream().map(OfflinePlayer::getPlayer).collect(Collectors.toList());
+
 		return p;
 	}
 

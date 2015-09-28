@@ -20,10 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -37,7 +34,7 @@ public abstract class Arena extends Game<APlayer> {
 	public int minPlayer = 4;
 	public int maxPlayer = 24;
 
-	public int Goal = 25;
+	public int goal = 25;
 
 	public List<PotionEffect> potions = new ArrayList<>();
 
@@ -74,7 +71,7 @@ public abstract class Arena extends Game<APlayer> {
 		minPlayer = properties.getMinSlots();
 		maxPlayer = properties.getMaxSlots();
 
-		Goal = properties.getOption("Goal", new JsonPrimitive(25)).getAsInt();
+		goal = properties.getOption("Goal", new JsonPrimitive(25)).getAsInt();
 
 		warningJoinMessage = properties.getOption("WarningJoinMessage", new JsonPrimitive("")).getAsString();
 
@@ -87,7 +84,7 @@ public abstract class Arena extends Game<APlayer> {
         List<PotionEffect> l = new ArrayList<>();
         for(JsonElement data : potions)
         {
-            l.add(Utils.StrToPo(data.getAsString()));
+            l.add(Utils.strToPo(data.getAsString()));
         }
 		this.potions = l;
 
@@ -120,7 +117,7 @@ public abstract class Arena extends Game<APlayer> {
 		}catch(Exception e)
 		{/*LOL*/}
 
-		if(warningJoinMessage != null && !warningJoinMessage.equals(""))
+		if(warningJoinMessage != null && !warningJoinMessage.isEmpty())
 		{
 			p.sendMessage("" + ChatColor.RED + ChatColor.BOLD + warningJoinMessage);
 		}
@@ -177,7 +174,7 @@ public abstract class Arena extends Game<APlayer> {
 
 	public void refresh()
 	{
-		plugin.samaGamesAPI.getGameManager().refreshArena();
+		plugin.getSamaGamesAPI().getGameManager().refreshArena();
 	}
 
 	public void disable()
@@ -224,7 +221,7 @@ public abstract class Arena extends Game<APlayer> {
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> giveEffect(p), 5L);
 
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.samaGamesAPI.getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.DEATH, 1));
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getSamaGamesAPI().getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.DEATH, 1));
         }, 5L);
 
 	}
@@ -239,16 +236,12 @@ public abstract class Arena extends Game<APlayer> {
 
 	protected abstract boolean execShotPlayer(Player shooter, Player victim, FireworkEffect effect);
 
-	@SuppressWarnings("unused")
 	protected ItemStack creator(Material m, String name, String[] lore)
 	{
 		ItemStack lol = new ItemStack(m);
 
-		List<String> l = new ArrayList<String>();
-		for(String s : lore)
-		{
-			l.add(s);
-		}
+		List<String> l = new ArrayList<>();
+		Collections.addAll(l, lore);
 
 		ItemMeta me = lol.getItemMeta();
 		me.setDisplayName(name);
@@ -275,11 +268,6 @@ public abstract class Arena extends Game<APlayer> {
 	public abstract void extraStuf(APlayer ap);
 
 	public abstract void updateScore();
-
-	/*public void broadcast(Player p, String message)
-	{
-		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "Quake" + ChatColor.DARK_AQUA + "] "+ ChatColor.ITALIC + message);
-	}*/
 
 	public void broadcastXP(int xp)
 	{

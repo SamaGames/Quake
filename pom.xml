@@ -2,34 +2,25 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.Geekpower14</groupId>
     <artifactId>Quake</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <name>Quake</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
     <repositories>
         <repository>
             <id>samagames-public</id>
             <url>http://maven.samagames.net/public/</url>
         </repository>
-
         <repository>
-            <id>samagames-network</id>
-            <url>http://maven.samagames.net/network/</url>
+            <id>samagames-developpers</id>
+            <url>http://maven.samagames.net/developpers/</url>
         </repository>
     </repositories>
-
-    <build>
-        <sourceDirectory>src</sourceDirectory>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -39,22 +30,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>2.4.2</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.samagames</groupId>
             <artifactId>PermissionsAPI</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.samagames</groupId>
             <artifactId>SamaGamesAPI</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

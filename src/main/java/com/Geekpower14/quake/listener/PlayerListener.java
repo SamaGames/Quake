@@ -68,7 +68,7 @@ public class PlayerListener implements Listener{
 
 		ItemStack hand = player.getItemInHand();
 
-		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
+		final Arena arena = plugin.getArenaManager().getArenabyPlayer(player);
 
 		if(arena == null)
 		{
@@ -144,7 +144,7 @@ public class PlayerListener implements Listener{
 
 			event.setCancelled(true);
 
-			Arena arena = plugin.arenaManager.getArena();
+			Arena arena = plugin.getArenaManager().getArena();
 
 			if(arena == null)
 				return;
@@ -181,7 +181,7 @@ public class PlayerListener implements Listener{
 		if(p.isDead())
 			return;
 
-		final Arena arena = plugin.arenaManager.getArena();
+		final Arena arena = plugin.getArenaManager().getArena();
 
 		if(arena == null)
 			return;
@@ -246,7 +246,7 @@ public class PlayerListener implements Listener{
 	{
 		final Player player = event.getEntity();
 
-		final Arena arena = plugin.arenaManager.getArenabyPlayer(event.getEntity());
+		final Arena arena = plugin.getArenaManager().getArenabyPlayer(event.getEntity());
 		if(arena == null)
 		{
 			return;
@@ -285,7 +285,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		final Arena arena = plugin.arenaManager.getArenabyPlayer(event.getPlayer());
+		final Arena arena = plugin.getArenaManager().getArenabyPlayer(event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -302,20 +302,14 @@ public class PlayerListener implements Listener{
 		ap.setInvincible(timetoRespawn);
         ap.setReloading(timetoRespawn);
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-
-			@Override
-			public void run() {
-				arena.giveEffect(p);
-			}
-		}, 5L);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> arena.giveEffect(p), 5L);
 
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerClickInventory(InventoryClickEvent event)
 	{
-		Arena arena = plugin.arenaManager.getArenabyPlayer((Player) event.getWhoClicked());
+		Arena arena = plugin.getArenaManager().getArenabyPlayer((Player) event.getWhoClicked());
 		if(arena == null)
 		{
 			return;
@@ -327,7 +321,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerOpenInventory(InventoryOpenEvent event)
 	{
-		Arena arena = plugin.arenaManager.getArenabyPlayer((Player)event.getPlayer());
+		Arena arena = plugin.getArenaManager().getArenabyPlayer((Player)event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -339,7 +333,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerDrop(PlayerDropItemEvent event)
 	{
-		Arena arena = plugin.arenaManager.getArenabyPlayer(event.getPlayer());
+		Arena arena = plugin.getArenaManager().getArenabyPlayer(event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -350,7 +344,7 @@ public class PlayerListener implements Listener{
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerPickup(PlayerPickupItemEvent event)
 	{
-		Arena arena = plugin.arenaManager.getArenabyPlayer(event.getPlayer());
+		Arena arena = plugin.getArenaManager().getArenabyPlayer(event.getPlayer());
 		if(arena == null)
 		{
 			return;
@@ -371,8 +365,6 @@ public class PlayerListener implements Listener{
 	@EventHandler
 	public void onWeatherChange(WeatherChangeEvent event)
 	{
-		World w = event.getWorld();
-
 		if(event.toWeatherState())
 		{
 			event.setCancelled(true);

@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class APlayer extends GamePlayer{
@@ -38,7 +39,7 @@ public class APlayer extends GamePlayer{
 
 	private int score = 0;
 
-	private HashMap<ItemSLot, TItem> stuff = new HashMap<>();
+	private HashMap<ItemSlot, TItem> stuff = new HashMap<>();
 
 	public APlayer(Quake pl, Arena arena, Player p)
 	{
@@ -56,12 +57,11 @@ public class APlayer extends GamePlayer{
 
 	public void resquestStuff()
 	{
-		final APlayer ap = this;
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             //TODO recherche database
             //Requetes (optimise pour resultat rapide)
 
-            SamaGamesAPI samaGamesAPI = plugin.samaGamesAPI;
+            SamaGamesAPI samaGamesAPI = plugin.getSamaGamesAPI();
 
             AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getGameCodeName());
 
@@ -69,12 +69,12 @@ public class APlayer extends GamePlayer{
             String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
 
             //Shooter
-            stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(hoe_, "woodenhoe"));
+            stuff.put(ItemSlot.Slot1, plugin.getItemManager().getItemByName(hoe_, "woodenhoe"));
 
             //Grenade
-            FragGrenade grenade = (FragGrenade) plugin.itemManager.getItemByName("fragrenade");
+            FragGrenade grenade = (FragGrenade) plugin.getItemManager().getItemByName("fragrenade");
             grenade.setNB(1);
-            stuff.put(ItemSLot.Slot2, grenade);
+            stuff.put(ItemSlot.Slot2, grenade);
 
             String dataGrenade = grenade_;
 
@@ -83,7 +83,7 @@ public class APlayer extends GamePlayer{
                 if (dj[0].equals("fragrenade")) {
                     final int add = Integer.parseInt(dj[1]);
                     grenade.setNB(1 + add);
-                    stuff.put(ItemSLot.Slot2, grenade);
+                    stuff.put(ItemSlot.Slot2, grenade);
                 }
             }
         });
@@ -92,14 +92,14 @@ public class APlayer extends GamePlayer{
 	@SuppressWarnings("deprecation")
 	public void giveStuff()
 	{
-		for(ItemSLot i : stuff.keySet())
+		for(Map.Entry<ItemSlot, TItem> entry : stuff.entrySet())
 		{
-			TItem item = stuff.get(i);
+			TItem item = entry.getValue();
 
 			if(item == null)
 				continue;
 
-			p.getInventory().setItem(i.getSlot(), item.getItem());
+			p.getInventory().setItem(entry.getKey().getSlot(), item.getItem());
 		}
 
 		arena.extraStuf(this);
@@ -109,7 +109,7 @@ public class APlayer extends GamePlayer{
 
 	public TItem getStuff(int i)
 	{
-		for(ItemSLot is : ItemSLot.values())
+		for(ItemSlot is : ItemSlot.values())
 		{
 			if(i == is.getSlot())
 				return stuff.get(is);
@@ -118,10 +118,10 @@ public class APlayer extends GamePlayer{
 		return null;
 	}
 
-	public ItemSLot getSlot()
+	public ItemSlot getSlot()
 	{
 		int i = p.getInventory().getHeldItemSlot();
-		for(ItemSLot is : ItemSLot.values())
+		for(ItemSlot is : ItemSlot.values())
 		{
 			if(i == is.getSlot())
 				return is;
@@ -326,7 +326,7 @@ public class APlayer extends GamePlayer{
 
 	public void killStreakMessage(String message)
 	{
-		if(message == null || message.equals(""))
+		if(message == null || message.isEmpty())
 			return;
         IMessageManager messageManager = SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager();
         messageManager.writeCustomMessage("" + ChatColor.RED + ChatColor.BOLD + killstreak + " kills à la suite !", true);
@@ -391,7 +391,8 @@ public class APlayer extends GamePlayer{
 		p.setLevel(xp);		
 	}
 
-	public enum ItemSLot{
+	public enum ItemSlot
+	{
 		// http://redditpublic.com/images/b/b2/Items_slot_number.png
 		Head("Head", 103),
 		Armor("Armor", 102),
@@ -407,7 +408,7 @@ public class APlayer extends GamePlayer{
 		private String info;
 		private int value;
 
-		ItemSLot(String info, int value)
+		ItemSlot(String info, int value)
 		{
 			this.info = info;
 			this.value = value;
