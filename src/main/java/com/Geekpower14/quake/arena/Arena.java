@@ -334,7 +334,7 @@ public abstract class Arena extends Game<APlayer> {
 
 		ItemMeta coucou_meta = coucou.getItemMeta();
 
-		coucou_meta.setDisplayName(ChatColor.GOLD + "Quitter l'arène " + ChatColor.GRAY + "(Clique-Droit)");
+		coucou_meta.setDisplayName(ChatColor.GOLD + "Quitter le jeu " + ChatColor.GRAY + "(Clique-Droit)");
 		coucou.setItemMeta(coucou_meta);
 
 		return coucou;
