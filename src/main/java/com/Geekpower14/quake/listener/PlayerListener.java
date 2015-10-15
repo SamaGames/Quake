@@ -3,6 +3,7 @@ package com.Geekpower14.quake.listener;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.APlayer.Role;
+import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.arena.ArenaTeam;

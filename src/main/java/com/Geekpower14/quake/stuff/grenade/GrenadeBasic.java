@@ -2,6 +2,7 @@ package com.Geekpower14.quake.stuff.grenade;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
@@ -34,7 +35,7 @@ public abstract class GrenadeBasic extends TItem {
         effect = e;
     }
 
-    protected void basicShot(final Player player, APlayer.ItemSlot slot)
+    protected void basicShot(final Player player, ItemSlot slot)
     {
         final Arena arena = plugin.getArenaManager().getArenabyPlayer(player);
 
@@ -186,11 +187,11 @@ public abstract class GrenadeBasic extends TItem {
         currentNumber = nb;
     }
 
-    public void leftAction(APlayer p, APlayer.ItemSlot slot) {
+    public void leftAction(APlayer p, ItemSlot slot) {
         return;
     }
 
-    public void rightAction(APlayer ap, APlayer.ItemSlot slot) {
+    public void rightAction(APlayer ap, ItemSlot slot) {
         basicShot(ap.getP(), slot);
     }
 
