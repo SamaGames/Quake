@@ -3,6 +3,7 @@ package com.Geekpower14.quake.listener;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.APlayer.Role;
+import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.arena.ArenaTeam;
@@ -23,6 +24,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Wool;
 
@@ -262,24 +264,23 @@ public class PlayerListener implements Listener{
 		event.setDroppedExp(0);
 
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            try {
-                Object nmsPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".PacketPlayInClientCommand").newInstance();
-                Class<?> enumClass = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".EnumClientCommand");
+			try {
+				Object nmsPlayer = player.getClass().getMethod("getHandle").invoke(player);
+				Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".PacketPlayInClientCommand").newInstance();
+				Class<?> enumClass = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".EnumClientCommand");
 
-                for(Object ob : enumClass.getEnumConstants()){
-                    if(ob.toString().equals("PERFORM_RESPAWN")){
-                        packet = packet.getClass().getConstructor(enumClass).newInstance(ob);
-                    }
-                }
+				for (Object ob : enumClass.getEnumConstants()) {
+					if (ob.toString().equals("PERFORM_RESPAWN")) {
+						packet = packet.getClass().getConstructor(enumClass).newInstance(ob);
+					}
+				}
 
-                Object con = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
-                con.getClass().getMethod("a", packet.getClass()).invoke(con, packet);
-            }
-            catch(Throwable t){
-                t.printStackTrace();
-            }
-        }, 15L);
+				Object con = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
+				con.getClass().getMethod("a", packet.getClass()).invoke(con, packet);
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}, 15L);
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -360,6 +361,12 @@ public class PlayerListener implements Listener{
 			event.setCancelled(true);
 			event.setFoodLevel(20);
 		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onUnloadChunk(WorldUnloadEvent event)
+	{
+		event.setCancelled(true);
 	}
 
 	@EventHandler

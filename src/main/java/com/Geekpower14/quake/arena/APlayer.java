@@ -3,6 +3,8 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.stuff.grenade.FragGrenade;
+import com.Geekpower14.quake.utils.Utils;
+import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.themachine.messages.IMessageManager;
@@ -121,7 +123,7 @@ public class APlayer extends GamePlayer{
 	public ItemSlot getSlot()
 	{
 		int i = p.getInventory().getHeldItemSlot();
-		for(ItemSlot is : ItemSlot.values())
+		for(Utils.ItemSlot is : Utils.ItemSlot.values())
 		{
 			if(i == is.getSlot())
 				return is;
@@ -389,45 +391,6 @@ public class APlayer extends GamePlayer{
 
 	public void setLevel(int xp) {
 		p.setLevel(xp);		
-	}
-
-	public enum ItemSlot
-	{
-		// http://redditpublic.com/images/b/b2/Items_slot_number.png
-		Head("Head", 103),
-		Armor("Armor", 102),
-		Slot1("Slot1", 0),
-		Slot2("Slot2", 1),
-		Slot3("Slot3", 2),
-		Slot4("Slot4", 3),
-		Slot5("Slot5", 4),
-		Slot6("Slot6", 5),
-		Slot7("Slot7", 6),
-		Slot8("Slot8", 7);
-
-		private String info;
-		private int value;
-
-		ItemSlot(String info, int value)
-		{
-			this.info = info;
-			this.value = value;
-		}
-
-		public String getString()
-		{
-			return info;
-		}
-
-		public int getValue()
-		{
-			return value;
-		}
-
-		public int getSlot()
-		{
-			return value;
-		}
 	}
 
 	public enum Role{

@@ -2,6 +2,7 @@ package com.Geekpower14.quake.stuff;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.utils.GlowEffect;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -134,9 +135,9 @@ public abstract class TItem implements Cloneable{
 	
 	public abstract ItemStack getItem();
 	
-	public abstract void rightAction(APlayer ap, APlayer.ItemSlot slot);
+	public abstract void rightAction(APlayer ap, ItemSlot slot);
 
-	public abstract void leftAction(APlayer p, APlayer.ItemSlot slot);
+	public abstract void leftAction(APlayer p, ItemSlot slot);
 	
 	//public abstract void onItemTouchGround(arena arena, Item item);
 
