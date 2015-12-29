@@ -1,8 +1,5 @@
 package com.Geekpower14.quake.classes;
 
-import com.Geekpower14.quake.Quake;
-
-
 /**
  * Created by Geekpower14 on 25/10/2014.
  */

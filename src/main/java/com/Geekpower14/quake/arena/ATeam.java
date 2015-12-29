@@ -1,7 +1,9 @@
 package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
+
 import net.samagames.tools.scoreboards.TeamHandler;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -135,7 +137,8 @@ public class ATeam {
 		return p;
 	}
 
-    public boolean isBlockTeam(Block b)
+    @SuppressWarnings("deprecation")
+	public boolean isBlockTeam(Block b)
     {
         if(b.getData() == getDyeColor().getWoolData())
         {

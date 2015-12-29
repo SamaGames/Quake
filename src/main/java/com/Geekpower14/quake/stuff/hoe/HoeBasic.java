@@ -1,16 +1,14 @@
 package com.Geekpower14.quake.stuff.hoe;
 
-import com.Geekpower14.quake.Quake;
-import com.Geekpower14.quake.arena.APlayer;
-import com.Geekpower14.quake.arena.Arena;
-import com.Geekpower14.quake.stuff.TItem;
-import com.Geekpower14.quake.utils.ParticleEffect;
-import com.Geekpower14.quake.utils.StatsNames;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.IBlockData;
 import net.minecraft.server.v1_8_R3.Vec3D;
 import net.samagames.api.SamaGamesAPI;
+
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -20,8 +18,13 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.Geekpower14.quake.Quake;
+import com.Geekpower14.quake.arena.APlayer;
+import com.Geekpower14.quake.arena.Arena;
+import com.Geekpower14.quake.stuff.TItem;
+import com.Geekpower14.quake.utils.ParticleEffect;
+import com.Geekpower14.quake.utils.StatsNames;
+import com.Geekpower14.quake.utils.Utils;
 
 public abstract class HoeBasic extends TItem{
 
@@ -60,7 +63,7 @@ public abstract class HoeBasic extends TItem{
 		//String wait = "Coded by geekpower14 if you use it put my name !";
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            long startTime = System.currentTimeMillis();
+            //long startTime = System.currentTimeMillis();
 
             int compte = 0;
 
@@ -88,7 +91,7 @@ public abstract class HoeBasic extends TItem{
 
             ap.setReloading(reloadTime);
 
-            long estimatedTime = System.currentTimeMillis() - startTime;
+            //long estimatedTime = System.currentTimeMillis() - startTime;
 
             //plugin.log.info("Shot time : "+ estimatedTime);
 
@@ -217,11 +220,11 @@ public abstract class HoeBasic extends TItem{
 		return target;
 	}
 
-	public void leftAction(APlayer p, APlayer.ItemSlot slot) {
+	public void leftAction(APlayer p, Utils.ItemSlot slot) {
 		return;
 	}
 
-	public void rightAction(APlayer ap, APlayer.ItemSlot slot) {
+	public void rightAction(APlayer ap, Utils.ItemSlot slot) {
 		basicShot(ap.getP());
 	}
 

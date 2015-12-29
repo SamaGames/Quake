@@ -23,7 +23,8 @@ public class GlowEffect extends EnchantmentWrapper {
         super(id);
     }
 
-    public static Enchantment getGlow() {
+    @SuppressWarnings("deprecation")
+	public static Enchantment getGlow() {
         if (glow != null) {
             return glow;
         }
