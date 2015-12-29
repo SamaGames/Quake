@@ -75,7 +75,7 @@ public class Quake extends JavaPlugin{
 
 		 samaGamesAPI = SamaGamesAPI.get();
 
-		Bukkit.getWorld("world").setAutoSave(false);
+		this.getServer().getWorld("world").setAutoSave(false);
 
 		type = getConfig().getString("Type", "solo");
 
@@ -89,8 +89,7 @@ public class Quake extends JavaPlugin{
 
 		getCommand("q").setExecutor(commandsManager);
 
-		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
-		samaGamesAPI.getGameManager().disableNature();
+		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 		log.info("quake enabled!");
 	}
 
