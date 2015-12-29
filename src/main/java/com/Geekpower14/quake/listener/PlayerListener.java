@@ -3,13 +3,14 @@ package com.Geekpower14.quake.listener;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.APlayer.Role;
-import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.arena.ArenaTeam;
 import com.Geekpower14.quake.stuff.TItem;
+
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -61,6 +62,7 @@ public class PlayerListener implements Listener{
 		return;   
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority=EventPriority.LOW)
 	public void onPlayerInteract(PlayerInteractEvent event) 
 	{

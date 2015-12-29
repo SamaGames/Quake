@@ -1,6 +1,5 @@
 package com.Geekpower14.quake.stuff;
 
-import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.grenade.FragGrenade;
 import com.Geekpower14.quake.stuff.hoe.*;
 

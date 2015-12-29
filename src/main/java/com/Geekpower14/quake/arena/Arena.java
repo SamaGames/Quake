@@ -46,7 +46,7 @@ public abstract class Arena extends Game<APlayer> {
 
 	public Arena(Quake pl)
 	{
-		super("quake","Quake", APlayer.class);
+		super("quake","Quake", "", APlayer.class);
 		plugin = pl;
 	}
 
@@ -294,7 +294,6 @@ public abstract class Arena extends Game<APlayer> {
         return gamePlayers.values().stream().map(APlayer::getP).collect(Collectors.toList());
     }
 
-	@SuppressWarnings("deprecation")
 	public void cleaner(Player player)
 	{
 		player.setGameMode(GameMode.ADVENTURE);
