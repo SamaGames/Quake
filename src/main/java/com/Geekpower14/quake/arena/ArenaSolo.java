@@ -20,15 +20,11 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created by Geekpower14 on 17/12/2014.
- */
 public class ArenaSolo extends Arena{
 
     public List<Spawn> spawn = new ArrayList<>();
@@ -212,9 +208,7 @@ public class ArenaSolo extends Arena{
     }
 
     @Override
-    public void extraStuf(APlayer ap) {
-        return;
-    }
+    public void extraStuf(APlayer ap) {}
 
     @Override
     protected boolean execShotPlayer(final Player shooter, final Player victim, final FireworkEffect effect) {
@@ -245,7 +239,7 @@ public class ArenaSolo extends Arena{
                     + " a touché "
                     + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
                     + victim.getName(), true);
-            shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
+            shooter.playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 3, 2);
         });
         ashooter.addScore(1);
 

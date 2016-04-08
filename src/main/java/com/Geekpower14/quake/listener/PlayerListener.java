@@ -57,9 +57,7 @@ public class PlayerListener implements Listener{
 
 		event.getRecipients().clear();
 		event.getRecipients().addAll(arena.getPlayers());*/
-		//arena.chat(player.getDisplayName()+ ChatColor.GRAY + ": " + event.getMessage());		   
-
-		return;   
+		//arena.chat(player.getDisplayName()+ ChatColor.GRAY + ": " + event.getMessage());
 	}
 
 	@SuppressWarnings("deprecation")
@@ -171,8 +169,6 @@ public class PlayerListener implements Listener{
 				p.teleport(arena.getSpawn(p));
 			}
 		}
-
-		return;
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -234,15 +230,12 @@ public class PlayerListener implements Listener{
 				}
 			}
 		}
-
-		return;
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerSneak(PlayerToggleSneakEvent event)
 	{
 		event.setCancelled(true);
-		return;
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)

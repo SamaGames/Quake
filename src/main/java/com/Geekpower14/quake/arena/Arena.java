@@ -6,14 +6,14 @@ import com.Geekpower14.quake.utils.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.server.v1_8_R3.IChatBaseComponent;
-import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
+import net.minecraft.server.v1_9_R1.IChatBaseComponent;
+import net.minecraft.server.v1_9_R1.PacketPlayOutChat;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Game;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -58,8 +58,6 @@ public abstract class Arena extends Game<APlayer> {
 	{
 		for (PotionEffect effect : player.getActivePotionEffects())
 			player.removePotionEffect(effect.getType());
-
-		return;
 	}
 
 	protected void loadConfig()
@@ -142,8 +140,6 @@ public abstract class Arena extends Game<APlayer> {
         super.handleLogout(p);
 
 		execAfterLeavePlayer();
-
-		return;
 	}
 
 	protected abstract void execLeavePlayer(APlayer ap);
@@ -180,7 +176,6 @@ public abstract class Arena extends Game<APlayer> {
 	public void disable()
 	{
 		handleGameEnd();
-		return;
 	}
 
 	public void win(Object p)
@@ -228,7 +223,7 @@ public abstract class Arena extends Game<APlayer> {
 
 	public boolean shotplayer(final Player shooter, final Player victim, final FireworkEffect effect)
 	{
-        if(getStatus() == Status.REBOOTING)
+        if (getStatus() == Status.REBOOTING)
             return false;
 
 		return execShotPlayer(shooter, victim, effect);
@@ -313,8 +308,6 @@ public abstract class Arena extends Game<APlayer> {
 			player.updateInventory();
 		}catch(Exception e)
 		{/*LOL*/}
-
-		return;
 	}
 
 	public void giveEffect(Player player)
@@ -391,10 +384,7 @@ public abstract class Arena extends Game<APlayer> {
 
 	public boolean isTeam()
 	{
-		if(this instanceof ArenaTeam)
-			return true;
-
-		return false;
+		return (this instanceof ArenaTeam);
 	}
 
 	public String getMapName()

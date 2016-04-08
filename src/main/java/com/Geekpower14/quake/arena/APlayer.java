@@ -182,7 +182,7 @@ public class APlayer extends GamePlayer{
         }, 0L, 2L);
 
 		BukkitTask cancelTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-			p.playSound(p.getLocation(), Sound.CLICK, 1, 10);
+			p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1, 10);
 			Bukkit.getScheduler().runTaskLater(plugin, () -> {
 	            Reloading = false;
 	            arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
@@ -195,8 +195,6 @@ public class APlayer extends GamePlayer{
 		}, Ticks - 5);
 
 		reloadTasks = new BukkitTask[]{infoxp, cancelTask};
-		
-		return;
 	}
 
 	public void setinvincible(Boolean t)
@@ -241,17 +239,15 @@ public class APlayer extends GamePlayer{
             p.setExp(1);
             infoxp.cancel();
         }, Ticks);
-
-        return;
     }
 
     public float getincr(Long time)
     {
-        float result = 0;
+        float result;
 
         float temp = time;
 
-        result = (100/(temp/2))/100;
+        result = (100 / (temp / 2)) / 100;
 
 
         return result;

@@ -1,9 +1,5 @@
 package com.Geekpower14.quake.utils;
 
-/**
- * Created by Geekpower14 on 10/01/2015.
- */
-
 import com.Geekpower14.quake.Quake;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -420,7 +416,6 @@ public enum ParticleEffect {
      * @param id Id of this particle effect
      * @param requiredVersion Version which is required (1.x)
      * @param requiresData Indicates whether additional data is required for this particle effect
-     * @see #ParticleEffect(String, int, boolean, boolean)
      */
     private ParticleEffect(String name, int id, int requiredVersion, boolean requiresData) {
         this(name, id, requiredVersion, requiresData, false);
@@ -432,8 +427,6 @@ public enum ParticleEffect {
      * @param name Name of this particle effect
      * @param id Id of this particle effect
      * @param requiredVersion Version which is required (1.x)
-     * @param requiresData Indicates whether additional data is required for this particle effect
-     * @see #ParticleEffect(String, int, boolean)
      */
     private ParticleEffect(String name, int id, int requiredVersion) {
         this(name, id, requiredVersion, false);
@@ -980,7 +973,6 @@ public enum ParticleEffect {
          * Construct a new particle data exception
          *
          * @param message Message that will be logged
-         * @param cause Cause of the exception
          */
         public ParticleDataException(String message) {
             super(message);
@@ -1002,7 +994,6 @@ public enum ParticleEffect {
          * Construct a new particle version exception
          *
          * @param message Message that will be logged
-         * @param cause Cause of the exception
          */
         public ParticleVersionException(String message) {
             super(message);
