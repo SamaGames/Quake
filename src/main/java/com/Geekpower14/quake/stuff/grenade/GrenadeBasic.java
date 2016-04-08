@@ -58,12 +58,12 @@ public abstract class GrenadeBasic extends TItem {
             return;
         }
 
-        /*gStack.setAmount(gStack.getAmount()-1);
+        gStack.setAmount(gStack.getAmount()-1);
         //Update number of grenade
-        setNB(gStack.getAmount());*/
+        setNB(gStack.getAmount());
 
-        /*player.getInventory().setItem(slot.getSlot(), gStack);
-        player.updateInventory();*/
+        player.getInventory().setItem(slot.getSlot(), gStack);
+        player.updateInventory();
 
         player.getWorld().playSound(player.getLocation(), Sound.STEP_SNOW, 3F, 2.0F);
 
