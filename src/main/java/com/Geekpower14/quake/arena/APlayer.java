@@ -67,7 +67,7 @@ public class APlayer extends GamePlayer{
 
             SamaGamesAPI samaGamesAPI = plugin.getSamaGamesAPI();
 
-            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getGameCodeName());
+            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager();
 
             String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
             String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");

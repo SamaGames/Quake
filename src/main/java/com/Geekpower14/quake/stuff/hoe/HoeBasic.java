@@ -102,7 +102,7 @@ public abstract class HoeBasic extends TItem{
                     try{
                         arena.addCoins(ap.getP(), tt, "Kill !");
                         ap.setCoins(ap.getCoins() + tt);
-                        plugin.getSamaGamesAPI().getStatsManager(arena.getGameCodeName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
+                        plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(ap.getP().getUniqueId()).getQuakeStatistics().incrByKills(tt);
                     }catch(Exception e)
                     {
                         e.printStackTrace();

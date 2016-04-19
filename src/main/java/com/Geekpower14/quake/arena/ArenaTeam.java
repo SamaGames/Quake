@@ -201,7 +201,7 @@ public class ArenaTeam extends Arena{
             }
 
             try{
-                plugin.getSamaGamesAPI().getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+                plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByWins(1);
             }catch(Exception e)
             {}
         }

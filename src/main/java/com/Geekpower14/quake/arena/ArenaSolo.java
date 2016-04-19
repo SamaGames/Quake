@@ -13,7 +13,6 @@ import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import net.samagames.api.games.themachine.messages.templates.PlayerWinTemplate;
-import net.samagames.api.permissions.PermissionsAPI;
 import net.samagames.tools.ColorUtils;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
@@ -148,7 +147,7 @@ public class ArenaSolo extends Arena{
             e.printStackTrace();
         }
         try{
-            increaseStat(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+            SamaGamesAPI.get().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByWins(1);
         }catch(Exception e)
         {}
 
@@ -230,14 +229,12 @@ public class ArenaSolo extends Arena{
                 e.printStackTrace();
             }
 
-            PermissionsAPI permissionsAPI = plugin.getSamaGamesAPI().getPermissionsManager().getApi();
-
             coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED
-                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(permissionsAPI.getUser(shooter.getUniqueId()))
+                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(plugin.getSamaGamesAPI().getPermissionsManager().getPlayer(shooter.getUniqueId()))
                     + shooter.getName()
                     + ChatColor.YELLOW
                     + " a touché "
-                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(permissionsAPI.getUser(victim.getUniqueId()))
+                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(plugin.getSamaGamesAPI().getPermissionsManager().getPlayer(shooter.getUniqueId()))
                     + victim.getName(), true);
             shooter.playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 3, 2);
         });
