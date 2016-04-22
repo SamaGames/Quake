@@ -4,11 +4,11 @@ import com.Geekpower14.quake.arena.ArenaManager;
 import com.Geekpower14.quake.commands.CommandsManager;
 import com.Geekpower14.quake.listener.PlayerListener;
 import com.Geekpower14.quake.stuff.ItemManager;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_9_R1.EntityPlayer;
 import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,14 +36,7 @@ public class Quake extends JavaPlugin{
 
 	public static Boolean hasPermission(Player p, String perm)
 	{
-		if(perm.equalsIgnoreCase(""))
-			return true;
-		if(p.isOp())
-			return true;
-		if(p.hasPermission(perm))
-			return true;
-
-		return false;
+		return perm.equalsIgnoreCase("") || p.isOp() || p.hasPermission(perm);
 	}
 
     public static List<Player> getOnline() {
@@ -75,7 +68,7 @@ public class Quake extends JavaPlugin{
 
 		 samaGamesAPI = SamaGamesAPI.get();
 
-		Bukkit.getWorld("world").setAutoSave(false);
+		this.getServer().getWorld("world").setAutoSave(false);
 
 		type = getConfig().getString("Type", "solo");
 
@@ -89,8 +82,7 @@ public class Quake extends JavaPlugin{
 
 		getCommand("q").setExecutor(commandsManager);
 
-		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
-		samaGamesAPI.getGameManager().disableNature();
+		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 		log.info("quake enabled!");
 	}
 

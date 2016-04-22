@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-/**
- * Created by Geekpower14 on 17/12/2014.
- */
 public class ArenaTeam extends Arena{
 
     public List<ATeam> teams = new ArrayList<>();
@@ -204,7 +201,7 @@ public class ArenaTeam extends Arena{
             }
 
             try{
-                plugin.getSamaGamesAPI().getStatsManager(getGameCodeName()).increase(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+                plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByWins(1);
             }catch(Exception e)
             {}
         }
@@ -322,7 +319,7 @@ public class ArenaTeam extends Arena{
             }
 
             coherenceMachine.getMessageManager().writeCustomMessage(s.getColor() + shooter.getName() + ChatColor.YELLOW + " a touché " + v.getColor() + victim.getName(), true);
-            shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3, 2);
+            shooter.playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 3, 2);
         });
         ashooter.addScore(1);
         s.addScore(1);
@@ -382,16 +379,10 @@ public class ArenaTeam extends Arena{
     }
 
     @Override
-    public void addSpawn(Location loc) {
-        return;
-    }
+    public void addSpawn(Location loc) {}
 
     public Boolean isSameTeam(Player p, Player b) {
-        if (this.getTeam(p).hasPlayer(b)) {
-            return true;
-        }
-
-        return false;
+        return this.getTeam(p).hasPlayer(b);
     }
 
     public void changeTeam(Player p, String steam)
@@ -434,7 +425,6 @@ public class ArenaTeam extends Arena{
         }
 
         p.sendMessage(coherenceMachine.getGameTag() + ChatColor.GREEN + "Vous êtes maintenant dans la Team: " + nteam.getColor() + nteam.getName());
-        return;
     }
 
     public void setWoolStuff(APlayer ap)
@@ -488,8 +478,7 @@ public class ArenaTeam extends Arena{
 
     public List<ATeam> getActiveTeams()
     {
-        List<ATeam> r = teams.stream().filter(ATeam::isActive).collect(Collectors.toList());
-        return r;
+        return teams.stream().filter(ATeam::isActive).collect(Collectors.toList());
     }
 
     public ATeam getTeamByColor(DyeColor d)

@@ -43,6 +43,8 @@ public class APlayer extends GamePlayer{
 
 	private HashMap<ItemSlot, TItem> stuff = new HashMap<>();
 
+	private BukkitTask[] reloadTasks = null;
+	
 	public APlayer(Quake pl, Arena arena, Player p)
 	{
 		super(p);
@@ -65,7 +67,7 @@ public class APlayer extends GamePlayer{
 
             SamaGamesAPI samaGamesAPI = plugin.getSamaGamesAPI();
 
-            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getGameCodeName());
+            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager();
 
             String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
             String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
@@ -91,7 +93,6 @@ public class APlayer extends GamePlayer{
         });
 	}
 
-	@SuppressWarnings("deprecation")
 	public void giveStuff()
 	{
 		for(Map.Entry<ItemSlot, TItem> entry : stuff.entrySet())
@@ -160,12 +161,17 @@ public class APlayer extends GamePlayer{
 
 	public void setReloading(Long Ticks)
 	{
+		if (reloadTasks != null)
+			for (BukkitTask task : reloadTasks)
+				if (task != null)
+					task.cancel();
+		
 		Reloading = true;
 
 		final Long temp = Ticks;
 
 		p.setExp(0);
-
+		
 		final BukkitTask infoxp = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             float xp = p.getExp();
             xp += getincr(temp);
@@ -175,18 +181,20 @@ public class APlayer extends GamePlayer{
             p.setExp(xp);
         }, 0L, 2L);
 
-		Bukkit.getScheduler().runTaskLater(plugin, () -> p.playSound(p.getLocation(), Sound.CLICK, 1, 10), Ticks - 5);
+		BukkitTask cancelTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+			p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1, 10);
+			Bukkit.getScheduler().runTaskLater(plugin, () -> {
+	            Reloading = false;
+	            arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
+	            p.setExp(1);
+	            infoxp.cancel();
+	            reloadTasks = null;
+	            //p.playSound(p.getLocation(), Sound.CLICK, 1, 1);
+	            Bukkit.getScheduler().runTaskLater(plugin, () -> arena.sendBarTo(p, ""), 5);
+	        }, 5);
+		}, Ticks - 5);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            Reloading = false;
-            arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
-            p.setExp(1);
-            infoxp.cancel();
-            //p.playSound(p.getLocation(), Sound.CLICK, 1, 1);
-        }, Ticks);
-		Bukkit.getScheduler().runTaskLater(plugin, () -> arena.sendBarTo(p, ""), Ticks + 5);
-
-		return;
+		reloadTasks = new BukkitTask[]{infoxp, cancelTask};
 	}
 
 	public void setinvincible(Boolean t)
@@ -231,17 +239,15 @@ public class APlayer extends GamePlayer{
             p.setExp(1);
             infoxp.cancel();
         }, Ticks);
-
-        return;
     }
 
     public float getincr(Long time)
     {
-        float result = 0;
+        float result;
 
         float temp = time;
 
-        result = (100/(temp/2))/100;
+        result = (100 / (temp / 2)) / 100;
 
 
         return result;

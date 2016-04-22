@@ -3,13 +3,14 @@ package com.Geekpower14.quake.listener;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.arena.APlayer;
 import com.Geekpower14.quake.arena.APlayer.Role;
-import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.arena.ATeam;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.arena.ArenaTeam;
 import com.Geekpower14.quake.stuff.TItem;
+
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -56,11 +57,10 @@ public class PlayerListener implements Listener{
 
 		event.getRecipients().clear();
 		event.getRecipients().addAll(arena.getPlayers());*/
-		//arena.chat(player.getDisplayName()+ ChatColor.GRAY + ": " + event.getMessage());		   
-
-		return;   
+		//arena.chat(player.getDisplayName()+ ChatColor.GRAY + ": " + event.getMessage());
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority=EventPriority.LOW)
 	public void onPlayerInteract(PlayerInteractEvent event) 
 	{
@@ -169,8 +169,6 @@ public class PlayerListener implements Listener{
 				p.teleport(arena.getSpawn(p));
 			}
 		}
-
-		return;
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -232,15 +230,12 @@ public class PlayerListener implements Listener{
 				}
 			}
 		}
-
-		return;
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerSneak(PlayerToggleSneakEvent event)
 	{
 		event.setCancelled(true);
-		return;
 	}
 
 	@EventHandler(priority=EventPriority.HIGHEST)

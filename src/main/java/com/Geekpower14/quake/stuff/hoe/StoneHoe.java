@@ -18,10 +18,8 @@ public class StoneHoe extends HoeBasic{
 	}
 
 	public ItemStack getItem() {
-		ItemStack coucou = setItemNameAndLore(new ItemStack(Material.STONE_HOE), ChatColor.DARK_AQUA + "Advanced SlowGun", new String[]{
-			ChatColor.DARK_GRAY + "Recharge en " + ChatColor.GOLD +"1.7" + ChatColor.DARK_GRAY + " secondes."
+		return setItemNameAndLore(new ItemStack(Material.STONE_HOE), ChatColor.DARK_AQUA + "Advanced SlowGun", new String[]{
+				ChatColor.DARK_GRAY + "Recharge en " + ChatColor.GOLD +"1.7" + ChatColor.DARK_GRAY + " secondes."
 		}, false);
-
-		return coucou;
 	}
 }

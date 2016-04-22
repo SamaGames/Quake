@@ -89,10 +89,7 @@ public class ArenaManager {
 	
 	public boolean exist(String name)
 	{
-		if(ARENA != null)
-			return true;
-
-		return false;
+		return ARENA != null;
 	}
 	
 	public void disable()

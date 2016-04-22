@@ -35,7 +35,7 @@ public class CommandsManager implements CommandExecutor{
 	public boolean onCommand(final CommandSender sender, final Command cmd,
 			final String commandLabel, String[] args) {
 		
-		Player player = null;
+		Player player;
 		if (sender instanceof Player) {
 			player = (Player) sender;
 		}else
