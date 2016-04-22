@@ -54,7 +54,7 @@ public abstract class GrenadeBasic extends TItem {
         {
             return;
         }
-
+        
         gStack.setAmount(gStack.getAmount() - 1);
         //Update number of grenade
         setNB(gStack.getAmount());
