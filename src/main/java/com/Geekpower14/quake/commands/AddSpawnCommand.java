@@ -9,9 +9,6 @@ public class AddSpawnCommand implements BasicCommand{
 	
 	private Quake plugin;
 
-	/**
-	 * @param pl
-	 */
 	public AddSpawnCommand(Quake pl)
 	{
 		plugin = pl;

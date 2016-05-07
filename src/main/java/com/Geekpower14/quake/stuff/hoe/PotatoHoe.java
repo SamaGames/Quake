@@ -18,12 +18,10 @@ public class PotatoHoe extends HoeBasic{
 	}
 
 	public ItemStack getItem() {
-		ItemStack coucou = setItemNameAndLore(new ItemStack(Material.POTATO_ITEM), ChatColor.BLUE + "FritoGun", new String[]{
-			ChatColor.DARK_GRAY + "Recharge en " + ChatColor.GOLD +"0.1" + ChatColor.DARK_GRAY + " secondes.",
-			ChatColor.DARK_GRAY + "Précision cheaté à " + ChatColor.GOLD +"2" + ChatColor.DARK_GRAY +" blocks.",
-			ChatColor.RED + "Geekpower14's friends only !"
+		return setItemNameAndLore(new ItemStack(Material.POTATO_ITEM), ChatColor.BLUE + "FritoGun", new String[]{
+				ChatColor.DARK_GRAY + "Recharge en " + ChatColor.GOLD +"0.1" + ChatColor.DARK_GRAY + " secondes.",
+				ChatColor.DARK_GRAY + "Précision cheaté à " + ChatColor.GOLD +"2" + ChatColor.DARK_GRAY +" blocks.",
+				ChatColor.RED + "Geekpower14's friends only !"
 		}, true);
-
-		return coucou;
 	}
 }

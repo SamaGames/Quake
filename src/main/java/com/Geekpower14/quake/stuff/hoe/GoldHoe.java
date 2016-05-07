@@ -18,10 +18,8 @@ public class GoldHoe extends HoeBasic{
 	}
 
 	public ItemStack getItem() {
-		ItemStack coucou = setItemNameAndLore(new ItemStack(Material.GOLD_HOE), ChatColor.GOLD + "GoldenGun", new String[]{
-			ChatColor.DARK_GRAY + "Recharge en " + ChatColor.GOLD +"1.5" + ChatColor.DARK_GRAY + " secondes."
+		return setItemNameAndLore(new ItemStack(Material.GOLD_HOE), ChatColor.GOLD + "GoldenGun", new String[]{
+				ChatColor.DARK_GRAY + "Recharge en " + ChatColor.GOLD +"1.5" + ChatColor.DARK_GRAY + " secondes."
 		}, false);
-
-		return coucou;
 	}
 }

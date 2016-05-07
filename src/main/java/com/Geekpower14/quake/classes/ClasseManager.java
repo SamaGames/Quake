@@ -3,9 +3,6 @@ package com.Geekpower14.quake.classes;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Geekpower14 on 25/10/2014.
- */
 public class ClasseManager {
 
     public List<Classe> classes = new ArrayList<>();
