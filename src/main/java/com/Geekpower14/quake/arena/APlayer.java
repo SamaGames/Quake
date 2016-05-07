@@ -8,7 +8,7 @@ import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.themachine.messages.IMessageManager;
-import net.samagames.api.shops.AbstractShopsManager;
+import net.samagames.api.shops.IShopsManager;
 import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -67,10 +67,11 @@ public class APlayer extends GamePlayer{
 
             SamaGamesAPI samaGamesAPI = plugin.getSamaGamesAPI();
 
-            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager();
+            IShopsManager shopsManager = samaGamesAPI.getShopsManager();
 
-            String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
-            String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
+			//TODO: Shops
+            String hoe_ = "hoe";
+            String grenade_ = "grenade";
 
             //Shooter
             stuff.put(ItemSlot.Slot1, plugin.getItemManager().getItemByName(hoe_, "woodenhoe"));
