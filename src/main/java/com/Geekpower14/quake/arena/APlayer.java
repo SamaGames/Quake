@@ -8,7 +8,7 @@ import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.themachine.messages.IMessageManager;
-import net.samagames.api.shops.AbstractShopsManager;
+import net.samagames.api.shops.IShopsManager;
 import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -67,10 +67,11 @@ public class APlayer extends GamePlayer{
 
             SamaGamesAPI samaGamesAPI = plugin.getSamaGamesAPI();
 
-            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getGameCodeName());
+            IShopsManager shopsManager = samaGamesAPI.getShopsManager();
 
-            String hoe_ = shopsManager.getItemLevelForPlayer(p, "hoe");
-            String grenade_ = shopsManager.getItemLevelForPlayer(p, "grenade");
+			//TODO: Shops
+            String hoe_ = "hoe";
+            String grenade_ = "grenade";
 
             //Shooter
             stuff.put(ItemSlot.Slot1, plugin.getItemManager().getItemByName(hoe_, "woodenhoe"));
@@ -182,7 +183,7 @@ public class APlayer extends GamePlayer{
         }, 0L, 2L);
 
 		BukkitTask cancelTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-			p.playSound(p.getLocation(), Sound.CLICK, 1, 10);
+			p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1, 10);
 			Bukkit.getScheduler().runTaskLater(plugin, () -> {
 	            Reloading = false;
 	            arena.sendBarTo(p, "" +ChatColor.BOLD + ChatColor.GREEN +"►██████ Rechargé ██████◄");
@@ -195,8 +196,6 @@ public class APlayer extends GamePlayer{
 		}, Ticks - 5);
 
 		reloadTasks = new BukkitTask[]{infoxp, cancelTask};
-		
-		return;
 	}
 
 	public void setinvincible(Boolean t)
@@ -241,17 +240,15 @@ public class APlayer extends GamePlayer{
             p.setExp(1);
             infoxp.cancel();
         }, Ticks);
-
-        return;
     }
 
     public float getincr(Long time)
     {
-        float result = 0;
+        float result;
 
         float temp = time;
 
-        result = (100/(temp/2))/100;
+        result = (100 / (temp / 2)) / 100;
 
 
         return result;

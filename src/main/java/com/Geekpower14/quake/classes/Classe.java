@@ -1,8 +1,5 @@
 package com.Geekpower14.quake.classes;
 
-/**
- * Created by Geekpower14 on 25/10/2014.
- */
 public abstract class Classe implements Cloneable{
 
     public String name = "Unknown";

@@ -132,9 +132,7 @@ public class ATeam {
 	
 	public Collection<Player> getTalkPlayers()
 	{
-		List<Player> p = getPlayers().stream().map(OfflinePlayer::getPlayer).collect(Collectors.toList());
-
-		return p;
+		return getPlayers().stream().map(OfflinePlayer::getPlayer).collect(Collectors.toList());
 	}
 
     @SuppressWarnings("deprecation")

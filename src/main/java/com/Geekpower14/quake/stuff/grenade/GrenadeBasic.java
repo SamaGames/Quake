@@ -19,9 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-/**
- * Created by charles on 10/08/2014.
- */
 public abstract class GrenadeBasic extends TItem {
 
     public FireworkEffect effect;
@@ -58,14 +55,14 @@ public abstract class GrenadeBasic extends TItem {
             return;
         }
 
-        /*gStack.setAmount(gStack.getAmount()-1);
+        gStack.setAmount(gStack.getAmount() - 1);
         //Update number of grenade
-        setNB(gStack.getAmount());*/
+        setNB(gStack.getAmount());
 
-        /*player.getInventory().setItem(slot.getSlot(), gStack);
-        player.updateInventory();*/
+        player.getInventory().setItem(slot.getSlot(), gStack);
+        player.updateInventory();
 
-        player.getWorld().playSound(player.getLocation(), Sound.STEP_SNOW, 3F, 2.0F);
+        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SNOW_STEP, 3F, 2.0F);
 
         int typeID = EntityType.CREEPER.ordinal();
         ItemStack stack = new ItemStack(Material.MONSTER_EGG, 1, (short) typeID);
@@ -96,10 +93,10 @@ public abstract class GrenadeBasic extends TItem {
                 {
                     if(time % 2 == 0.0F)
                     {
-                        p.getWorld().playSound(item.getLocation(), Sound.NOTE_STICKS, 0.5F, 1.5F);
+                        p.getWorld().playSound(item.getLocation(), Sound.BLOCK_NOTE_PLING, 0.5F, 1.5F);
                     }else
                     {
-                        p.getWorld().playSound(item.getLocation(), Sound.NOTE_STICKS, 0.5F, 0.5F);
+                        p.getWorld().playSound(item.getLocation(), Sound.BLOCK_NOTE_PLING, 0.5F, 0.5F);
                     }
                 }
 
@@ -119,8 +116,6 @@ public abstract class GrenadeBasic extends TItem {
                 time-=0.25;
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 5L);
-
-        return;
     }
 
     public void explode(BukkitRunnable br, final APlayer ap, final Item item)
@@ -160,7 +155,7 @@ public abstract class GrenadeBasic extends TItem {
                 try{
                     arena.addCoins(ap.getP(), tt, "Kill !");
                     ap.setCoins(ap.getCoins() + tt);
-                    plugin.getSamaGamesAPI().getStatsManager(arena.getGameCodeName()).increase(ap.getP().getUniqueId(), StatsNames.KILL, tt);
+                    plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(ap.getP().getUniqueId()).getQuakeStatistics().incrByKills(tt);
                 }catch(Exception e)
                 {
                     e.printStackTrace();
@@ -187,9 +182,7 @@ public abstract class GrenadeBasic extends TItem {
         currentNumber = nb;
     }
 
-    public void leftAction(APlayer p, ItemSlot slot) {
-        return;
-    }
+    public void leftAction(APlayer p, ItemSlot slot) {}
 
     public void rightAction(APlayer ap, ItemSlot slot) {
         basicShot(ap.getP(), slot);
@@ -197,9 +190,7 @@ public abstract class GrenadeBasic extends TItem {
 
     @Override
     public GrenadeBasic clone() {
-        GrenadeBasic o = null;
-        o = (GrenadeBasic) super.clone();
-        return o;
+        return (GrenadeBasic) super.clone();
     }
 
 }

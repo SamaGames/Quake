@@ -6,9 +6,6 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-/**
- * Created by charles on 10/08/2014.
- */
 public class FragGrenade extends GrenadeBasic{
     public FragGrenade() {
         super("fragrenade",
