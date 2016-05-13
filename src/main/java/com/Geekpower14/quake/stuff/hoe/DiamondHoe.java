@@ -10,7 +10,7 @@ public class DiamondHoe extends HoeBasic{
 
 	public DiamondHoe()
 	{
-		super("diamondhoe",
+		super(85,
 				ChatColor.BLUE + "PortalGun",
                 secondToTick(1.4),
 				FireworkEffect.builder().withColor(Color.BLUE).with(FireworkEffect.Type.BURST).build());

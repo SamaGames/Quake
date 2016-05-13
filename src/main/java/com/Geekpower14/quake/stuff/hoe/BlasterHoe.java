@@ -10,7 +10,7 @@ public class BlasterHoe extends HoeBasic{
 
 	public BlasterHoe()
 	{
-		super("blaster",
+		super(87,
 				ChatColor.BLUE + "Blaster DL-22",
 				secondToTick(1.1),
 				FireworkEffect.builder().withColor(Color.FUCHSIA).with(FireworkEffect.Type.CREEPER).build());

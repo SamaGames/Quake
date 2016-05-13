@@ -7,11 +7,12 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class FragGrenade extends GrenadeBasic{
-    public FragGrenade() {
-        super("fragrenade",
+    public FragGrenade(int id, int nb) {
+        super(id,
                 ""+ChatColor.RED + ChatColor.BOLD + "Grenade à Fragmentation",
                 0L,
                 FireworkEffect.builder().withColor(Color.RED).with(FireworkEffect.Type.BALL_LARGE).build());
+        setNB(nb);
     }
 
     @Override

@@ -2,12 +2,12 @@ package com.Geekpower14.quake.arena;
 
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
-import com.Geekpower14.quake.stuff.grenade.FragGrenade;
 import com.Geekpower14.quake.utils.Utils;
 import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.themachine.messages.IMessageManager;
+import net.samagames.api.shops.IPlayerShop;
 import net.samagames.api.shops.IShopsManager;
 import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.Bukkit;
@@ -59,46 +59,41 @@ public class APlayer extends GamePlayer{
 
 	}
 
-	public void resquestStuff()
-	{
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            //TODO recherche database
-            //Requetes (optimise pour resultat rapide)
+    public void resquestStuff()
+    {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run()
+            {
+                IShopsManager shopsManager = SamaGamesAPI.get().getShopsManager();
+                IPlayerShop player = shopsManager.getPlayer(getUUID());
 
-            SamaGamesAPI samaGamesAPI = plugin.getSamaGamesAPI();
+                //Shooter
+                try {
+                    TItem itemByName = plugin.getItemManager().getItemByID(player.getSelectedItemFromList(new int[]{81, 82, 83, 84, 85, 86, 87}), 81);
+                    stuff.put(ItemSlot.Slot1, itemByName);
+                } catch (Exception ignored) {
+                    TItem itemByName = plugin.getItemManager().getItemByID(81);
+                    stuff.put(ItemSlot.Slot1, itemByName);
+                }
 
-            IShopsManager shopsManager = samaGamesAPI.getShopsManager();
-
-			//TODO: Shops
-            String hoe_ = "hoe";
-            String grenade_ = "grenade";
-
-            //Shooter
-            stuff.put(ItemSlot.Slot1, plugin.getItemManager().getItemByName(hoe_, "woodenhoe"));
-
-            //Grenade
-            FragGrenade grenade = (FragGrenade) plugin.getItemManager().getItemByName("fragrenade");
-            grenade.setNB(1);
-            stuff.put(ItemSlot.Slot2, grenade);
-
-            String dataGrenade = grenade_;
-
-            if (dataGrenade != null) {
-                String[] dj = dataGrenade.split("-");
-                if (dj[0].equals("fragrenade")) {
-                    final int add = Integer.parseInt(dj[1]);
-                    grenade.setNB(1 + add);
-                    stuff.put(ItemSlot.Slot2, grenade);
+                //Grenade
+                try {
+                    TItem itemByName = plugin.getItemManager().getItemByID(player.getSelectedItemFromList(new int[]{90, 91, 92, 93, 94, 95}), 90);
+                    stuff.put(ItemSlot.Slot2, itemByName);
+                } catch (Exception ignored) {
+                    TItem itemByName = plugin.getItemManager().getItemByID(90);
+                    stuff.put(ItemSlot.Slot2, itemByName);
                 }
             }
         });
-	}
+    }
 
-	public void giveStuff()
-	{
-		for(Map.Entry<ItemSlot, TItem> entry : stuff.entrySet())
-		{
-			TItem item = entry.getValue();
+    public void giveStuff()
+    {
+        for(Map.Entry<ItemSlot, TItem> entry : stuff.entrySet())
+        {
+            TItem item = entry.getValue();
 
 			if(item == null)
 				continue;
