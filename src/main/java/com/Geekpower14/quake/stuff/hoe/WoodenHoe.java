@@ -10,7 +10,7 @@ public class WoodenHoe extends HoeBasic{
 
 	public WoodenHoe()
 	{
-		super("woodenhoe",
+		super(81,
 				ChatColor.AQUA + "SlowGun",
                 secondToTick(1.8),
 				FireworkEffect.builder().withColor(Color.MAROON).with(FireworkEffect.Type.BALL_LARGE).build());

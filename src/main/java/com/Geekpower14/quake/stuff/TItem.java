@@ -11,21 +11,21 @@ import java.util.Arrays;
 
 public abstract class TItem implements Cloneable{
 	
-	public Quake plugin;
+	protected static Quake plugin;
 	
-	public String name = "Unknown";
+	protected int id;
 	
-	public String alias = "";
+	private String alias = "";
 	
-	public String givePerm = "quake.admin";
+	private String givePerm = "quake.admin";
 	
-	public long reloadTime;
+	protected long reloadTime;
 	
-	public int nb = 1;
+	protected int nb = 1;
 	
-	public TItem(String name, String display, int nb, long l)
+	public TItem(int id, String display, int nb, long l)
 	{
-		this.name = name;
+		this.id = id;
 		this.alias = display;
 		this.reloadTime = l;
 		
@@ -62,12 +62,11 @@ public abstract class TItem implements Cloneable{
     {
         return (long) (second * 20);
     }
-	
-	public String getName()
-	{
-		return name;
+
+	public int getId() {
+		return id;
 	}
-	
+
 	public String getDisplayName()
 	{
 		return alias;

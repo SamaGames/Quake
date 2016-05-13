@@ -10,7 +10,7 @@ public class AmazingHoe extends HoeBasic{
 
 	public AmazingHoe()
 	{
-		super("amazinghoe",
+		super(86,
 				ChatColor.BLUE + "Amazing PortalGun",
 				secondToTick(1.3),
 				FireworkEffect.builder().withColor(Color.FUCHSIA).with(FireworkEffect.Type.CREEPER).build());

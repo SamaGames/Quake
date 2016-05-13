@@ -27,8 +27,8 @@ public abstract class GrenadeBasic extends TItem {
 
     public int currentNumber = 0;
 
-    public GrenadeBasic(String name, String display, Long reload, FireworkEffect e) {
-        super(name, display, 1, reload);
+    public GrenadeBasic(int id, String display, Long reload, FireworkEffect e) {
+        super(id, display, 1, reload);
         effect = e;
     }
 

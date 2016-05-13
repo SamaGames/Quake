@@ -10,7 +10,7 @@ public class GoldHoe extends HoeBasic{
 
 	public GoldHoe()
 	{
-		super("goldenhoe",
+		super(84,
 				ChatColor.GOLD + "GoldenGun",
                 secondToTick(1.5),
 				FireworkEffect.builder().withColor(Color.ORANGE).with(FireworkEffect.Type.BURST).build());

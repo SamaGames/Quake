@@ -10,7 +10,7 @@ public class IronHoe extends HoeBasic{
 
 	public IronHoe()
 	{
-		super("ironhoe",
+		super(83,
 				ChatColor.DARK_AQUA + "QuickGun",
                 secondToTick(1.6),
 				FireworkEffect.builder().withColor(Color.GRAY).with(FireworkEffect.Type.BALL).build());

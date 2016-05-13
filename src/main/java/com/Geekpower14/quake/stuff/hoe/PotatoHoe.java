@@ -10,7 +10,7 @@ public class PotatoHoe extends HoeBasic{
 
 	public PotatoHoe()
 	{
-		super("potatohoe",
+		super(-1,
 				ChatColor.BLUE + "PatatoGun",
 				1L,
 				FireworkEffect.builder().withColor(Color.WHITE).with(FireworkEffect.Type.STAR).build());
