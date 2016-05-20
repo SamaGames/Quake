@@ -4,7 +4,6 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.task.ScoreHandler;
 import com.Geekpower14.quake.utils.Spawn;
-import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

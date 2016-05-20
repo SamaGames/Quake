@@ -6,17 +6,17 @@ import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.Utils;
-import net.minecraft.server.v1_9_R1.AxisAlignedBB;
-import net.minecraft.server.v1_9_R1.BlockPosition;
-import net.minecraft.server.v1_9_R1.IBlockData;
-import net.minecraft.server.v1_9_R1.Vec3D;
+import net.minecraft.server.v1_9_R2.AxisAlignedBB;
+import net.minecraft.server.v1_9_R2.BlockPosition;
+import net.minecraft.server.v1_9_R2.IBlockData;
+import net.minecraft.server.v1_9_R2.Vec3D;
 import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -157,11 +157,11 @@ public abstract class HoeBasic extends TItem{
 			//if (!wallHack)
 				if (!block.getType().isTransparent())
 				{
-					net.minecraft.server.v1_9_R1.World w = ((CraftWorld)block.getWorld()).getHandle();
+					net.minecraft.server.v1_9_R2.World w = ((CraftWorld)block.getWorld()).getHandle();
 
 					BlockPosition var21 = new BlockPosition(block.getX(), block.getY(), block.getZ());
 					IBlockData iblockdata = w.getType(var21);
-					net.minecraft.server.v1_9_R1.Block b = iblockdata.getBlock();
+					net.minecraft.server.v1_9_R2.Block b = iblockdata.getBlock();
 
 					b.h(w, var21);
 					AxisAlignedBB vec3d = b.a(iblockdata, w, var21);
