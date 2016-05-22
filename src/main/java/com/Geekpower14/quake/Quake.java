@@ -4,12 +4,12 @@ import com.Geekpower14.quake.arena.ArenaManager;
 import com.Geekpower14.quake.commands.CommandsManager;
 import com.Geekpower14.quake.listener.PlayerListener;
 import com.Geekpower14.quake.stuff.ItemManager;
-import net.minecraft.server.v1_9_R1.EntityPlayer;
+import net.minecraft.server.v1_9_R2.EntityPlayer;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamesNames;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -85,6 +85,7 @@ public class Quake extends JavaPlugin{
 
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 		samaGamesAPI.getStatsManager().setStatsToLoad(GamesNames.QUAKE, true);
+		samaGamesAPI.getGameManager().setKeepPlayerCache(true);
 		log.info("quake enabled!");
 	}
 

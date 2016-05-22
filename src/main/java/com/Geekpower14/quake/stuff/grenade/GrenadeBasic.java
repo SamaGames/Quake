@@ -6,7 +6,6 @@ import com.Geekpower14.quake.utils.Utils.ItemSlot;
 import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
-import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;

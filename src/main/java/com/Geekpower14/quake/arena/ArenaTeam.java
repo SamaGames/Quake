@@ -3,7 +3,6 @@ package com.Geekpower14.quake.arena;
 import com.Geekpower14.quake.Quake;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.Spawn;
-import com.Geekpower14.quake.utils.StatsNames;
 import com.Geekpower14.quake.utils.Utils;
 import net.samagames.api.games.Status;
 import net.samagames.tools.ColorUtils;
