@@ -162,6 +162,7 @@ public abstract class HoeBasic extends TItem{
 
 					b.h(w, var21);
 					AxisAlignedBB vec3d = b.a(iblockdata, (IBlockAccess)w, var21);
+					plugin.getServer().broadcastMessage(vec3d == null ? "NULL" : vec3d.toString());
 					if(vec3d != null)
 						vec3d = vec3d.grow(0.1F, 0.1F, 0.1F);
 					if(vec3d != null && vec3d.a(new Vec3D(loc.getX(), loc.getY(), loc.getZ()))) {
