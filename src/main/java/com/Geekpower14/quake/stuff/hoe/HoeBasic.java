@@ -161,12 +161,14 @@ public abstract class HoeBasic extends TItem{
 					net.minecraft.server.v1_9_R2.Block b = iblockdata.getBlock();
 
 					b.h(w, var21);
-					AxisAlignedBB vec3d = b.a(iblockdata, (IBlockAccess)w, var21);
-					plugin.getServer().broadcastMessage(vec3d == null ? "NULL" : vec3d.toString());
-					if(vec3d != null)
+					AxisAlignedBB axis = b.a(iblockdata, (IBlockAccess)w, var21);
+					if (axis != null)
+					{
+						AxisAlignedBB vec3d = new AxisAlignedBB(axis.a + block.getX(), axis.b + block.getY(), axis.c + block.getZ(), axis.d + block.getX(), axis.e + block.getY(), axis.f + block.getZ());
 						vec3d = vec3d.grow(0.1F, 0.1F, 0.1F);
-					if(vec3d != null && vec3d.a(new Vec3D(loc.getX(), loc.getY(), loc.getZ()))) {
-						break;
+						if (vec3d.a(new Vec3D(loc.getX(), loc.getY(), loc.getZ()))) {
+							break;
+						}
 					}
 				}
 			lx = loc.getX();
