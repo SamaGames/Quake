@@ -6,10 +6,7 @@ import com.Geekpower14.quake.arena.Arena;
 import com.Geekpower14.quake.stuff.TItem;
 import com.Geekpower14.quake.utils.ParticleEffect;
 import com.Geekpower14.quake.utils.Utils;
-import net.minecraft.server.v1_9_R2.AxisAlignedBB;
-import net.minecraft.server.v1_9_R2.BlockPosition;
-import net.minecraft.server.v1_9_R2.IBlockData;
-import net.minecraft.server.v1_9_R2.Vec3D;
+import net.minecraft.server.v1_9_R2.*;
 import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
@@ -164,7 +161,7 @@ public abstract class HoeBasic extends TItem{
 					net.minecraft.server.v1_9_R2.Block b = iblockdata.getBlock();
 
 					b.h(w, var21);
-					AxisAlignedBB vec3d = b.a(iblockdata, w, var21);
+					AxisAlignedBB vec3d = b.a(iblockdata, (IBlockAccess)w, var21);
 					if(vec3d != null)
 						vec3d = vec3d.grow(0.1F, 0.1F, 0.1F);
 					if(vec3d != null && vec3d.a(new Vec3D(loc.getX(), loc.getY(), loc.getZ()))) {
