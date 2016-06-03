@@ -233,7 +233,7 @@ public class ArenaSolo extends Arena{
                     + shooter.getName()
                     + ChatColor.YELLOW
                     + " a touché "
-                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(plugin.getSamaGamesAPI().getPermissionsManager().getPlayer(shooter.getUniqueId()))
+                    + plugin.getSamaGamesAPI().getPermissionsManager().getPrefix(plugin.getSamaGamesAPI().getPermissionsManager().getPlayer(victim.getUniqueId()))
                     + victim.getName(), true);
             shooter.playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 3, 2);
         });

@@ -215,7 +215,10 @@ public abstract class Arena extends Game<APlayer> {
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> giveEffect(p), 5L);
 
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByDeaths(1));
+			try
+			{
+				plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByDeaths(1);
+			} catch (Exception ignored) {}
         }, 5L);
 
 	}
