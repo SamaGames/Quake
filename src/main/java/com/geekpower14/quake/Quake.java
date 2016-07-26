@@ -1,6 +1,7 @@
 package com.geekpower14.quake;
 
 import com.geekpower14.quake.arena.ArenaManager;
+import com.geekpower14.quake.arena.ArenaStatisticsHelper;
 import com.geekpower14.quake.commands.CommandsManager;
 import com.geekpower14.quake.listener.PlayerListener;
 import com.geekpower14.quake.stuff.ItemManager;
@@ -68,6 +69,7 @@ public class Quake extends JavaPlugin{
 		plugin = this;
 
 		samaGamesAPI = SamaGamesAPI.get();
+		samaGamesAPI.getGameManager().setGameStatisticsHelper(new ArenaStatisticsHelper());
 
 		this.getServer().getWorld("world").setAutoSave(false);
 

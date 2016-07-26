@@ -228,6 +228,9 @@ public abstract class Arena extends Game<APlayer> {
         if (getStatus() == Status.REBOOTING)
             return false;
 
+		((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(shooter.getUniqueId());
+		((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseDeaths(victim.getUniqueId());
+
 		return execShotPlayer(shooter, victim, effect);
 	}
 
