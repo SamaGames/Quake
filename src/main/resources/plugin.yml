@@ -1,5 +1,5 @@
 name: QuakeSolo_Serv
-main: Quake
+main: com.geekpower14.quake
 version: 1.0.0
 author: Geekpower14
 website: http://geekpower14.com/
