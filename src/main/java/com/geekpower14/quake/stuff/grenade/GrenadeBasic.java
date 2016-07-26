@@ -156,7 +156,7 @@ public abstract class GrenadeBasic extends TItem {
                 try{
                     arena.addCoins(ap.getP(), tt, "Kill !");
                     ap.setCoins(ap.getCoins() + tt);
-                    ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(player.getUniqueId(), tt);
+                    ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(ap.getUUID(), tt);
                 }catch(Exception e)
                 {
                     e.printStackTrace();
