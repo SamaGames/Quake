@@ -132,6 +132,8 @@ public class ArenaSolo extends Arena{
             return;
         }
 
+        this.handleWinner(p.getUniqueId());
+
         APlayer ap = getAplayer(p);
 
         PlayerWinTemplate template = this.coherenceMachine.getTemplateManager().getPlayerWinTemplate();
@@ -217,6 +219,9 @@ public class ArenaSolo extends Arena{
             return false;
         if(victim.equals(shooter) || avictim.isInvincible())
             return false;
+
+        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(shooter.getUniqueId());
+        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseDeaths(victim.getUniqueId());
 
         avictim.setinvincible(true);
         kill(victim);

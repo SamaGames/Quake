@@ -4,6 +4,7 @@ import com.geekpower14.quake.Quake;
 import com.geekpower14.quake.stuff.TItem;
 import com.geekpower14.quake.utils.Spawn;
 import com.geekpower14.quake.utils.Utils;
+import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import net.samagames.tools.ColorUtils;
 import net.samagames.tools.PlayerUtils;
@@ -187,6 +188,8 @@ public class ArenaTeam extends Arena{
 
         for (OfflinePlayer p : team.getPlayers()) {
             APlayer ap = this.getAplayer(p.getUniqueId());
+            this.handleWinner(p.getUniqueId());
+
             if (ap == null)
                 continue;
 
@@ -304,6 +307,9 @@ public class ArenaTeam extends Arena{
 
         final ATeam s = getTeam(shooter);
         final ATeam v = getTeam(victim);
+
+        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(shooter.getUniqueId());
+        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseDeaths(victim.getUniqueId());
 
         avictim.setinvincible(true);
         kill(victim);
