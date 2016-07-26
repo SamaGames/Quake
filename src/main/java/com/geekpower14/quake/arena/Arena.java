@@ -194,6 +194,8 @@ public abstract class Arena extends Game<APlayer> {
 		ap.setinvincible(true);
 		ap.setReloading(true);
 
+		((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseDeaths(p.getUniqueId());
+
 		Bukkit.getScheduler().runTask(plugin, () -> {
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0));
             p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 3));
@@ -214,11 +216,6 @@ public abstract class Arena extends Game<APlayer> {
             ap.setReloading(timetoRespawn);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> giveEffect(p), 5L);
-
-			try
-			{
-				plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByDeaths(1);
-			} catch (Exception ignored) {}
         }, 5L);
 
 	}

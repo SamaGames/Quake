@@ -25,9 +25,9 @@ public class ArenaStatisticsHelper implements IGameStatisticsHelper
         SamaGamesAPI.get().getStatsManager().getPlayerStats(uuid).getQuakeStatistics().incrByWins(1);
     }
 
-    public void increaseKills(UUID uuid)
+    public void increaseKills(UUID uuid, int kills)
     {
-        SamaGamesAPI.get().getStatsManager().getPlayerStats(uuid).getQuakeStatistics().incrByKills(1);
+        SamaGamesAPI.get().getStatsManager().getPlayerStats(uuid).getQuakeStatistics().incrByKills(kills);
     }
 
     public void increaseDeaths(UUID uuid)

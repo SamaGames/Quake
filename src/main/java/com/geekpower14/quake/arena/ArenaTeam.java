@@ -201,11 +201,6 @@ public class ArenaTeam extends Arena{
             {
                 e.printStackTrace();
             }
-
-            try{
-                plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(p.getUniqueId()).getQuakeStatistics().incrByWins(1);
-            }catch(Exception e)
-            {}
         }
 
         final int nb = (int) (10 * 1.5);
@@ -307,9 +302,6 @@ public class ArenaTeam extends Arena{
 
         final ATeam s = getTeam(shooter);
         final ATeam v = getTeam(victim);
-
-        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(shooter.getUniqueId());
-        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseDeaths(victim.getUniqueId());
 
         avictim.setinvincible(true);
         kill(victim);

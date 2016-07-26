@@ -3,6 +3,7 @@ package com.geekpower14.quake.stuff.hoe;
 import com.geekpower14.quake.Quake;
 import com.geekpower14.quake.arena.APlayer;
 import com.geekpower14.quake.arena.Arena;
+import com.geekpower14.quake.arena.ArenaStatisticsHelper;
 import com.geekpower14.quake.stuff.TItem;
 import com.geekpower14.quake.utils.ParticleEffect;
 import com.geekpower14.quake.utils.Utils;
@@ -96,8 +97,9 @@ public abstract class HoeBasic extends TItem{
                     try{
                         arena.addCoins(ap.getP(), tt, "Kill !");
                         ap.setCoins(ap.getCoins() + tt);
-                        plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(ap.getP().getUniqueId()).getQuakeStatistics().incrByKills(tt);
-                    }catch(Exception e)
+						((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(player.getUniqueId(), tt);
+
+					}catch(Exception e)
                     {
                         e.printStackTrace();
                     }

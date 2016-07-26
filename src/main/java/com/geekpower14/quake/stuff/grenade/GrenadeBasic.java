@@ -2,11 +2,13 @@ package com.geekpower14.quake.stuff.grenade;
 
 import com.geekpower14.quake.Quake;
 import com.geekpower14.quake.arena.APlayer;
+import com.geekpower14.quake.arena.ArenaStatisticsHelper;
 import com.geekpower14.quake.utils.Utils.ItemSlot;
 import com.geekpower14.quake.arena.Arena;
 import com.geekpower14.quake.stuff.TItem;
 import com.geekpower14.quake.utils.ParticleEffect;
 import com.geekpower14.quake.utils.Utils;
+import net.samagames.api.SamaGamesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -154,7 +156,7 @@ public abstract class GrenadeBasic extends TItem {
                 try{
                     arena.addCoins(ap.getP(), tt, "Kill !");
                     ap.setCoins(ap.getCoins() + tt);
-                    plugin.getSamaGamesAPI().getStatsManager().getPlayerStats(ap.getP().getUniqueId()).getQuakeStatistics().incrByKills(tt);
+                    ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(player.getUniqueId(), tt);
                 }catch(Exception e)
                 {
                     e.printStackTrace();
