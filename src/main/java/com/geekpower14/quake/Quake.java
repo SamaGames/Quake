@@ -5,12 +5,12 @@ import com.geekpower14.quake.arena.ArenaStatisticsHelper;
 import com.geekpower14.quake.commands.CommandsManager;
 import com.geekpower14.quake.listener.PlayerListener;
 import com.geekpower14.quake.stuff.ItemManager;
-import net.minecraft.server.v1_9_R2.EntityPlayer;
+import net.minecraft.server.v1_10_R1.EntityPlayer;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamesNames;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
